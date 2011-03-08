@@ -24,12 +24,56 @@ you can go to the line number reported in an exception and actually see the
 statement that failed. Check the "How it does its magic" section for more
 details.
 
+## Features
+
+_Spec for PHP_ is being actively developed and while functional doesn't
+have all of its features implemented. As thus is should be considered
+_alpha_ quality software for the time being.
+
+### Working features
+
+ - *Describe* and *It* block parsers
+ - Natural language expectations parser
+ - Non-combined (and, or, but) expectations
+ - PHPUnit integration
+
+### Upcomming
+
+ - Combined expectations
+ - *Before* and *After* blocks
+ - Custom CLI runner tool
+ - Review configurable options and extension points
+ - Improve annotations support
+
+### Later
+
+ - Parametrized *It* blocks
+ - Additional matchers
+ - Better descriptions for expectation failures
+ - Port features from RSpec 2
+ - Better integrate Mock frameworks (PHPUnit, Mockery, ...)
+
 
 ## Requirements
 
  - PHP 5.3
  - PHPUnit 3 (only tested with 3.5)
  - Hamcrest matchers library
+
+
+## Installation
+
+Install a recent version of PHPUnit
+
+    pear channel-discover pear.phpunit.de
+    pear install phpunit/PHPUnit
+
+Install Hamcrest matchers library
+
+    pear channel-discover hamcrest.googlecode.com/svn/pear
+    pear install hamcrest/Hamcrest
+
+Place a copy of _Spec for PHP_ `library` directory in your include path.
 
 
 ## Example
