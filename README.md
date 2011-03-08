@@ -1,12 +1,11 @@
 # Spec for PHP
 
-Spec for PHP is tool to implement BDD like specification files. It's
-inpired on [RSpec](http://relishapp.com/rspec) from Ruby.
+Spec for PHP is a tool to implement Behaviour-Driven Development specification
+files. It's inpired on [RSpec](http://relishapp.com/rspec) from the Ruby world.
 
-It builds on top of [PHPUnit](http://www.phpunit.de) and
-[Hamcrest](http://code.google.com/p/hamcrest/) projects to offer
-mature and solid functionality and borrow the current industry
-support for those projects.
+It builds on top of [PHPUnit](http://www.phpunit.de) and [Hamcrest](http://code.google.com/p/hamcrest/)
+projects to offer mature and solid functionality and borrow the current
+industry support for those projects.
 
 The intent when implementing Spec was to mix normal PHP code and a more
 natural language syntax to express expectations. Writing the test code
@@ -105,7 +104,7 @@ sentence combinators like _and_. Take for example the following sentence:
 
 would be processed as if it was:
 
-    expect(5)->integer()->and_less(10;
+    expect(5)->integer()->and_less(10);
 
 
 ## Compatibility with PHPUnit
@@ -114,7 +113,7 @@ One of the design principles when developing Spec was to make it
 compatible with PHPUnit, since it's the current standard tool for 
 testing in the PHP world.
 
-Spec files are _compiled_ on the fly to be compatible with PHPUnit, 
+Spec files are _transformed_ on the fly to be compatible with PHPUnit,
 allowing to use its reporting (code coverage, xunit, tap logs) and 
 current integrations with IDEs and Continuous integration services.
 
