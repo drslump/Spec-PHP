@@ -220,7 +220,6 @@ class Spec
         // Link parent suite and the new one
         $parent = self::currentSuite();
         $suite->setParent($parent);
-        $parent->addTest($suite);
 
         // Set this suite as the current one
         self::pushSuite($suite);
@@ -230,6 +229,9 @@ class Spec
 
         // Go back to the previous parent
         self::popSuite();
+
+        // Finally add the suite to the parent one
+        $parent->addTest($suite, $suite->getGroups());
     }
 
     /**
@@ -248,15 +250,16 @@ class Spec
         $test->setTitle($title);
         $test->setCallback($cb);
 
+
         // Add it to the current suite
         $suite = self::currentSuite();
         $test->setParent($suite);
-        $suite->addTest($test);
+        $suite->addTest($test, $test->getGroups());
     }
+
 }
 
 
 // Initialize the library as soon as this file is included
 Spec::init();
-
 

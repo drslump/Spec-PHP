@@ -97,6 +97,16 @@ class TestCase extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function getGroups()
+    {
+        $ann = $this->getAnnotations();
+//var_dump($ann);
+        $suite = empty($ann['class']['group']) ? array() : $ann['class']['group'];
+        $test = empty($ann['method']['group']) ? array() : $ann['method']['group'];
+
+        return array_merge($suite, $test);
+    }
+
     /**
      * Executes the callback for this test
      *
@@ -137,8 +147,6 @@ class TestCase extends \PHPUnit_Framework_TestCase
             );
         }
     }
-
-
 
 
 
