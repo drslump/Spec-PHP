@@ -61,6 +61,7 @@ class Output
             switch ($token->type) {
                 case Token::DESCRIBE:
                 case Token::IT:
+                case Token::COMMENT:
 
                     $this->isIndent = false;
 
@@ -76,7 +77,10 @@ class Output
                         $this->stack(new Token(Token::TEXT, '});'));
                     }
 
-                    array_push($this->indentLevels, $this->indent);
+                    // Only push if it's a block element
+                    if ($token->type !== Token::COMMENT) {
+                        array_push($this->indentLevels, $this->indent);
+                    }
 
                     break;
                 case Token::END:
@@ -97,7 +101,8 @@ class Output
 
                     break;
                 case Token::COMMENT:
-                    // Ignore comments and whitespace
+                    //echo $token->value . PHP_EOL;
+                    // Ignore comments
                     $this->isIndent = false;
                     break;
                 case Token::WHITESPACE:
