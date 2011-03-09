@@ -112,6 +112,7 @@ class TokenIterator extends \ArrayIterator
                     $result->value = $token[1];
                     break;
                 case T_COMMENT:
+                case T_DOC_COMMENT:
                     $result->type = Token::COMMENT;
                     $result->value = $token[1];
                     break;
