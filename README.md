@@ -134,11 +134,11 @@ to ensure it doesn't choke on weird statements. When it reaches a block
 level keyword like `describe` it wraps the contents in a closure function.
 
 The keyword `should` uses a different parsing logic. The statement just
-before it is captured as the "value" while statemens after it are captured
-as the "expectation". It's even able to parse _complex_ expressions if they
-are wrapped in parenthesis.
+before it is captured as the "value" or "subject" while statemens after it
+are captured as the "expectation" or "predicate". It's even able to parse
+_complex_ expressions if they are wrapped in parenthesis.
 
-To fool PHP interpreter so that it receives the transformed code instead
+To fool the PHP interpreter so that it receives the transformed code instead
 of the original Spec syntax, a custom stream wrapper is used to perform
 the transformation. Every file using the `spec://path/to/file.php` notation
 will be run thru Spec's parser to transform it if needed.
