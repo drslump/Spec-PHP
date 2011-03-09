@@ -112,7 +112,9 @@ class TestCase extends \PHPUnit_Framework_TestCase
         if (isset($ann['todo'])) {
             $this->markTestIncomplete(isset($ann['todo'][0]) ? $ann['todo'][0] : '');
         }
-
+        if (isset($ann['incomplete'])) {
+            $this->markTestIncomplete(isset($ann['incomplete'][0]) ? $ann['incomplete'][0] : '');
+        }
 
         try {
 

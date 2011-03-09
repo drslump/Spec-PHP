@@ -100,11 +100,6 @@ class Output
                     }
 
                     break;
-                case Token::COMMENT:
-                    //echo $token->value . PHP_EOL;
-                    // Ignore comments
-                    $this->isIndent = false;
-                    break;
                 case Token::WHITESPACE:
                     if ($this->isIndent) {
                         $this->indent += strlen($token->value);
