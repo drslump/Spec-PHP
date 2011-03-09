@@ -39,9 +39,6 @@ class Expect
     /** @var bool */
     protected $implicitAssert = true;
 
-    /** @var closure[] */
-    protected $operations = array();
-
     /** @var array Words to ignore */
     protected $ignoredWords = array(
         'to', 'be', 'is', 'a', 'an', 'the', 'than',
@@ -76,26 +73,43 @@ class Expect
     /**
      * ->to_be_type('string')->or('bool')->or('null')
      * should have type 'string', 'bool' or 'null'
-     * ->to_be_equal(10)->or_less() ==> ->to_be_equal_or_less(10)
-     * should be equal to 10 or less than
+     *        \----------------------------------/
+     * ->to_be_equal()->or_less(10) ==> ->to_be_equal_or_less(10)
+     * should be equal or less than 10
+     *           \-------------------/
      * ->to_be_truly_or_null()
      * should be truly or null
+     *        \--------------/
      * ->to_be_instance_of('MyClass')->and_have_property('foo')
      * should be instance of 'MyClass' and have property 'foo'
+     *           \-------------------------------------------/
      * ->to_be_integer()->and_greater_than(10)->and_less_than_or_equal_to(20)
-     * should be an integer, greater than 10 and less than or equal to 20
+     * should be an integer and greater than 10 and less than or equal to 20
+     *           \------------------------------------------/    \---------/
+     * ->to_equal(1)->or(3)->or(4)->but_not_string()
+     * should equal 1, 3 or 4 but not be string
+     *        \-------------/     \-----------/
      *
+     * ->to_be_integer_and_equal(10)->or_boolean_and_true()
      * should be an integer and equal 10 or a boolean and be true
-     * should (be an integer and equal 10) or (a boolean and be true)
-     * should (be greater than 10 or equal to 10) and (less than 20 or equal to 20)
-     *
+     *           \---------------------/    \-------------------/
+     * ->to_be_greater(10)->or_equal(10)->but_less(20)->or_equal(20)
+     * should be greater than 10 or equal to 10 but less than 20 or equal to 20
+     *           \----------------------------/     \-------------------------/
+     * ->to_be_integer_or_string_and_numeric_or_null()
+     * should be integer or string and numeric or null
+     *           \-----/    \----------------/    \--/
+     * ->to_be_integer_or_string_and_numeric_but_less(10)
+     * should be integer or string and numeric, and be less than 10
+     *           \-----/    \----------------/         \----------/
+     *           \---------------------------/         \----------/
      *
      *
      * Coordination by and and or is governed by the standard binding order of logic,
      * i.e. and binds stronger than or. Commas can be used to override the standard
      * binding order
      *
-     *    and > or > ,and > ,or
+     *    and > or > ,and / but > ,or
      *
      *    "but" is an alias of ",and"
      *
@@ -235,50 +249,49 @@ class Expect
         }
 
 
-            // Generate a matcher name from the parts
-            $matcher = implode('_', $parts);
-            if (!Spec::hasMatcher($matcher)) {
+        // Generate a matcher name from the parts
+        $matcher = implode('_', $parts);
+        // @todo Find the longest match
+        if (!Spec::hasMatcher($matcher)) {
 
-                $matches = array();
-                $from = str_replace('_', ' ', $matcher);
-                $ops = Spec::getMatcherNames();
-                foreach ($ops as $op) {
-                    $to = str_replace('_', ' ', $op);
-                    $similarity = similar_text($from, $to);
-                    if ($similarity >= 7) {
-                        $matches[$op] = $similarity;
-                    }
-                    //echo "Similarity $operation -> $op = $similarity\n";
+            $matches = array();
+            $from = str_replace('_', ' ', $matcher);
+            $ops = Spec::getMatcherNames();
+            foreach ($ops as $op) {
+                $to = str_replace('_', ' ', $op);
+                $similarity = similar_text($from, $to);
+                if ($similarity >= 7) {
+                    $matches[$op] = $similarity;
                 }
-
-                $msg = "Expect matcher $matcher ($name) not found.";
-                if (!empty($matches)) {
-                    asort($matches);
-                    $match = array_pop(array_keys($matches));
-                    $msg .= " Perhaps you meant to use $match?";
-                }
-
-                throw new \Exception($msg);
+                //echo "Similarity $operation -> $op = $similarity\n";
             }
 
-
-            // Get callback and execute it
-            $cb = Spec::getMatcher($matcher);
-
-            // @todo Handle negation
-
-            $matcher = call_user_func_array($cb, $args);
-            if ($isNegation) {
-                $matcher = \Hamcrest_Core_IsNot::not($matcher);
+            $msg = "Expect matcher $matcher ($name) not found.";
+            if (!empty($matches)) {
+                asort($matches);
+                $match = array_pop(array_keys($matches));
+                $msg .= " Perhaps you meant to use $match?";
             }
 
-            if (isset($combinator) && $combinator === 'OR') {
-                $this->matcher = \Hamcrest_Core_AnyOf::anyOf($this->matcher, $matcher);
-            } else if (isset($combinator) && $combinator === 'AND') {
-                $this->matcher = \Hamcrest_Core_AllOf::allOf($this->matcher, $matcher);
-            } else {
-                $this->matcher = $matcher;
-            }
+            throw new \Exception($msg);
+        }
+
+
+        // Get callback and execute it
+        $cb = Spec::getMatcher($matcher);
+
+        $matcher = call_user_func_array($cb, $args);
+        if ($isNegation) {
+            $matcher = \Hamcrest_Core_IsNot::not($matcher);
+        }
+
+        if (isset($combinator) && $combinator === 'OR') {
+            $this->matcher = \Hamcrest_Core_AnyOf::anyOf($this->matcher, $matcher);
+        } else if (isset($combinator) && $combinator === 'AND') {
+            $this->matcher = \Hamcrest_Core_AllOf::allOf($this->matcher, $matcher);
+        } else {
+            $this->matcher = $matcher;
+        }
 
         // Add to the list of matchers
         //$this->matcher[] = $matcher;
