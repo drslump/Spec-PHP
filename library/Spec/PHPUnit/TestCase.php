@@ -88,11 +88,11 @@ class TestCase extends \PHPUnit_Framework_TestCase
         $docblock = $reflFunc->getDocComment();
 
         $this->annotations = array();
-        if (preg_match_all('/@(?P<name>[A-Za-z_-]+)(?:[ \t]+(?P<value>.*?))?[ \t]*\r?$/m', $docblock, $matches)) {
+        if (preg_match_all('/@(?P<name>[A-Za-z_-]+)(?:[ \t]+(?P<value>.*?))?(\*\/|$)/m', $docblock, $matches)) {
             $numMatches = count($matches[0]);
 
             for ($i = 0; $i < $numMatches; ++$i) {
-                $this->annotations[$matches['name'][$i]][] = $matches['value'][$i];
+                $this->annotations[$matches['name'][$i]][] = trim($matches['value'][$i]);
             }
         }
     }
@@ -104,6 +104,16 @@ class TestCase extends \PHPUnit_Framework_TestCase
      */
     public function runCallback()
     {
+        // Check for incomplete or skip annotations
+        $ann = $this->annotations;
+        if (isset($ann['skip'])) {
+            $this->markTestSkipped(isset($ann['skip'][0]) ? $ann['skip'][0] : '');
+        }
+        if (isset($ann['todo'])) {
+            $this->markTestIncomplete(isset($ann['todo'][0]) ? $ann['todo'][0] : '');
+        }
+
+
         try {
 
             $args = func_get_args();
