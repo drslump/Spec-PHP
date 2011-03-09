@@ -325,6 +325,9 @@ class Output
 
             // Skip spaces and dots
             $token = $this->skip(array(Token::WHITESPACE, Token::DOT));
+            if (empty($token)) {
+                break;
+            }
 
             switch ($token->type) {
             case Token::EOL:
