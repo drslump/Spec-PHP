@@ -21,7 +21,7 @@ one are different so it becomes a nighmare to know what's going on. Spec
 takes this into account and will try as hard as possible to generate code
 that keeps the original line numbers the same. This is of great help since
 you can go to the line number reported in an exception and actually see the
-statement that failed. Check the "How it does its magic" section for more
+statement that failed. Check the "How does it work?" section for more
 details.
 
 ## Features
@@ -51,7 +51,7 @@ _alpha_ quality software for the time being.
  - Additional matchers
  - Better descriptions for expectation failures
  - Port features from RSpec 2
- - Better integrate Mock frameworks (PHPUnit, Mockery, ...)
+ - First class integration of Mock frameworks (PHPUnit, Mockery, ...)
 
 
 ## Requirements
@@ -80,7 +80,7 @@ Place a copy of _Spec for PHP_ `library` directory in your include path.
 
     <?php
     // Implements the StackTest example from PHPUnit manual as a spec file
-    describe "Testing array operations with PHPUnit"
+    describe "Testing array operations with Spec"
 
         it "should support Push and Pop"
 
@@ -92,10 +92,10 @@ Place a copy of _Spec for PHP_ `library` directory in your include path.
             count($stack) SHOULD BE 1;
 
             array_pop($stack)
-            Should be an Instance of 'PHPUnit_Framework_TestCase'
+            Should be "foo"
 
             count($stack)
-                should be less or equal than 0
+                should be equal to 0
     end
 
 That's it, really, no `->assert` calls and no classes, methods or other
@@ -124,7 +124,7 @@ might still find this library useful, have a look on the section about
 PHPUnit compatibility.
 
 
-## How it does its magic
+## How does it work?
 
 The parser for the custom syntax uses PHP's own tokenizer (`token_get_all`)
 to ensure it doesn't choke on weird statements. When it reaches a block
