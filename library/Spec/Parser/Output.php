@@ -36,6 +36,7 @@ class Output
 
     protected $_assertComment;
 
+    protected $noIndent = false;
     protected $isIndent = true;
     protected $indent = 0;
     protected $indentLevels = array();
@@ -61,11 +62,10 @@ class Output
             switch ($token->type) {
                 case Token::DESCRIBE:
                 case Token::IT:
-                case Token::COMMENT:
 
                     $this->isIndent = false;
 
-                    while (!empty($this->indentLevels)) {
+                    while (!$this->noIndent && !empty($this->indentLevels)) {
 
                         $indent = array_pop($this->indentLevels);
                         if ($indent < $this->indent) {
@@ -77,10 +77,7 @@ class Output
                         $this->stack(new Token(Token::TEXT, '});'));
                     }
 
-                    // Only push if it's a block element
-                    if ($token->type !== Token::COMMENT) {
-                        array_push($this->indentLevels, $this->indent);
-                    }
+                    array_push($this->indentLevels, $this->indent);
 
                     break;
                 case Token::END:
@@ -97,6 +94,53 @@ class Output
                         if ($indent <= $this->indent) {
                             break;
                         }
+                    }
+
+                    break;
+                case Token::COMMENT:
+
+                    $this->isIndent = false;
+
+                    // Close previous block if needed
+                    while (!$this->noIndent && !empty($this->indentLevels)) {
+
+                        $indent = array_pop($this->indentLevels);
+                        if ($indent < $this->indent) {
+                            array_push($this->indentLevels, $indent);
+                            break;
+                        }
+
+                        $this->blockLevel--;
+                        $this->stack(new Token(Token::TEXT, '});'));
+                    }
+
+                    // Line comments include a new line character
+                    if (substr($token->value, 0, 1) === '#' || substr($token->value, 0, 2) === '//') {
+                        // Includes new line
+                        $this->isIndent = true;
+                        $this->indent = 0;
+
+                        // Manage annotations
+                        $token->value = trim($token->value);
+                        if (preg_match('/#[A-Z]+/i', $token->value)) {
+                            $token->value = '/** @' . substr($token->value, 1) . ' */' . "\n";
+                        } else {
+                            $token->value = '/** ' . substr($token->value, 2) . ' */' . "\n";
+                        }
+
+                        // Merge single line comments in a docblock
+                        if (count($this->_stack)) {
+                            $prev = $this->_stack[count($this->_stack)-1];
+                            if ($prev->type === Token::COMMENT) {
+                                $prev->value = str_replace('*/', '', $prev->value);
+                                $token->value = substr($token->value, 3);
+                            }
+                        }
+                    }
+
+                    // Check if we want to disable indentation control
+                    if (stripos($token->value, '@noindent')) {
+                        $this->noIndent = true;
                     }
 
                     break;
@@ -127,7 +171,7 @@ class Output
                     }
 
                     $this->stack($token);
-                    echo $this->flush();
+                    //echo $this->flush();
                     break;
 
                 case Token::SEMICOLON:
