@@ -73,7 +73,10 @@ Install Hamcrest matchers library
     pear channel-discover hamcrest.googlecode.com/svn/pear
     pear install hamcrest/Hamcrest
 
-Place a copy of _Spec for PHP_ `library` directory in your include path.
+Checkout a copy of _Spec for PHP_ in your computer and do a test run:
+
+    cd tests/
+    phpunit AllTests.php
 
 
 ## Example
