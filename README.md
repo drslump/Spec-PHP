@@ -35,6 +35,7 @@ _alpha_ quality software for the time being.
  - *Describe* and *It* block parsers
  - Natural language expectations parser
  - Non-combined (and, or, but) expectations
+ - Run expectations against collections/arrays (all, any, none)
  - PHPUnit integration
 
 ### Upcomming
