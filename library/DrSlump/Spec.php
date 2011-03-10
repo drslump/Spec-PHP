@@ -31,7 +31,7 @@ namespace DrSlump;
 class Spec
 {
     /** Library version */
-    const VERSION = '0.1.0';
+    const VERSION = '@package_version@';
     /** Scheme used to register the stream wrapper */
     const SCHEME = 'spec';
 
@@ -108,7 +108,8 @@ class Spec
     public static function autoload()
     {
         spl_autoload_register(function($class){
-            if (strpos($class, __NAMESPACE__ . '\\') === 0) {
+            $prefix = __CLASS__ . '\\';
+            if (strpos($class, $prefix) === 0) {
                 // Remove vendor from name
                 $class = substr($class, strlen(__NAMESPACE__)+1);
 
