@@ -37,7 +37,8 @@ namespace :pear do
 
   desc "Build a release"
   task :package => [:xml] do
-    exec 'pear package -n "library/package.xml"'
+    sh 'pear package -n "library/package.xml"'
+    rm_f 'library/package.xml'
   end
 
 
