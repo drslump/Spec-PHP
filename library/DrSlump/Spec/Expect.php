@@ -32,20 +32,22 @@ use DrSlump\Spec;
  */
 class Expect
 {
-    /** @var mixed */
-    protected $value;
+
+    /** @var \Hamcrest_Matcher */
+    protected $subject;
     /** @var String */
     protected $message;
     /** @var bool */
     protected $implicitAssert = true;
+
+    /** @var \Hamcrest_Matcher */
+    protected $matcher;
 
     /** @var array Words to ignore */
     protected $ignoredWords = array(
         'to', 'be', 'is', 'a', 'an', 'the', 'than',
     );
 
-    /** @var \Hamcrest_Matcher */
-    protected $matcher;
 
 
     /**
@@ -54,7 +56,11 @@ class Expect
      */
     public function __construct($value, $implicitAssert = true)
     {
-        $this->value = $value;
+        if (!($value instanceof ExpectInterface)) {
+            $value = new ExpectIt($value);
+        }
+
+        $this->subject = $value;
         $this->implicitAssert = $implicitAssert;
     }
 
@@ -306,21 +312,7 @@ class Expect
 
     public function doAssert()
     {
-        //$matcher = new \Hamcrest_Core_AllOf($this->matcher);
-        $matcher = $this->matcher;
-
-        if (!empty($this->message)) {
-            \Hamcrest_MatcherAssert::assertThat(
-                $this->message,
-                $this->value,
-                $matcher
-            );
-        } else {
-            \Hamcrest_MatcherAssert::assertThat(
-                $this->value,
-                $matcher
-            );
-        }
+        $this->subject->doAssert($this->matcher, $this->message);
     }
 
 

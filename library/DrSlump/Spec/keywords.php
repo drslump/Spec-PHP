@@ -57,3 +57,43 @@ function expect($value, $implicitAssert = true) {
     return new Spec\Expect($value, $implicitAssert);
 }
 endif;
+
+
+if (!function_exists('all')):
+/**
+ * Create a wrapper for a value that makes an expectation be run
+ * for all its elements.
+ *
+ * @param array|Iterator $iterable
+ * @return Spec\ExpectAll
+ */
+function all($iterable) {
+    return new Spec\ExpectAll($iterable);
+}
+endif;
+
+if (!function_exists('any')):
+/**
+ * Create a wrapper for a value that makes an expectation be run
+ * for all its elements.
+ *
+ * @param array|Iterator $iterable
+ * @return Spec\ExpectAnt
+ */
+function any($iterable) {
+    return new Spec\ExpectAny($iterable);
+}
+endif;
+
+if (!function_exists('none')):
+/**
+ * Create a wrapper for a value that makes an expectation be run
+ * for all its elements.
+ *
+ * @param array|Iterator $iterable
+ * @return Spec\ExpectNone
+ */
+function none($iterable) {
+    return new Spec\ExpectNone($iterable);
+}
+endif;
