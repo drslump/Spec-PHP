@@ -483,9 +483,6 @@ class Output
         }
         $parts[] = '->do();';
 
-        //print_r($idents);
-        //echo implode(' # ', $idents);
-
         // A bit hacky but does the job
         $mark = '~|D3L1M1T3R|~';
         $result = implode($mark, $parts);
@@ -524,6 +521,7 @@ class Output
 
             case Token::TEXT && strtolower($token->value) === 'or':
             case Token::TEXT && strtolower($token->value) === 'and':
+            case Token::TEXT && strtolower($token->value) === 'as':
             case Token::EOL:
             case Token::IDENT:
             case Token::COMMA:

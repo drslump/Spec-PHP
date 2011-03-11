@@ -52,6 +52,7 @@ class TokenIterator extends \ArrayIterator
                 } else {
                     $quoted = $token;
                     $inQuoted = true;
+                    continue;
                 }
             } else if ($inQuoted) {
                 $quoted .= is_array($token) ? $token[1] : $token;
