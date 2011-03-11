@@ -68,6 +68,9 @@ if (!function_exists('all')):
  * @return Spec\ExpectAll
  */
 function all($iterable) {
+    if (func_num_args() > 1 || (!is_array($iterable) && !($iterable instanceof Traversable))) {
+        $iterable = func_get_args();
+    }
     return new Spec\ExpectAll($iterable);
 }
 endif;
@@ -81,6 +84,9 @@ if (!function_exists('any')):
  * @return Spec\ExpectAnt
  */
 function any($iterable) {
+    if (func_num_args() > 1 || (!is_array($iterable) && !($iterable instanceof Traversable))) {
+        $iterable = func_get_args();
+    }
     return new Spec\ExpectAny($iterable);
 }
 endif;
@@ -94,6 +100,9 @@ if (!function_exists('none')):
  * @return Spec\ExpectNone
  */
 function none($iterable) {
+    if (func_num_args() > 1 || (!is_array($iterable) && !($iterable instanceof Traversable))) {
+        $iterable = func_get_args();
+    }
     return new Spec\ExpectNone($iterable);
 }
 endif;

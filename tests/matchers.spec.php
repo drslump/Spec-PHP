@@ -14,16 +14,14 @@ describe. "Spec matchers".
             1.1 should be double;
             13e3 should have type 'double';
 
-            $arr = new \DrSlump\Spec\ExpectAll(array(1,2,3));
-            expect($arr)->be_integer();
+            all(1, 2, 3) should be integer
 
         it. "should support strings".
 
             'foo' should be string;
             "foo" should have type 'string';
 
-            $arr = new \DrSlump\Spec\ExpectAny(array(1,'2',3));
-            expect($arr)->be_string();
+            any(array(1, '2', 3)) should be string;
 
         it. "should support booleans".
 
@@ -32,8 +30,7 @@ describe. "Spec matchers".
             true should be bool;
             false should have type 'boolean';
 
-            $arr = new \DrSlump\Spec\ExpectNone(array(1,true,3));
-            expect($arr)->be_boolean();
+            none(1,2,3) should be boolean
 
         it. "should support resources".
 
