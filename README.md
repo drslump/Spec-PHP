@@ -1,7 +1,7 @@
 # Spec for PHP
 
 Spec for PHP is a tool to implement Behaviour-Driven Development specification
-files. It's inpired on [RSpec](http://relishapp.com/rspec) from the Ruby world.
+files. It's inspired on [RSpec](http://relishapp.com/rspec) from the Ruby world.
 
 It builds on top of [PHPUnit](http://www.phpunit.de) and [Hamcrest](http://code.google.com/p/hamcrest/)
 projects to offer mature and solid functionality and borrow the current
@@ -27,7 +27,7 @@ details.
 ## Features
 
 _Spec for PHP_ is being actively developed and while functional doesn't
-have all of its features implemented. As thus is should be considered
+have all of its features implemented. As thus it should be considered
 _alpha_ quality software for the time being.
 
 ### Working features
@@ -37,6 +37,7 @@ _alpha_ quality software for the time being.
  - Non-combined (and, or, but) expectations
  - Run expectations against collections/arrays (all, any, none)
  - PHPUnit integration
+ - Annotations support (@group, @skip, @todo, @throw, ...)
 
 ### Upcomming
 

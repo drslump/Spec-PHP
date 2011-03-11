@@ -7,7 +7,7 @@
  <channel>pear.pollinimini.net</channel>
  <summary>Spec for PHP.</summary>
  <description>
-    Spec for PHP is a tool to implement Behaviour-Driven Development specification files. It's inpired on RSpec from the Ruby world.
+    Spec for PHP is a tool to implement Behaviour-Driven Development specification files. It's inspired on RSpec from the Ruby world.
  </description>
  <lead>
   <name>Iván -DrSlump- Montes</name>

@@ -100,7 +100,6 @@ class TestCase extends \PHPUnit_Framework_TestCase
     public function getGroups()
     {
         $ann = $this->getAnnotations();
-//var_dump($ann);
         $suite = empty($ann['class']['group']) ? array() : $ann['class']['group'];
         $test = empty($ann['method']['group']) ? array() : $ann['method']['group'];
 
@@ -115,6 +114,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
     public function runCallback()
     {
         // Check for incomplete or skip annotations
+        // @todo Shouldn't this inherit from suite/describe ones?
         $ann = $this->annotations;
         if (isset($ann['skip'])) {
             $this->markTestSkipped(isset($ann['skip'][0]) ? $ann['skip'][0] : '');
@@ -206,6 +206,67 @@ class TestCase extends \PHPUnit_Framework_TestCase
         return $result;
     }
 
+    /**
+     * Override this method to get the annotation from the closure
+     */
+    protected function setExpectedExceptionFromAnnotation()
+    {
+        $ann = $this->annotations;
+
+        $throws = null;
+        if (!empty($ann['throws'])) {
+            $throws = $ann['throws'][0];
+        } else if (!empty($ann['expectedException'])) {
+            $throws = $ann['expectedException'][0];
+        }
+
+        $class = $code = $message = null;
+        $regexp = '/([:.\w\\\\x7f-\xff]+)(?:[\t ]+(\S*))?(?:[\t ]+(\S*))?\s*$/';
+        if ($throws && preg_match($regexp, $ann['throws'][0], $m)) {
+            if (is_numeric($m[1])) {
+                $code = $m[1];
+            } else {
+                $class = $m[1];
+            }
+            $message = isset($m[2]) ? $m[2] : null;
+            $code = isset($m[3]) ? (int)$m[3] : $code;
+        }
+
+        if (!empty($ann['expectedExceptionMessage'])) {
+            $message = $ann['expectedExceptionMessage'][0];
+        }
+        if (!empty($ann['expectedExceptionCode'])) {
+            $code = (int)$ann['expectedExceptionCode'][0];
+        }
+
+        $this->setExpectedException($class, $message, $code);
+    }
+
+    /**
+     * Override this method to get the annotation from the closure
+     */
+    protected function setUseErrorHandlerFromAnnotation()
+    {
+        // @todo Search parent suites too!
+        $ann = $this->annotations;
+        if (!empty($ann['errorHandler'])) {
+            $enabled = filter_var($ann['errorHandler'][0], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            $this->setUseErrorHandler($enabled);
+        }
+    }
+
+    /**
+     * Override this method to get the annotation from the closure
+     */
+    protected function setUseOutputBufferingFromAnnotation()
+    {
+        // @todo Search parent suites too!
+        $ann = $this->annotations;
+        if (!empty($ann['outputBuffering'])) {
+            $enabled = filter_var($ann['outputBuffering'][0], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            $this->setUseOutputBuffering($enabled);
+        }
+    }
 
 
     // Hooks
