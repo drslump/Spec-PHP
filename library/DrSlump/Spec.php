@@ -21,6 +21,9 @@ namespace DrSlump;
 /**
  * Static class for Spec functionality
  *
+ * @todo With Suhosin patch do we need to add: suhosin.executor.include.whitelist = "spec" ?
+
+ *
  * @package     Spec
  * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>
  * @see         https://github.com/drslump/Spec
@@ -258,9 +261,16 @@ class Spec
         $suite->addTest($test, $test->getGroups());
     }
 
+
+    public static function expect($value, $implicitAssert = false)
+    {
+        return new Spec\Expect($value, $implicitAssert);
+    }
 }
 
 
 // Initialize the library as soon as this file is included
-Spec::init();
+if (!defined('SPEC_DO_NOT_INIT') || !SPEC_DO_NOT_INIT) {
+    Spec::init();
+}
 

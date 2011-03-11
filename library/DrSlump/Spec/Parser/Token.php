@@ -35,6 +35,7 @@ class Token extends \ArrayIterator
     const COMMENT       = 'COMMENT';
     const DOT           = 'DOT';
     const COMMA         = 'COMMA';
+    const COLON         = 'COLON';
     const SEMICOLON     = 'SEMICOLON';
     const LPAREN        = 'LPAREN';
     const RPAREN        = 'RPAREN';
@@ -55,6 +56,9 @@ class Token extends \ArrayIterator
 
     /** @var string */
     public $value = '';
+
+    /** @var int PHP's tokenizer token code */
+    public $token = null;
 
     /**
      * @param string $type

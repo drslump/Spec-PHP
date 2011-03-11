@@ -19,3 +19,6 @@ describe. "Testing array operations with Spec".
 
         count($stack)
             should be equal to 0
+
+    end
+end

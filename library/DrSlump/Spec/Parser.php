@@ -35,14 +35,10 @@ class Parser
 
         // Order is important!
         $it = new Parser\TokenIterator($tokens, $tabsize);
-        $it = new Parser\DetectFunctionCallsTokenIterator($it);
         $it = new Parser\DetectKeywordsTokenIterator($it);
         $it = new Parser\FilterTokenIterator($it);
 
-        $output = new Parser\Output();
-
-        ob_start();
-        $output->generate($it);
-        return ob_get_clean();
+        $php = Parser\Transform::transform($it);
+        return $php;
     }
 }

@@ -78,6 +78,7 @@ class TokenIterator extends \ArrayIterator
                 case ')': $result->type = Token::RPAREN; break;
                 case '{': $result->type = Token::LCURLY; break;
                 case '}': $result->type = Token::RCURLY; break;
+                case ':': $result->type = Token::COLON; break;
                 case ';': $result->type = Token::SEMICOLON; break;
                 default:  $result->type = Token::TEXT;
             }

@@ -163,6 +163,11 @@ class Expect
         return $this->assert($fn, $args);
     }
 
+    public function __get($name)
+    {
+        return $this->assert($name, array());
+    }
+
 
     public function assert($name, $args)
     {

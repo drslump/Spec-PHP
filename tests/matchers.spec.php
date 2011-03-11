@@ -15,6 +15,7 @@ describe. "Spec matchers".
             13e3 should have type 'double';
 
             all(1, 2, 3) should be integer
+        end.
 
         it. "should support strings".
 
@@ -22,6 +23,7 @@ describe. "Spec matchers".
             "foo" should have type 'string';
 
             any(array(1, '2', 3)) should be string;
+        end.
 
         it. "should support booleans".
 
@@ -31,29 +33,34 @@ describe. "Spec matchers".
             false should have type 'boolean';
 
             none(1,2,3) should be boolean
+        end.
 
         it. "should support resources".
 
             $fp = fopen('php://memory', 'r');
             $fp should be resource;
             fclose($fp);
+        end.
 
         it. "should support arrays".
 
             array(1) should be array;
             array() should be type 'array';
+        end.
 
         it. "should support objects".
 
             new \stdClass() should be object;
             new \ArrayObject() should be object;
+        end.
 
         it. "should support nulls".
 
             null should be null;
             0 should not be null;
             null should be type 'null';
-
+        end.
+    end.
 
     describe. "Comparison".
 
@@ -66,6 +73,7 @@ describe. "Spec matchers".
             true should equal 1;
             1 should not equal 0;
             true should != (false);
+        end.
 
         it. "checks same".
 
@@ -74,6 +82,7 @@ describe. "Spec matchers".
             true should be exactly (true);
             "foo" should be exactly equal to "foo";
             $foo = new stdClass() should === $foo;
+        end.
 
         it. "checks less than".
 
@@ -81,6 +90,7 @@ describe. "Spec matchers".
             0.9 should be less 2;
             1 should not be less than 1;
             1 should < 3;
+        end.
 
         it. "checks at least".
 
@@ -89,6 +99,7 @@ describe. "Spec matchers".
             1 should be more equal 1;
             0.3 should be GE 0.3;
             1 should be <= 1;
+        end.
 
         it. "checks at most".
 
@@ -97,6 +108,7 @@ describe. "Spec matchers".
             1 should be less equal 1;
             0.9 should be LE 1;
             1 should >= 0;
+        end.
 
         it. "checks greater than".
 
@@ -104,4 +116,7 @@ describe. "Spec matchers".
             1 should greater 0.9;
             1 should be more than 0.5;
             3 should > 1;
+        end.
+    end.
+end;
 
