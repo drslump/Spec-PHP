@@ -128,8 +128,15 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
         try {
 
-            $args = func_get_args();
-            array_unshift($args, $this);
+            //$args = func_get_args();
+            //array_unshift($args, $this);
+
+            $args = array($this);
+
+            // Extract values from message
+            preg_match_all('/([\'"<])(.*?)(\1|>)/', $this->getTitle(), $m);
+            $args = array_merge($args, $m[2]);
+
             call_user_func_array($this->callback, $args);
 
         } catch (\Hamcrest_AssertionError $e) {
