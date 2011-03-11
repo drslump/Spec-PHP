@@ -40,7 +40,24 @@ class TokenIterator extends \ArrayIterator
     {
         $this->tabsize = 4;
 
+        $quoted = '';
+        $inQuoted = false;
         foreach ($array as $token) {
+            // Simplify double quoted strings with variables
+            if (!is_array($token) && $token === '"') {
+                if ($inQuoted) {
+                    $quoted .= $token;
+                    $inQuoted = false;
+                    $token = array(T_CONSTANT_ENCAPSED_STRING, $quoted, null);
+                } else {
+                    $quoted = $token;
+                    $inQuoted = true;
+                }
+            } else if ($inQuoted) {
+                $quoted .= is_array($token) ? $token[1] : $token;
+                continue;
+            }
+
             $this->_insertToken($token);
         }
     }
