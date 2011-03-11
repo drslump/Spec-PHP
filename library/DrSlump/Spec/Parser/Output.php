@@ -175,6 +175,7 @@ class Output
                     break;
 
                 case Token::SEMICOLON:
+                case Token::LCURLY:
                 case Token::RCURLY:
                     $this->stack($token);
                     echo $this->flush();
