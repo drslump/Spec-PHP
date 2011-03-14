@@ -74,9 +74,9 @@ namespace :doc do
   desc "Generate manual"
   task :build do
     version = ENV['version']
-    ENV['RONN_MANUAL'] = "Spec for PHP v#{version}"
+    ENV['RONN_MANUAL'] = "Spec for PHP #{version}"
     ENV['RONN_ORGANIZATION'] = "Ivan -DrSlump- Montes"
-    sh "ronn -w -s toc -r5 --markdown man/*.ron"
+    sh "ronn -w -s toc,darktoc -r5 --markdown man/*.ron"
   end
 
 end

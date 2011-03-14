@@ -54,6 +54,6 @@ spec4php(1), spec4php(3),
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
-[spec4php(1)]: spec4php.1.ron.html
-[spec4php(3)]: spec4php.3.ron.html
-[spec4php(5)]: spec4php.5.ron.html
+[spec4php(1)]: spec4php.1.html
+[spec4php(3)]: spec4php.3.html
+[spec4php(5)]: spec4php.5.html
