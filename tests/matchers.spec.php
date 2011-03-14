@@ -116,7 +116,23 @@ describe. "Spec matchers".
             1 should greater 0.9;
             1 should be more than 0.5;
             3 should > 1;
+
         end.
     end.
+
+    describe. "Callback matchers".
+        it "checks odd matcher"
+
+            1 should be odd;
+            2 should not be odd;
+
+        end.
+        it "checks nocase equal matcher"
+
+            "foo" should be case insensitive equal to "fOO";
+            "FoO" should be nocase equal to "foo";
+            "fOO" should not be nocase equal to "f00";
+        end.
+    end;
 end;
 

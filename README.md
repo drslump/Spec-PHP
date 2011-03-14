@@ -37,6 +37,7 @@ _alpha_ quality software for the time being.
  - Non-combined (and, or, but) expectations
  - Run expectations against collections/arrays (all, any, none)
  - PHPUnit integration
+ - Parametrized *It* blocks
  - Annotations support (@group, @skip, @todo, @throw, ...)
  - Matcher factory to create matchers with a callback function
 
@@ -51,7 +52,6 @@ _alpha_ quality software for the time being.
 
 ### Later
 
- - Parametrized *It* blocks
  - Additional matchers
  - Better descriptions for expectation failures
  - Port features from RSpec 2
