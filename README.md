@@ -101,6 +101,7 @@ Checkout a copy of _Spec for PHP_ in your computer and do a test run:
 
             count($stack)
                 should be equal to 0
+        end
     end
 
 That's it, really, no `->assert` calls and no classes, methods or other
@@ -108,9 +109,7 @@ verbose statements just to fit the code in.
 
 The syntax for blocks is borrowed from [RSpec](http://relishapp.com/rspec),
 `describe` groups tests and `it` defines a block of code used to execute a
-test for specific functionality. Additionally it keeps track of indentation
-levels (ala Python) to close blocks automatically, whithout needing to use
-the `end` keyword or braces.
+test for specific functionality.
 
 Note though that this example uses the most _natural language_ syntax
 possible with Spec. It could also be writen with closures or using dots
