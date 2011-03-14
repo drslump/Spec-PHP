@@ -1,0 +1,38 @@
+spec4php(1) -- cli runner
+=========================
+
+## SYNOPSIS
+
+    spec4php <FILE>
+    spec4php <DIRECTORY>
+
+
+## DESCRIPTION
+
+**Spec4php** runs the specified spec files and reports the results
+in the terminal. For information on how to create spec files please
+refer to spec4php(7).
+
+
+## SPEC FILES
+
+The `spec4php` command expects input files to contain PHP code with
+**describe** and **it** blocks in it.
+
+Giving a file path as argument, `spec4php` runs the tests contained
+in it
+
+## OPTIONS ##
+
+## EXAMPLES ##
+
+## BUGS ##
+
+## COPYRIGHT ##
+
+Spec for PHP is Copyright (C) 2011 Ivan -DrSlump- Montes <http://pollinimini.net>
+
+## SEE ALSO
+
+spec4php(3), spec4php(5),
+<http://github.com/drslump/spec-for-php>
