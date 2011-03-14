@@ -38,6 +38,7 @@ _alpha_ quality software for the time being.
  - Run expectations against collections/arrays (all, any, none)
  - PHPUnit integration
  - Annotations support (@group, @skip, @todo, @throw, ...)
+ - Matcher factory to create matchers with a callback function
 
 ### Upcoming
 
@@ -47,7 +48,6 @@ _alpha_ quality software for the time being.
  - Review configurable options and extension points
  - Improve annotations support
  - Use annotation to inherit from custom PHPUnit_TestCase class (ie: Zend_Test)
- - Hamcrest_BaseMatcher factory to create matchers with a callback function
 
 ### Later
 

@@ -146,3 +146,29 @@ Spec::registerMatcher(
     array('have_key', 'contain_key', 'contains_key'),
     '\Hamcrest_Matchers::hasKeyInArray'
 );
+
+// Example matcher with callback
+Spec::registerMatcher(
+    array('odd'),
+    function(){
+        $matcher = new DrSlump\Spec\Matcher\Callback();
+        $matcher->setDescription('an odd number');
+        $matcher->setCallback(function($v){
+            return $v % 2;
+        });
+        return $matcher;
+    }
+);
+
+// Example matcher with expected value and callback
+Spec::registerMatcher(
+    array('case_insensitive_equal', 'nocase_equal', 'equal_nocase', 'nocase_eq', 'eq_nocase'),
+    function($expected){
+        $matcher = new DrSlump\Spec\Matcher\Callback($expected);
+        $matcher->setDescription('equal (case insensitive) to ' . $expected);
+        $matcher->setCallback(function($v, $expected){
+            return strcasecmp($v, $expected) === 0;
+        });
+        return $matcher;
+    }
+);
