@@ -76,7 +76,7 @@ namespace :doc do
     version = ENV['version']
     ENV['RONN_MANUAL'] = "Spec for PHP #{version}"
     ENV['RONN_ORGANIZATION'] = "Ivan -DrSlump- Montes"
-    sh "ronn -w -s toc,darktoc -r5 --markdown man/*.ron"
+    sh "ronn -w -s toc,darktoc -r5 --markdown man/*.ronn"
   end
 
 end
