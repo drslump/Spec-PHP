@@ -36,6 +36,8 @@ class Transform {
     const SHOULD = 'Should';
     const PARAM = 'Param';
 
+    const SPEC_CLASS = '\DrSlump\Spec';
+
     // Define comparison operators
     protected $comparisonOps = array(
         '==='   => 'same',
@@ -322,7 +324,7 @@ class Transform {
 
             $this->closeIndentedBlocks();
 
-            $this->write('\DrSlump\Spec::' . $value . '(');
+            $this->write(self::SPEC_CLASS . '::' . $value . '(');
 
             $args = array('$world');
             if ($hasMessage && $next->type !== Token::QUOTED) {
@@ -388,7 +390,7 @@ class Transform {
             return $next;
 
         case Token::SHOULD:
-            $this->write('\DrSlump\Spec::expect(');
+            $this->write(self::SPEC_CLASS . '::expect(');
             $this->dumpStatement();
             $this->write(')->');
             $this->transition(self::SHOULD);
