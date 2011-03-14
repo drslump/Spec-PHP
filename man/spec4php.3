@@ -1,0 +1,39 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "SPEC4PHP" "3" "March 2011" "Ivan -DrSlump- Montes" "Spec for PHP v"
+.
+.SH "NAME"
+\fBspec4php\fR \- The framework
+.
+.SH "SYNOPSIS"
+.
+.nf
+
+<?php
+require_once \'DrSlump\eSpec\.php\';
+
+use DrSlump\eSpec;
+
+Spec::describe(\'Calculator\', function($world){
+    Spec::it(\'should multiply\', function($world){
+        $result = calculator(1, \'*\',
+        expect(
+    });
+});
+.
+.fi
+.
+.SH "DESCRIPTION"
+The Spec framework sits on top of PHPUnit
+.
+.SH "CUSTOM TEST CLASSES"
+TBD
+.
+.SH "EXAMPLES"
+.
+.SH "COPYRIGHT"
+Spec for PHP is Copyright (C) 2011 Ivan \-DrSlump\- Montes \fIhttp://pollinimini\.net\fR
+.
+.SH "SEE ALSO"
+spec4php(1), spec4php(5), \fIhttp://github\.com/drslump/spec\-for\-php\fR

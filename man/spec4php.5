@@ -1,0 +1,49 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "SPEC4PHP" "5" "March 2011" "Ivan -DrSlump- Montes" "Spec for PHP v"
+.
+.SH "NAME"
+\fBspec4php\fR \- Spec files
+.
+.SH "SYNOPSIS"
+A typical spec file:
+.
+.IP "" 4
+.
+.nf
+
+<?php
+describe "Calculator"
+    it "should multiply"
+        calculator(1, \'*\', 10) should equal 10
+    end
+    it "should divide"
+        calculator(4, \'/\', 2) should equal 2
+    end
+end
+.
+.fi
+.
+.IP "" 0
+.
+.P
+In this example we have grouped (\fBdescribe\fR) two tests (\fBit\fR) where each one has a single assertion (\fBshould\fR)\.
+.
+.SH "DESCRIPTION"
+Spec files are \.\.\. TBD
+.
+.SH "BLOCKS"
+TBD
+.
+.SH "EXPECTATIONS"
+.
+.SH "ANNOTATIONS"
+.
+.SH "EXAMPLES"
+.
+.SH "COPYRIGHT"
+Spec for PHP is Copyright (C) 2011 Ivan \-DrSlump\- Montes \fIhttp://pollinimini\.net\fR
+.
+.SH "SEE ALSO"
+spec4php(1), spec4php(3), \fIhttp://github\.com/drslump/spec\-for\-php\fR

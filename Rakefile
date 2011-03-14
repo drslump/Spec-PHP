@@ -37,7 +37,7 @@ namespace :pear do
   end
 
   desc "Build a release"
-  task :package => [:xml] do
+  task :package => ['doc:build', :xml] do
 
     # Copy supporting files to the package root
 
@@ -65,6 +65,18 @@ namespace :pear do
 
     # Remove supporting files
     support_files.each { |file| rm_f "library/#{file}" }
+  end
+
+end
+
+namespace :doc do
+
+  desc "Generate manual"
+  task :build do
+    version = ENV['version']
+    ENV['RONN_MANUAL'] = "Spec for PHP v#{version}"
+    ENV['RONN_ORGANIZATION'] = "Ivan -DrSlump- Montes"
+    sh "ronn -w -s toc -r5 --markdown man/*.ron"
   end
 
 end
