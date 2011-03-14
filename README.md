@@ -39,13 +39,15 @@ _alpha_ quality software for the time being.
  - PHPUnit integration
  - Annotations support (@group, @skip, @todo, @throw, ...)
 
-### Upcomming
+### Upcoming
 
  - Combined expectations
  - *Before* and *After* blocks
  - Custom CLI runner tool
  - Review configurable options and extension points
  - Improve annotations support
+ - Use annotation to inherit from custom PHPUnit_TestCase class (ie: Zend_Test)
+ - Hamcrest_BaseMatcher factory to create matchers with a callback function
 
 ### Later
 
