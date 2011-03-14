@@ -28,7 +28,7 @@ namespace DrSlump\Spec\Parser;
  * @license     Affero GPL v3 - http://opensource.org/licenses/agpl-v3
  */
 class Transform {
-
+    // Define parser states
     const TOP = 'Top';
     const PHP = 'Php';
     const BLOCK = 'Block';
@@ -36,6 +36,7 @@ class Transform {
     const SHOULD = 'Should';
     const PARAM = 'Param';
 
+    // Fully qualified namespace for Spec class
     const SPEC_CLASS = '\DrSlump\Spec';
 
     // Define comparison operators
@@ -62,10 +63,10 @@ class Transform {
     /** @var array */
     protected $nestedBlocks = array();
 
-    /** @var array */
+    /** @var Token[] */
     protected $statement = array();
 
-    // Indentation auto-close is very buggy
+    // Indentation auto-close
     protected $endAuto = false;
     protected $isIndent = true;
     protected $indent = 0;
@@ -83,7 +84,6 @@ class Transform {
 
     public function transition($newState)
     {
-        //echo "TRANSITION: $this->state > $newState\n";
         $this->state = $newState;
     }
 
@@ -101,14 +101,21 @@ class Transform {
                 $token = $this->consume();
             }
 
-        } catch (\Exception $e) {
-            // Eof?
-            echo "EXCEPTION: " . $e->getMessage() . "\n";
-        }
+        } catch (EofException $e) {
+            // Reaching the end of file is normal but we shouldn't have any
+            // blocks open at this point
+            $unclosed = count($this->nestedBlocks);
+            if ($unclosed > 0) {
+                var_dump($this->nestedBlocks);
+                throw new Exception(
+                    "The end of file was reached but $unclosed blocks were found still open. " .
+                    "Please make sure you've used the 'end' keyword for all blocks"
+                );
+            }
 
-        // @todo manage end of file
-        $this->indent = 0;
-        $this->closeIndentedBlocks();
+            //$this->indent = 0;
+            //$this->closeIndentedBlocks();
+        }
 
         return $this->target;
     }
@@ -118,7 +125,10 @@ class Transform {
         // Close based on indentation
         do {
             list($lastBlock, $auto) = $this->popBlock();
-            if (!$auto || $lastBlock < $this->indent) {
+            if ($lastBlock === NULL) {
+                // No more blocks to checks
+                break;
+            } else if (!$auto || $lastBlock < $this->indent) {
                 $this->pushBlock($lastBlock, $auto);
                 break;
             } else if ($lastBlock !== NULL && $lastBlock >= $this->indent) {
@@ -134,7 +144,7 @@ class Transform {
     {
         $rewind ? $this->it->rewind() : $this->it->next();
         if (!$this->it->valid()) {
-            throw new \Exception('EndOfFile');
+            throw new EofException();
         }
         $token = $this->it->current();
 
@@ -148,8 +158,6 @@ class Transform {
             $this->isIndent = false;
         }
 
-
-        //echo "Type: " . $token->type . ' - ' . $token->value . ' [' . (isset($token->token) ? token_name($token->token) : '') . ']' . PHP_EOL;
         return $token;
     }
 
@@ -167,7 +175,7 @@ class Transform {
     public function write($value, $compact = false)
     {
         if ($compact) {
-            $value = preg_replace('/\s\s+/', '', $value);
+            $value = preg_replace('/\s\s+/', ' ', $value);
             $value = trim($value);
         }
 
@@ -179,9 +187,10 @@ class Transform {
         return array_pop($this->nestedBlocks);
     }
 
-    public function pushBlock($indent)
+    public function pushBlock($indent, $auto = null)
     {
-        array_push($this->nestedBlocks, array($indent, $this->endAuto));
+        if ($auto === NULL) $auto = $this->endAuto;
+        array_push($this->nestedBlocks, array($indent, $auto));
     }
 
 
@@ -328,7 +337,7 @@ class Transform {
 
             $args = array('$world');
             if ($hasMessage && $next->type !== Token::QUOTED) {
-                throw new \Exception('Expected quoted string');
+                throw new Exception('Expected quoted string at line ' . $token->line);
             } else if ($hasMessage) {
                 $this->write($next->value);
 
@@ -349,7 +358,7 @@ class Transform {
 
             $next = $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON, Token::COLON);
             if ($next->type !== Token::EOL) {
-                throw new \Exception('Expected EOL but found "' . $next->value . '"');
+                throw new Exception('Expected EOL but found "' . $next->value . '" at line ' . $next->line);
             }
 
             return $next;
@@ -363,7 +372,7 @@ class Transform {
             return $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON);
 
         default:
-            throw new \Exception('Unexpected token');
+            throw new Exception("Unexpected token $token->type($token->value) at line $token->line");
         }
     }
 
@@ -469,24 +478,16 @@ class Transform {
 
         // Logical operators
         case $token->type === Token::TEXT &&
-             strtolower($token->value) === 'and':
-        case $token->type === Token::TEXT &&
-             strtolower($token->value) === 'or':
-        case $token->type === Token::TEXT &&
-             strtolower($token->value) === 'but':
-        case $token->type === Token::TEXT &&
-             strtolower($token->value) === 'as':
+             in_array(strtolower($token->value), array('and', 'or', 'but', 'as')):
 
             $this->write('->' . $token->value . '_');
             return false;
 
-        case $token->type === Token::TEXT &&  // @todo shouldn't be IDENT?
-             strtolower($token->value) === 'described':
+        case strtolower($token->value) === 'described':
             // Ignore this token, it should always come before "as"
             return false;
 
         case Token::IDENT:
-        case Token::FUNCTIONCALL:  // @todo Deprecate this one
         case $token->type === Token::TEXT &&
              preg_match('/^[A-Z_]+$/i', $token->value):
 
@@ -495,9 +496,10 @@ class Transform {
             return false;
 
         default:
-
+            // Anything else should be a parameter
             $token = $this->consumeParams($token);
 
+            // Skip dots and whitespace after it
             if ($token->type === Token::WHITESPACE || $token->type === Token::DOT) {
                 $token = $this->skip(Token::WHITESPACE, Token::DOT);
             }
@@ -521,6 +523,7 @@ class Transform {
 
             switch ($token->type) {
 
+            // Control parens nesting
             case Token::LPAREN:
                 $parens++;
                 break;
@@ -528,6 +531,7 @@ class Transform {
                 $parens--;
                 break;
 
+            // Check if the params are over
             case Token::TEXT && strtolower($token->value) === 'or':
             case Token::TEXT && strtolower($token->value) === 'and':
             case Token::TEXT && strtolower($token->value) === 'but':
@@ -543,8 +547,10 @@ class Transform {
                 }
             }
 
+            // Write everything as parameter expression
             $this->write($token->value);
 
+            // Skip whitespace
             $token = $this->skip(Token::WHITESPACE);
         }
 

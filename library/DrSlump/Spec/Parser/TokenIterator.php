@@ -32,6 +32,9 @@ class TokenIterator extends \ArrayIterator
     /** @var int */
     protected $tabsize = 4;
 
+    /** @var int */
+    protected $lastLine = 0;
+
     /**
      * @param array $array  An array as returned by token_get_all()
      * @param int $tabsize  Number of spaces from a tab
@@ -71,6 +74,10 @@ class TokenIterator extends \ArrayIterator
         $result = new Token();
 
         if (!is_array($token)) {
+
+            // Update line counter
+            $this->lastLine += substr_count($token, "\n");
+
             switch ($token) {
                 case '.': $result->type = Token::DOT; break;
                 case ',': $result->type = Token::COMMA; break;
@@ -85,9 +92,11 @@ class TokenIterator extends \ArrayIterator
 
             $result->value = $token;
             $result->token = null;
-            $result->line = null;
+            $result->line = $this->lastLine;
 
         } else {
+
+            $this->lastLine = $token[2];
 
             $result->token = $token[0];
             $result->line = $token[2];
@@ -103,12 +112,13 @@ class TokenIterator extends \ArrayIterator
                     $lines = explode("\n", $lines);
                     foreach ($lines as $idx=>$line) {
                         if ($idx > 0) {
-                            $result = new Token(Token::EOL, "\n");
+                            $result = new Token(Token::EOL, "\n", null, $this->lastLine);
                             $this->append($result);
                         }
 
-                        $result = new Token(Token::WHITESPACE, $line);
+                        $result = new Token(Token::WHITESPACE, $line, null, $this->lastLine);
                         $this->append($result);
+                        $this->lastLine++;
                     }
                     return;
 
@@ -140,9 +150,7 @@ class TokenIterator extends \ArrayIterator
                     $result->type = Token::TEXT;
                     $result->value = $token[1];
             }
-
         }
-
 
         $this->append($result);
     }

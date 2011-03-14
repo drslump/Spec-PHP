@@ -60,14 +60,19 @@ class Token extends \ArrayIterator
     /** @var int PHP's tokenizer token code */
     public $token = null;
 
+    /** @var int PHP's tokenizer reported line */
+    public $line = null;
+
     /**
      * @param string $type
      * @param string $value
      */
-    public function __construct($type = self::TEXT, $value = '')
+    public function __construct($type = self::TEXT, $value = '', $token = null, $line = null)
     {
         $this->type = $type;
         $this->value = $value;
+        $this->token = $token;
+        $this->line = $line;
     }
 }
 
