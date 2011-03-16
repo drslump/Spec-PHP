@@ -167,14 +167,17 @@ Spec files are _transformed_ on the fly to be compatible with PHPUnit,
 allowing to use its reporting (code coverage, xunit, tap logs) and 
 current integrations with IDEs and Continuous integration services.
 
-Feeding a `\DrSlump\Spec\PHPUnit\TestSuite` object to PHPUnit it will
-be able to execute any spec files it references. For example, by
-creating the following empty class it will fetch recursively all spec
-files in the working directory.
+Feeding a `\DrSlump\Spec\TestSuite` object to PHPUnit it will be able
+to execute any spec files it references. For example, by creating the
+following class it will run recursively all the spec files found beneath
+the directory where the class is defined.
 
     require_once 'Spec.php';
 
-    class AllSpecs extends \DrSlump\Spec\PHPUnit\DirectorySpecTests {
+    class AllSpecs extends \DrSlump\Spec\DirectoryRunnerHelper {
+        static function suite() {
+            return parent::suite();
+        }
     }
 
 It's even possible to use the `expect` component in PHPUnit's _native_
