@@ -161,15 +161,4 @@ class Cli
         }
     }
 
-    // @todo Implement as a listener
-    static public function beep()
-    {
-        $count = 2;
-        $delay = floor(0.25 * 1000000);
-
-        for ($i=0; $i<$count; $i++) {
-            echo "\x07";
-            usleep($delay);
-        }
-    }
 }

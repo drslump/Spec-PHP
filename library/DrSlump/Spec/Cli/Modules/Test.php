@@ -129,10 +129,19 @@ class Test
             (bool)$this->result->options['debug']
         );
 
+
+
         // Create a PHPUnit result manager
         $result = new \PHPUnit_Framework_TestResult();
         // Append our custom printer as a listener
         $result->addListener($printer);
+
+        // Register beeping listener
+        if ($this->result->options['beep']) {
+            $result->addListener(
+                new Spec\Cli\BeepListener()
+            );
+        }
 
         // Run the suite
         $suite->run(
