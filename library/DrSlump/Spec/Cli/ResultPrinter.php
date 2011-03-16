@@ -163,6 +163,7 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
                 $this->write('Errors:' . PHP_EOL);
             }
             $this->write(PHP_EOL);
+
             foreach($this->exceptions as $idx => $ex) {
                 $this->write('  ' . ($idx+1) . ') ' . $ex->getMessage() . PHP_EOL);
                 $this->write(PHP_EOL);

@@ -105,6 +105,11 @@ class Test
         }
 
         // Create a printer instance
+
+        if ($this->result->options['story']) {
+            $this->result->options['format'] = 'story';
+        }
+
         // @todo Allow custom class names
         switch (strtolower($this->result->options['format'])) {
             case 'd':
@@ -116,10 +121,7 @@ class Test
                 $formatter = '\DrSlump\Spec\Cli\ResultPrinter\Story';
                 break;
             default:
-                if (!$this->result->options['story']) {
-                    throw new \Exception('Unknown format option');
-                }
-                $formatter = '\DrSlump\Spec\Cli\ResultPrinter\Story';
+                throw new \RuntimeException('Unknown format option');
         }
 
         $printer = new $formatter(

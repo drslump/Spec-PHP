@@ -59,4 +59,10 @@ class Dots extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 
         $this->write($progress);
     }
+
+    public function flush()
+    {
+        $this->write(PHP_EOL);
+        parent::flush();
+    }
 }
