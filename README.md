@@ -40,15 +40,14 @@ _alpha_ quality software for the time being.
  - Parametrized *It* blocks
  - Annotations support (@group, @skip, @todo, @throw, ...)
  - Matcher factory to create matchers with a callback function
+ - Custom CLI runner tool
+ - Use annotation to inherit from custom PHPUnit_TestCase class (ie: Zend_Test)
 
 ### Upcoming
 
  - Combined expectations
  - *Before* and *After* blocks
- - Custom CLI runner tool
  - Review configurable options and extension points
- - Improve annotations support
- - Use annotation to inherit from custom PHPUnit_TestCase class (ie: Zend_Test)
 
 ### Later
 
