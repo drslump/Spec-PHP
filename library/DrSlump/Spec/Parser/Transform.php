@@ -241,8 +241,8 @@ class Transform {
             if (substr($value, 0, 1) === '#' || substr($value, 0, 2) === '//') {
 
                 // Manage annotations
-                if (preg_match('/^#[A-Z-]+/i', $value)) {
-                    $value = '/** @' . substr($value, 1) . ' */' . "\n";
+                if (preg_match('/^#\s*[A-Z-]+/i', $value, $m)) {
+                    $value = '/** @' . trim($value, ' #') . ' */' . "\n";
                 } else {
                     $value = '/** ' . substr($value, 2) . ' */' . "\n";
                 }
