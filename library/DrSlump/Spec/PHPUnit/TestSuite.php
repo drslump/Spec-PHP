@@ -238,16 +238,13 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
 
 
     /**
-     * Returns the annotations for this test.
+     * Returns the annotations for this suite
      *
      * @return array
      */
     public function getAnnotations()
     {
-        return array(
-            'class' => $this->annotations,
-            'method' => array()
-        );
+        return $this->annotations;
     }
 
 
@@ -272,30 +269,27 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
             throw \PHPUnit_Util_InvalidArgumentHelper::factory(1, 'string');
         }
 
-        if (substr($filename, -8) === 'Spec.php' ||
-            substr($filename, -9) === '.spec.php') {
-
-            // Ensure we can read the file
-            $fname = \PHPUnit_Util_Filesystem::fileExistsInIncludePath($filename);
-            if (!$fname || !is_readable($fname)) {
-                throw new \RuntimeException(
-                    sprintf('Cannot open file "%s".' . "\n", $filename)
-                );
-            }
-
-            // Use stream wrapper for spec files
-            $furl = Spec::SCHEME . '://' . $fname;
-
-            // Setup the environment to collect tests
-            \DrSlump\Spec::reset($this);
-
-            \PHPUnit_Util_Fileloader::load($furl);
-
-            $this->numTests = -1;
-
-        } else {
-            parent::addTestFile($filename, $syntaxCheck, $phptOptions);
+        // Ensure we can read the file
+        if (!$filename || !is_readable($filename)) {
+            throw new \RuntimeException(
+                sprintf('Cannot open file "%s".' . "\n", $filename)
+            );
         }
+
+        // Try to convert it to a relative path
+        if (strpos($filename, getcwd()) === 0) {
+            $filename = substr($filename, strlen(getcwd()) + 1);
+        }
+
+        // Use stream wrapper for spec files
+        $furl = Spec::SCHEME . '://' . $filename;
+
+        // Setup the environment to collect tests
+        \DrSlump\Spec::reset($this);
+
+        \PHPUnit_Util_Fileloader::load($furl);
+
+        $this->numTests = -1;
     }
 
     /**

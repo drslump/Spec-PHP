@@ -88,6 +88,7 @@ class Cli
                 'short_name'    => '-f',
                 'long_name'     => '--format',
                 'action'        => 'StoreString',
+                'default'       => 'dots',
                 'description'   => 'output format [*dots, story]'
             )
         );

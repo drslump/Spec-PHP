@@ -6,7 +6,7 @@ use DrSlump\Spec;
 
 class Test
 {
-    const DEFAULT_GLOB = '*{Spec|.spec}.php';
+    const DEFAULT_GLOB = '*{Spec,.spec}.php';
 
     /** @var Console_CommandLine_Result */
     protected $result;
