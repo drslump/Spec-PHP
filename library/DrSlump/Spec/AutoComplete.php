@@ -15,10 +15,17 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// IMPORTANT: Do not include this file in your code!
-// This file is only available to hint IDEs for auto completion
+/**************************************************************************
+ ** IMPORTANT: Do not include this file in your code!                    **
+ ** This file is only available to hint IDEs for auto completion         **
+ **************************************************************************/
+
 
 namespace DrSlump\Spec;
+
+// Ensure this file is never parsed even if included by mistake
+__halt_compiler();
+
 
 /**
  * @todo This should be auto generated for its most part
