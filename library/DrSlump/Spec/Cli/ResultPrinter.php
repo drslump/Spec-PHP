@@ -15,12 +15,12 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace DrSlump\Spec\PHPUnit;
+namespace DrSlump\Spec\Cli;
 
 /**
  * Extends a PHPUnit Result Printer to adapt it for Spec
  *
- * @package     Spec\PHPUnit
+ * @package     Spec\Cli
  * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>
  * @see         https://github.com/drslump/Spec
  *
@@ -29,13 +29,13 @@ namespace DrSlump\Spec\PHPUnit;
  */
 class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Framework_TestListener
 {
-    const PASSED = 1;
-    const FAILED = 2;
-    const ERROR = 3;
-    const INCOMPLETE = 4;
-    const SKIPPED = 5;
+    const PASSED        = 1;
+    const FAILED        = 2;
+    const ERROR         = 3;
+    const INCOMPLETE    = 4;
+    const SKIPPED       = 5;
 
-
+    /** @var int */
     protected $lastTestResult;
     protected $exceptions = array();
     protected $failures = array();

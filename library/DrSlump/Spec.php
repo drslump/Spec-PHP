@@ -22,7 +22,7 @@ namespace DrSlump;
  * Static class for Spec functionality
  *
  * @todo With Suhosin patch do we need to add: suhosin.executor.include.whitelist = "spec" ?
-
+ * @todo Ditch PHPUnit namespace and move those classes to DrSlump\Spec
  *
  * @package     Spec
  * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>
@@ -44,6 +44,8 @@ class Spec
     /** @var Closure[] */
     protected static $matchers = array();
 
+    /** @var Spec\RunHelper */
+    protected static $runHelper = null;
 
     /**
      * Initializes the Spec library
@@ -69,7 +71,7 @@ class Spec
         if (!in_array(self::SCHEME, stream_get_wrappers())) {
             stream_wrapper_register(
                 self::SCHEME,
-                __NAMESPACE__ . '\\Spec\\StreamWrapper'
+                __NAMESPACE__ . '\Spec\StreamWrapper'
             );
         }
 
@@ -131,6 +133,8 @@ class Spec
 
     /**
      * Register a matcher
+     *
+     * @todo Use a "broker" class to manage matchers
      *
      * @static
      * @param array $names
@@ -202,10 +206,37 @@ class Spec
         return array_pop(self::$suitesStack);
     }
 
-    public static function reset(Spec\PHPUnit\TestSuite $root)
+    public static function reset(Spec\TestSuite $root)
     {
         self::$suitesStack = array($root);
     }
+
+    /**
+     * Set the run helper object to use
+     *
+     * @static
+     * @param Spec\RunHelper $helper
+     */
+    public static function setRunHelper(Spec\RunHelper $helper)
+    {
+        self::$runHelper = $helper;
+    }
+
+    /**
+     * Get currently configured run helper instance
+     *
+     * @static
+     * @return Spec\RunHelper|null
+     */
+    public static function getRunHelper()
+    {
+        if (!self::$runHelper) {
+            self::setRunHelper(new Spec\RunHelper());
+        }
+
+        return self::$runHelper;
+    }
+
 
     /**
      * Creates a test suite and runs its code block
@@ -217,7 +248,7 @@ class Spec
     public static function describe($title, $cb)
     {
         // Create a new suite to model the describe
-        $suite = new Spec\PHPUnit\TestSuite();
+        $suite = new Spec\TestSuite();
         $suite->setTitle($title);
         $suite->setCallback($cb);
 
@@ -249,19 +280,20 @@ class Spec
      */
     public static function it($title, $cb)
     {
-        // Create a new test case
-        $test = new Spec\PHPUnit\TestCase();
-        $test->setTitle($title);
-        $test->setCallback($cb);
+        $runHelper = self::getRunHelper();
 
-
-        // Add it to the current suite
         $suite = self::currentSuite();
-        $test->setParent($suite);
-        $suite->addTest($test, $test->getGroups());
+        $test = $runHelper->buildTest($suite, $title, $cb);
+        $groups = $runHelper->findGroups($test);
+        $suite->addTest($test, $groups);
     }
 
-
+    /**
+     * @static
+     * @param mixed $value
+     * @param bool $implicitAssert
+     * @return Spec\ExpectAutoComplete
+     */
     public static function expect($value, $implicitAssert = false)
     {
         return new Spec\Expect($value, $implicitAssert);

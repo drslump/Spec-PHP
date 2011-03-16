@@ -15,14 +15,14 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace DrSlump\Spec\PHPUnit;
+namespace DrSlump\Spec;
 
 use \DrSlump\Spec;
 
 /**
  * Extends a PHPUnit Test Suite to adapt it for Spec
  *
- * @package     Spec\PHPUnit
+ * @package     Spec
  * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>
  * @see         https://github.com/drslump/Spec
  *

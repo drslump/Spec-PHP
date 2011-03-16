@@ -1,22 +1,59 @@
 <?php
+//  Spec for PHP
+//  Copyright (C) 2011 Iván -DrSlump- Montes <drslump@pollinimini.net>
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as
+//  published by the Free Software Foundation, either version 3 of the
+//  License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Affero General Public License for more details.
+//
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DrSlump\Spec\Cli\Modules;
 
 use DrSlump\Spec;
 
+/**
+ * Runs spec files
+ *
+ * @package     Spec\Cli
+ * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>
+ * @see         https://github.com/drslump/Spec
+ *
+ * @copyright   Copyright 2011, Iván -DrSlump- Montes
+ * @license     Affero GPL v3 - http://opensource.org/licenses/agpl-v3
+ */
 class Test
 {
+    /** Default expasion pattern to search for spec files */
     const DEFAULT_GLOB = '*{Spec,.spec}.php';
 
-    /** @var Console_CommandLine_Result */
+    /** @var \Console_CommandLine_Result */
     protected $result;
 
+    /**
+     * @param \Console_CommandLine_Result $result
+     */
     public function __construct(\Console_CommandLine_Result $result)
     {
         $this->result = $result;
     }
 
-    protected function searchForSpecs(Spec\PHPUnit\TestSuite $suite, $dir, $glob = self::DEFAULT_GLOB)
+    /**
+     * Search for files in a directory matching a pattern
+     *
+     * @param \DrSlump\Spec\TestSuite $suite
+     * @param string $dir
+     * @param string $glob  Unix style expansion pattern
+     * @return void
+     */
+    protected function searchForSpecs(Spec\TestSuite $suite, $dir, $glob = self::DEFAULT_GLOB)
     {
         // Convert linux style wildcards to a regular expression
         $glob =
@@ -44,10 +81,15 @@ class Test
         }
     }
 
+    /**
+     * Runs this module
+     *
+     * @throws \Exception
+     */
     public function run()
     {
         // Create a suite to add spec files
-        $suite = new Spec\PHPUnit\TestSuite();
+        $suite = new Spec\TestSuite();
 
         // For every argument given check what files it matches
         foreach ($this->result->args['files'] as $file) {
@@ -63,20 +105,21 @@ class Test
         }
 
         // Create a printer instance
+        // @todo Allow custom class names
         switch (strtolower($this->result->options['format'])) {
             case 'd':
             case 'dots':
-                $formatter = '\DrSlump\Spec\PHPUnit\ResultPrinter\Dots';
+                $formatter = '\DrSlump\Spec\Cli\ResultPrinter\Dots';
                 break;
             case 's':
             case 'story':
-                $formatter = '\DrSlump\Spec\PHPUnit\ResultPrinter\Story';
+                $formatter = '\DrSlump\Spec\Cli\ResultPrinter\Story';
                 break;
             default:
                 if (!$this->result->options['story']) {
                     throw new \Exception('Unknown format option');
                 }
-                $formatter = '\DrSlump\Spec\PHPUnit\ResultPrinter\Story';
+                $formatter = '\DrSlump\Spec\Cli\ResultPrinter\Story';
         }
 
         $printer = new $formatter(
@@ -103,26 +146,4 @@ class Test
         unset($suite);
         $result->flushListeners();
     }
-
-
-
-
-    static public function command()
-    {
-        require_once 'Console/CommandLine/Command.php';
-
-        $cmd = new \Console_CommandLine_Command(array(
-            'name'          => 'test',
-            'description'   => 'Runs the spec files',
-        ));
-
-        $cmd->addArgument('files',
-            array(
-                'multiple'      => true,
-                'description'   => 'list of spec files or a directory'
-        ));
-
-        return $cmd;
-    }
-
 }

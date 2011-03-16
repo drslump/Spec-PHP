@@ -21,6 +21,7 @@ use DrSlump\Spec;
 
 require_once __DIR__ . '/../Spec.php';
 
+// Setup PHPUnit's autoloader
 require_once 'PHPUnit/Autoload.php';
 
 
@@ -160,7 +161,7 @@ class Cli
         }
     }
 
-
+    // @todo Implement as a listener
     static public function beep()
     {
         $count = 2;
@@ -171,166 +172,4 @@ class Cli
             usleep($delay);
         }
     }
-
-    static public function growl()
-    {
-
-        require_once 'Net/Growl.php';
-
-        // Notification Type definitions
-        define('GROWL_NOTIFY_STATUS', 'GROWL_NOTIFY_STATUS');
-        define('GROWL_NOTIFY_PHPERROR', 'GROWL_NOTIFY_PHPERROR');
-
-        // define a PHP application that sends notifications to Growl
-
-        $appName = 'PHP App Example using UDP';
-        $notifications = array(
-            GROWL_NOTIFY_STATUS => array(),
-            GROWL_NOTIFY_PHPERROR => array()
-        );
-
-        $password = 'foobar';
-        $options  = array('host' => 'localhost');
-
-        try {
-            $growl = \Net_Growl::singleton($appName, $notifications, $password, $options);
-            $growl->register();
-
-            $name        = GROWL_NOTIFY_STATUS;
-            $title       = 'Congratulation';
-            $description = 'Congratulation! You are successfull install PHP/NetGrowl.';
-            $growl->notify($name, $title, $description);
-
-            $name        = GROWL_NOTIFY_PHPERROR;
-            $title       = 'PHP Error';
-            $description = 'You have a new PHP error in your script P at line N';
-            $options     = array(
-                'sticky'   => true,
-                'priority' => \Net_Growl::PRIORITY_HIGH,
-            );
-            $growl->notify($name, $title, $description, $options);
-
-            $name        = GROWL_NOTIFY_STATUS;
-            $title       = 'Welcome';
-            $description = "Welcome in PHP/Growl world ! \n"
-                         . "Old UDP protocol did not support icons.";
-            $growl->notify($name, $title, $description);
-
-            var_export($growl);
-
-        } catch (\Net_Growl_Exception $e) {
-            echo 'Caught Growl exception: ' . $e->getMessage() . PHP_EOL;
-        }
-
-
-        exit;
-
-        // @todo Is GNTP supported by OSX's original Growl?
-
-        require_once 'Net/Growl.php';
-
-        // Notification Type definitions
-        define('GROWL_NOTIFY_STATUS', 'GROWL_NOTIFY_STATUS');
-        define('GROWL_NOTIFY_PHPERROR', 'GROWL_NOTIFY_PHPERROR');
-
-        // define a PHP application that sends notifications to Growl
-
-        $appName = 'PHP App Example using GNTP';
-        $notifications = array(
-            GROWL_NOTIFY_STATUS => array(
-                'display' => 'Status',
-            ),
-
-            GROWL_NOTIFY_PHPERROR => array(
-                'icon'    => 'http://www.laurent-laville.org/growl/images/firephp.png',
-                'display' => 'Error-Log'
-            )
-        );
-
-        $password = 'foobar';
-        $options  = array(
-            'host'     => 'localhost',
-            'protocol' => 'tcp', 'port' => \Net_Growl::GNTP_PORT, 'timeout' => 15,
-            'AppIcon'  => 'http://www.laurent-laville.org/growl/images/Help.png',
-            'debug'    => '/tmp/netgrowl.log'
-        );
-
-        try {
-            $growl = \Net_Growl::singleton($appName, $notifications, $password, $options);
-            $growl->register();
-
-            $name        = GROWL_NOTIFY_STATUS;
-            $title       = 'Congratulation';
-            $description = 'Congratulation! You are successfull install PHP/NetGrowl.';
-            $options     = array();
-            $growl->notify($name, $title, $description, $options);
-
-            $name        = GROWL_NOTIFY_PHPERROR;
-            $title       = 'PHP Error';
-            $description = 'You have a new PHP error in your script P at line N';
-            $options     = array(
-                'priority' => Net_Growl::PRIORITY_HIGH,
-            );
-            $growl->notify($name, $title, $description, $options);
-
-            $name        = GROWL_NOTIFY_STATUS;
-            $title       = 'Welcome';
-            $description = "Welcome in PHP/GNTP world ! \n"
-                         . "New GNTP protocol add icon support.";
-            $options     = array(
-                'icon' => 'http://www.laurent-laville.org/growl/images/unknown.png',
-                'sticky' => false,
-            );
-            $growl->notify($name, $title, $description, $options);
-
-            var_export($growl);
-
-        } catch (\Net_Growl_Exception $e) {
-            echo 'Caught Growl exception: ' . $e->getMessage() . PHP_EOL;
-        }
-
-    }
-
-    static public function highlight()
-    {
-        $src = highlight_file(__FILE__, true);
-        $src = preg_replace('/<br[^>]*>/', PHP_EOL, $src);
-        $src = preg_replace_callback('/<span style="color: #([0-F]+)">/', function($m){
-            switch ($m[1]) {
-                case '0000BB': // Idents
-                    return "\033[34;1m";
-                case 'FF8000': // Comments
-                    return "\033[30m";
-                case '007700': // Symbols
-                    return "\033[37;1m";
-                case 'DD0000': // Strings
-                    return "\033[32;1m";
-                default:
-                    return "\033[0m";
-            }
-        }, $src);
-        // Ensure no tags are left
-        $src = preg_replace('/<[^>]+>/', '', $src);
-        $src = str_replace('&nbsp;', ' ', $src);
-        $src = html_entity_decode($src);
-        $src = $src . "\033[0m";
-
-        $lines = explode(PHP_EOL, $src);
-        array_shift($lines);
-        $padding = strlen(count($lines));
-        // Coloring line numbers break multi line comments
-        // Perhaps we should apply colors line by line?
-        foreach ($lines as $idx=>&$line) {
-            $line = "\033[33m" .
-                    str_pad($idx+1, $padding, ' ', STR_PAD_LEFT) .
-                    "\033[0m" .
-                    ' ' .
-                    $line;
-        }
-
-        $src = implode(PHP_EOL, $lines) . PHP_EOL;
-
-        echo $src;
-    }
-
 }

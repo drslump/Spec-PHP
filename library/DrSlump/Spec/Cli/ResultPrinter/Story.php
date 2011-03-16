@@ -15,9 +15,10 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace DrSlump\Spec\PHPUnit\ResultPrinter;
+namespace DrSlump\Spec\Cli\ResultPrinter;
 
-use DrSlump\Spec\PHPUnit;
+use DrSlump\Spec;
+use DrSlump\Spec\Cli;
 
 /**
  * Story result printer that prints the titles of each test passed
@@ -29,7 +30,7 @@ use DrSlump\Spec\PHPUnit;
  * @copyright   Copyright 2011, Iván -DrSlump- Montes
  * @license     Affero GPL v3 - http://opensource.org/licenses/agpl-v3
  */
-class Story extends PHPUnit\ResultPrinter implements \PHPUnit_Framework_TestListener
+class Story extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 {
     /**
      * @param \PHPUnit_Framework_TestSuite $suite
@@ -38,7 +39,7 @@ class Story extends PHPUnit\ResultPrinter implements \PHPUnit_Framework_TestList
     {
         parent::startTestSuite($suite);
 
-        if ($suite instanceof PHPUnit\TestSuite) {
+        if ($suite instanceof Spec\TestSuite) {
             // Skip root suite
             if (!$suite->getParent()) return;
 
@@ -67,9 +68,9 @@ class Story extends PHPUnit\ResultPrinter implements \PHPUnit_Framework_TestList
 
     public function endTest(\PHPUnit_Framework_Test $test, $time)
     {
-        if ($test instanceof PHPUnit\TestCase) {
+        if ($test instanceof Spec\TestCaseInterface) {
             $levels = 0;
-            if ($parent = $test->getParent()) {
+            if ($parent = $test->getSuite()) {
                 while($parent = $parent->getParent()) { $levels++; }
             }
 

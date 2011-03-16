@@ -15,109 +15,46 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace DrSlump\Spec\PHPUnit\ResultPrinter;
+namespace DrSlump\Spec\Cli\ResultPrinter;
 
-use DrSlump\Spec\PHPUnit;
+use DrSlump\Spec\Cli;
 
 /**
  * Standard result printer that prints a dot for each test passed
  *
- * @package     Spec\PHPUnit\ResultPrinter
+ * @package     Spec\Cli\ResultPrinter
  * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>
  * @see         https://github.com/drslump/Spec
  *
  * @copyright   Copyright 2011, Iván -DrSlump- Montes
  * @license     Affero GPL v3 - http://opensource.org/licenses/agpl-v3
  */
-class Dots extends PHPUnit\ResultPrinter implements \PHPUnit_Framework_TestListener
+class Dots extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 {
     /**
-     * An error occurred.
-     *
-     * @param  PHPUnit_Framework_Test $test
-     * @param  Exception              $e
-     * @param  float                  $time
-     */
-    public function addError(\PHPUnit_Framework_Test $test, \Exception $e, $time)
-    {
-        parent::addError($test, $e, $time);
-        $this->progress('E');
-    }
-
-    /**
-     * A failure occurred.
-     *
-     * @param  PHPUnit_Framework_Test                 $test
-     * @param  PHPUnit_Framework_AssertionFailedError $e
-     * @param  float                                  $time
-     */
-    public function addFailure(\PHPUnit_Framework_Test $test, \PHPUnit_Framework_AssertionFailedError $e, $time)
-    {
-        parent::addFailure($test, $e, $time);
-        $this->progress('F');
-    }
-
-    /**
-     * Incomplete test.
-     *
-     * @param  PHPUnit_Framework_Test $test
-     * @param  Exception              $e
-     * @param  float                  $time
-     */
-    public function addIncompleteTest(\PHPUnit_Framework_Test $test, \Exception $e, $time)
-    {
-        parent::addIncompleteTest($test, $e, $time);
-        $this->progress('I');
-    }
-
-    /**
-     * Skipped test.
-     *
-     * @param  PHPUnit_Framework_Test $test
-     * @param  Exception              $e
-     * @param  float                  $time
-     */
-    public function addSkippedTest(\PHPUnit_Framework_Test $test, \Exception $e, $time)
-    {
-        parent::addSkippedTest($test, $e, $time);
-        $this->progress('S');
-    }
-
-    /**
      * @param \PHPUnit_Framework_Test $test
-     * @param  $time
+     * @param float $time
      */
     public function endTest(\PHPUnit_Framework_Test $test, $time)
     {
         parent::endTest($test, $time);
-        $this->progress('.');
-    }
 
-    /**
-     * Writes progress
-     *
-     * @param string $progress
-     */
-    protected function progress($progress)
-    {
-        if ($this->colors) {
-            switch ($progress) {
-                case 'F':   // Red
-                    $progress = "\033[31mF\033[0m";
-                    break;
-                case 'E':   // Red Bg
-                    $progress = "\033[31;1;5;7mE\033[0m";
-                    break;
-                case 'I':   // Yellow
-                    $progress = "\033[30;47mI\033[0m";
-                    break;
-                case 'S':   // Gray
-                    $progress = "\033[30;47;7mS\033[0m";
-                    break;
-                case '.':   // White
-                    $progress = "\033[32;1m$progress\033[0m";
-                    break;
-            }
+        switch ($this->lastTestResult) {
+        case self::FAILED:
+            $progress = $this->colors ? "\033[31mF\033[0m" : 'F';
+            break;
+        case self::ERROR:
+            $progress = $this->colors ? "\033[31;1;5;7mE\033[0m" : 'E';
+            break;
+        case self::INCOMPLETE:
+            $progress = $this->colors ? "\033[30;47mI\033[0m" : 'I';
+            break;
+        case self::SKIPPED:
+            $progress = $this->colors ? "\033[30;47;7mS\033[0m" : 'S';
+            break;
+        case self::PASSED:
+            $progress = $this->colors ? "\033[32;1m.\033[0m" : '.';
+            break;
         }
 
         $this->write($progress);
