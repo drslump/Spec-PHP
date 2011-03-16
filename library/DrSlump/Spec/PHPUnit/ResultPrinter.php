@@ -27,62 +27,155 @@ namespace DrSlump\Spec\PHPUnit;
  * @copyright   Copyright 2011, Iván -DrSlump- Montes
  * @license     Affero GPL v3 - http://opensource.org/licenses/agpl-v3
  */
-class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
+class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Framework_TestListener
 {
+    const PASSED = 1;
+    const FAILED = 2;
+    const ERROR = 3;
+    const INCOMPLETE = 4;
+    const SKIPPED = 5;
 
+
+    protected $lastTestResult;
+    protected $exceptions = array();
+    protected $failures = array();
+    protected $errors = array();
+    protected $incomplete = array();
+    protected $skipped = array();
+
+
+    /**
+     * An error occurred.
+     *
+     * @param  PHPUnit_Framework_Test $test
+     * @param  Exception              $e
+     * @param  float                  $time
+     */
+    public function addError(\PHPUnit_Framework_Test $test, \Exception $e, $time)
+    {
+        $this->lastTestResult = self::ERROR;
+        $this->errors[] = $e;
+        $this->exceptions[] = $e;
+    }
+
+    /**
+     * A failure occurred.
+     *
+     * @param  PHPUnit_Framework_Test                 $test
+     * @param  PHPUnit_Framework_AssertionFailedError $e
+     * @param  float                                  $time
+     */
+    public function addFailure(\PHPUnit_Framework_Test $test, \PHPUnit_Framework_AssertionFailedError $e, $time)
+    {
+        $this->lastTestResult = self::FAILED;
+        $this->failures[] = $e;
+        $this->exceptions[] = $e;
+    }
+
+    /**
+     * Incomplete test.
+     *
+     * @param  PHPUnit_Framework_Test $test
+     * @param  Exception              $e
+     * @param  float                  $time
+     */
+    public function addIncompleteTest(\PHPUnit_Framework_Test $test, \Exception $e, $time)
+    {
+        $this->lastTestResult = self::INCOMPLETE;
+        $this->incomplete[] = $e;
+    }
+
+    /**
+     * Skipped test.
+     *
+     * @param  PHPUnit_Framework_Test $test
+     * @param  Exception              $e
+     * @param  float                  $time
+     * @since  Method available since Release 3.0.0
+     */
+    public function addSkippedTest(\PHPUnit_Framework_Test $test, \Exception $e, $time)
+    {
+        $this->lastTestResult = self::SKIPPED;
+        $this->skipped[] = $e;
+    }
+
+    /**
+     * A suite started.
+     *
+     * @param \PHPUnit_Framework_TestSuite $suite
+     */
     public function startTestSuite(\PHPUnit_Framework_TestSuite $suite)
     {
-        parent::startTestSuite($suite);
-
-        if ($this->verbose && $suite instanceof TestSuite) {
-            // Skip root suite
-            if (!$suite->getParent()) return;
-
-            $levels = 0;
-            if ($parent = $suite->getParent()) {
-                while($parent = $parent->getParent()) { $levels++; }
-            }
-
-            $output = str_repeat("  ", $levels);
-            $output.= $suite->getTitle();
-            if ($this->colors) {
-                $output = "\033[34;1m" . $output . "\033[0m";
-            }
-
-            $this->write("\n" . $output . "\n");
-        }
     }
 
+    /**
+     * A test started.
+     *
+     * @param  PHPUnit_Framework_Test $test
+     */
+    public function startTest(\PHPUnit_Framework_Test $test)
+    {
+        $this->lastTestResult = self::PASSED;
+    }
+
+    /**
+     * A test ended.
+     *
+     * @param \PHPUnit_Framework_Test $test
+     * @param  $time
+     */
     public function endTest(\PHPUnit_Framework_Test $test, $time)
     {
+    }
 
-        if ($this->verbose && $test instanceof TestCase) {
-            $levels = 0;
-            if ($parent = $test->getParent()) {
-                while($parent = $parent->getParent()) { $levels++; }
-            }
-
-            $output = str_repeat("  ", $levels) . "it " . $test->getTitle();
-            if ($this->lastTestFailed) {
-                $output = substr($output, 1);
-                if ($this->colors) {
-                    $output = "\033[37;41;1mF\033[0m\033[31;1m$output\033[0m";
-                } else {
-                    $output = 'F' . $output;
-                }
-            } else {
-                if ($this->colors) {
-                    $output = "\033[32;1m" . $output . "\033[0m";
-                }
-            }
-
-            $this->write($output . "\n");
-        }
-
-        parent::endTest($test, $time);
+    /**
+     * A test suite ended.
+     *
+     * @param  PHPUnit_Framework_TestSuite $suite
+     */
+    public function endTestSuite(\PHPUnit_Framework_TestSuite $suite)
+    {
     }
 
 
+    /**
+     * Finish the reporting
+     *
+     */
+    public function flush()
+    {
+        $this->printFailures();
+    }
+
+    /**
+     * Prints the failures and errors found so far
+     *
+     */
+    public function printFailures()
+    {
+        $this->write(PHP_EOL);
+        if (count($this->exceptions)) {
+            if (count($this->failures) && count($this->errors)) {
+                $this->write('Failures/Errors:' . PHP_EOL);
+            } elseif (count($this->failures)) {
+                $this->write('Failures:' . PHP_EOL);
+            } else {
+                $this->write('Errors:' . PHP_EOL);
+            }
+            $this->write(PHP_EOL);
+            foreach($this->exceptions as $idx => $ex) {
+                $this->write('  ' . ($idx+1) . ') ' . $ex->getMessage() . PHP_EOL);
+                $this->write(PHP_EOL);
+            }
+        }
+    }
+
+
+    /**
+     * Print a stack trace
+     *
+     * @param  $defect
+     */
     protected function printDefectTrace($defect)
     {
         $this->write($defect->getExceptionAsString() . "\n");
@@ -124,33 +217,5 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter
         }
 
         $this->write(implode("\n", $result) . "\n");
-    }
-
-    // Improved progress indicator with color output
-    protected function writeProgress($progress)
-    {
-        // Do not print progress if in verbose mode
-        if ($this->verbose) return;
-
-        if ($this->colors) {
-            switch ($progress) {
-                case 'F':   // Red
-                    $progress = "\033[31m$progress\033[0m";
-                    break;
-                case 'E':   // Red Bg
-                    $progress = "\033[37;41m$progress\033[0m";
-                    break;
-                case 'I':   // Yellow
-                    $progress = "\033[33;1m$progress\033[0m";
-                    break;
-                case 'S':   // Gray
-                    $progress = "\033[37m$progress\033[0m";
-                case '.':   // White
-                    $progress = "\033[32;1m$progress\033[0m";
-                    break;
-            }
-        }
-
-        parent::writeProgress($progress);
     }
 }

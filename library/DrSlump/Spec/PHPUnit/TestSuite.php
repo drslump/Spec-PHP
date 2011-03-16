@@ -39,6 +39,8 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
     protected $callback;
     /** @var Array */
     protected $annotations = array();
+    /** @var String */
+    protected $filename = NULL;
 
     /** @var closure[] */
     protected $beforeCallbacks = array();
@@ -82,13 +84,32 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
     /**
      * Get parent describe block
      *
-     * return TestSuite
+     * @return TestSuite
      */
     public function getParent()
     {
         return $this->parent;
     }
 
+    /**
+     * Set filename that contains this block
+     *
+     * @param string $filename
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+    }
+
+    /**
+     * Get filename that contains this block
+     *
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
     /**
      * Sets the callback that will create this suite
      *
@@ -110,6 +131,9 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
                 $this->annotations[$matches['name'][$i]][] = trim($matches['value'][$i]);
             }
         }
+
+        // Get the filename that contains this suite
+        $this->setFilename($reflFunc->getFileName());
     }
 
 
@@ -254,7 +278,7 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
             // Ensure we can read the file
             $fname = \PHPUnit_Util_Filesystem::fileExistsInIncludePath($filename);
             if (!$fname || !is_readable($fname)) {
-                throw new RuntimeException(
+                throw new \RuntimeException(
                     sprintf('Cannot open file "%s".' . "\n", $filename)
                 );
             }
