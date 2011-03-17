@@ -56,7 +56,7 @@ Spec::registerMatcher(
 );
 
 Spec::registerMatcher(
-    array('instance', 'instance_of'),
+    array('instance', 'instanceof', 'instance_of'),
     function($expected){
         return \Hamcrest_Matchers::anInstanceOf($expected);
     }
@@ -143,6 +143,54 @@ Spec::registerMatcher(
 Spec::registerMatcher(
     array('null', 'nil'),
     '\Hamcrest_Matchers::nullValue'
+);
+
+Spec::registerMatcher(
+    array('true'),
+    function(){
+        $matcher = new DrSlump\Spec\Matcher\Callback();
+        $matcher->setDescription('a boolean of value true');
+        $matcher->setCallback(function($v){
+            return $v === true;
+        });
+        return $matcher;
+    }
+);
+
+Spec::registerMatcher(
+    array('truthy', 'truly'),
+    function(){
+        $matcher = new DrSlump\Spec\Matcher\Callback();
+        $matcher->setDescription('a truthy value');
+        $matcher->setCallback(function($v){
+            return $v == true;
+        });
+        return $matcher;
+    }
+);
+
+Spec::registerMatcher(
+    array('false'),
+    function(){
+        $matcher = new DrSlump\Spec\Matcher\Callback();
+        $matcher->setDescription('a boolean of value false');
+        $matcher->setCallback(function($v){
+            return $v === false;
+        });
+        return $matcher;
+    }
+);
+
+Spec::registerMatcher(
+    array('falsy'),
+    function(){
+        $matcher = new DrSlump\Spec\Matcher\Callback();
+        $matcher->setDescription('a falsy value');
+        $matcher->setCallback(function($v){
+            return $v == false;
+        });
+        return $matcher;
+    }
 );
 
 Spec::registerMatcher(
