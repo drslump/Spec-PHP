@@ -395,7 +395,6 @@ class Transform {
             }
 
             $this->appendStatement($token);
-            $this->appendStatement($next);
             return $next;
 
         case Token::SHOULD:
