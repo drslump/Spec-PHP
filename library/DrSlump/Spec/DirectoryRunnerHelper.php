@@ -56,7 +56,7 @@ class DirectoryRunnerHelper
         $it = new \RecursiveDirectoryIterator($dname, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS);
         $it = new \RecursiveIteratorIterator($it);
         foreach ($it as $file) {
-            if (preg_match('/\.spec\.php|Spec\.php/i', $file->getFilename())) {
+            if (preg_match('/(\.spec|_spec|Spec)\.php$/i', $file->getFilename())) {
                 $suite->addTestFile($file->getPathname());
             }
         }

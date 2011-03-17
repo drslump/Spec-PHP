@@ -134,7 +134,6 @@ class Cli
         // run the parser
         try {
             $result = $main->parse();
-            print_r($result);
 
             // Check if we can use colors
             if ($result->options['color'] === 'auto') {
@@ -148,6 +147,8 @@ class Cli
                 $module->run();
                 exit(0);
             }
+
+            echo $main->description . PHP_EOL . PHP_EOL;
 
             // By default run the test
             $module = new Cli\Modules\Test($result);

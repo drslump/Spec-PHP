@@ -224,26 +224,30 @@ class RunHelper
             return $e;
         }
 
-        // Normalize stack trace by removing spec:// scheme
-        $origTrace = $e->getTrace();
-        $trace = array();
-        $last = null;
-        foreach ($origTrace as $frame) {
-            if (!empty($frame['file'])) {
-                // Skip repeated entries
-                if ($last && $last['file'] === $frame['file'] && $last['line'] === $frame['line']) {
-                    continue;
+        // Normalize stack trace if running thru PHPUnit
+        if (defined('PHPUnit_MAIN_METHOD')) {
+            $origTrace = $e->getTrace();
+            $trace = array();
+            $last = null;
+            foreach ($origTrace as $frame) {
+                if (!empty($frame['file'])) {
+                    // Skip repeated entries
+                    if ($last && $last['file'] === $frame['file'] && $last['line'] === $frame['line']) {
+                        continue;
+                    }
+
+                    $last = $frame;
+
+                    // Remove stream wrapper prefix (spec://)
+                    if (0 === strpos($frame['file'], Spec::SCHEME . '://')) {
+                        $frame['file'] = substr($frame['file'], strlen(Spec::SCHEME) + 3);
+                    }
                 }
 
-                $last = $frame;
-
-                // Remove stream wrapper prefix (spec://)
-                if (0 === strpos($frame['file'], Spec::SCHEME . '://')) {
-                    $frame['file'] = substr($frame['file'], strlen(Spec::SCHEME) + 3);
-                }
+                $trace[] = $frame;
             }
-
-            $trace[] = $frame;
+        } else {
+            $trace = $e->getTrace();
         }
 
         $e = new $exClass(

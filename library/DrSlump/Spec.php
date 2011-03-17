@@ -22,7 +22,6 @@ namespace DrSlump;
  * Static class for Spec functionality
  *
  * @todo With Suhosin patch do we need to add: suhosin.executor.include.whitelist = "spec" ?
- * @todo Ditch PHPUnit namespace and move those classes to DrSlump\Spec
  *
  * @package     Spec
  * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>

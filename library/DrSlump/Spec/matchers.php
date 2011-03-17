@@ -104,7 +104,11 @@ Spec::registerMatcher(
 
 Spec::registerMatcher(
     array('numeric'),
-    '\Hamcrest_Matchers::numericValue'
+    function(){
+        // Hamcrest does not include this one by default
+        include_once 'Hamcrest/Type/IsNumeric.php';
+        return \Hamcrest_Matchers::numericValue();
+    }
 );
 
 Spec::registerMatcher(
@@ -129,7 +133,11 @@ Spec::registerMatcher(
 
 Spec::registerMatcher(
     array('callable'),
-    '\Hamcrest_Matchers::callable'
+    function(){
+        // Hamcrest does not include this one by default
+        include_once 'Hamcrest/Type/IsCallable.php';
+        return \Hamcrest_Matchers::callable();
+    }
 );
 
 Spec::registerMatcher(

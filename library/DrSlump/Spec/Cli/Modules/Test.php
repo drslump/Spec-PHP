@@ -32,7 +32,7 @@ use DrSlump\Spec;
 class Test
 {
     /** Default expasion pattern to search for spec files */
-    const DEFAULT_GLOB = '*{Spec,.spec}.php';
+    const DEFAULT_GLOB = '*{Spec,.spec,_spec}.php';
 
     /** @var \Console_CommandLine_Result */
     protected $result;

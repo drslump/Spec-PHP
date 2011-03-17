@@ -17,6 +17,8 @@
 
 namespace DrSlump\Spec\Cli;
 
+use DrSlump\Spec;
+
 /**
  * Extends a PHPUnit Result Printer to adapt it for Spec
  *
@@ -55,7 +57,7 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     {
         $this->lastTestResult = self::ERROR;
         $this->errors[] = $e;
-        $this->exceptions[] = $e;
+        $this->exceptions[] = array($test, $e);
     }
 
     /**
@@ -69,7 +71,7 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     {
         $this->lastTestResult = self::FAILED;
         $this->failures[] = $e;
-        $this->exceptions[] = $e;
+        $this->exceptions[] = array($test, $e);
     }
 
     /**
@@ -148,6 +150,17 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     }
 
     /**
+     * Override this method to automatically remove ansi codes
+     */
+    public function write($data)
+    {
+        if (!$this->colors) {
+            $data = preg_replace("/\x1b\[[^A-Za-z]*[A-Za-z]/", '', $data);
+        }
+        parent::write($data);
+    }
+
+    /**
      * Prints the failures and errors found so far
      *
      */
@@ -155,68 +168,84 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     {
         $this->write(PHP_EOL);
         if (count($this->exceptions)) {
-            if (count($this->failures) && count($this->errors)) {
-                $this->write('Failures/Errors:' . PHP_EOL);
-            } elseif (count($this->failures)) {
-                $this->write('Failures:' . PHP_EOL);
-            } else {
-                $this->write('Errors:' . PHP_EOL);
-            }
-            $this->write(PHP_EOL);
+            $this->write("\033[31m.:: Failures ::.\033[0m" . PHP_EOL . PHP_EOL);
 
-            foreach($this->exceptions as $idx => $ex) {
-                $this->write('  ' . ($idx+1) . ') ' . $ex->getMessage() . PHP_EOL);
-                $this->write(PHP_EOL);
+            foreach($this->exceptions as $idx => $pair) {
+                list($test, $ex) = $pair;
+
+                $title = $test->getSuite()->getTitle() . ', ' . $test->getTitle();
+                $this->printException($idx+1, $title, $ex);
             }
         }
     }
 
-
-    /**
-     * Print a stack trace
-     *
-     * @param  $defect
-     */
-    protected function printDefectTrace($defect)
+    protected function printException($idx, $title, \Exception $ex)
     {
-        $this->write($defect->getExceptionAsString() . "\n");
+        $indent = str_repeat(' ', strlen("  $idx) "));
 
-        // Get exception stack trace
-        $exception = $defect->thrownException();
-        if ($exception instanceof \PHPUnit_Framework_SyntheticError) {
-            $trace = $exception->getSyntheticTrace();
+        if ($ex instanceof \PHPUnit_Framework_SyntheticError) {
+            $trace = $ex->getSyntheticTrace();
         } else {
-            $trace = $exception->getTrace();
+            $trace = $ex->getTrace();
         }
 
-        // Add exception info to backtrace
+        // Insert exception as first element of the trace
         array_unshift($trace, array(
-            'file'  => $exception->getFile(),
-            'line'  => $exception->getLine(),
+            'file'  => $ex->getFile(),
+            'line'  => $ex->getLine(),
         ));
 
-
+        // Process and filter stack trace
         $last = null;
-        $result = array();
-        // Unfiltered stackstrace if in debug mode
-        $groups = empty($this->debug) ? array('DEFAULT', 'PHPUNIT') : array();
+        $offending = null;
+        $stacktrace = array();
+        $groups = $this->debug ? array() : array('DEFAULT', 'PHPUNIT');
         $filter = \PHP_CodeCoverage_Filter::getInstance();
         foreach ($trace as $frame) {
             if (isset($frame['file']) && isset($frame['line']) &&
                 !$filter->isFiltered($frame['file'], $groups, TRUE)) {
 
-                if (0 === strpos($frame['file'], TestRunner::SCHEME)) {
-                    $frame['file'] = substr($frame['file'], strlen(TestRunner::SCHEME . '://'));
-                    // expect(x)->to_xxxx(y) often generates duplicate lines in the trace
-                    if ($last === "{$frame['file']}:{$frame['line']}") {
-                        continue;
-                    }
+                // Skip duplicated frames
+                if (!$this->debug && $last && $last['file'] === $frame['file'] && $last['line'] === $frame['line']) {
+                    continue;
                 }
 
-                $result[] = $last = "{$frame['file']}:{$frame['line']}";
+                $last = $frame;
+
+                // Check spec files
+                if (0 === strpos($frame['file'], Spec::SCHEME . '://')) {
+                    $frame['file'] = substr($frame['file'], strlen(Spec::SCHEME . '://'));
+                    if (0 !== strpos($frame['file'], '/')) {
+                        $frame['file'] = '.' . DIRECTORY_SEPARATOR . $frame['file'];
+                    }
+
+                    $lines = file($frame['file']);
+                    $offending = trim($lines[ $frame['line'] ]);
+                }
+
+                $stacktrace[] = $frame['file'] . ':' . $frame['line'];
             }
         }
 
-        $this->write(implode("\n", $result) . "\n");
+        // Print title
+        $this->write("  $idx) $title" . PHP_EOL);
+        // Print exception message
+        $msg = str_replace(PHP_EOL, PHP_EOL . $indent, $ex->getMessage());
+        $this->write($indent . "\033[31m$msg\033[0m" . PHP_EOL);
+
+        // Print offending spec line if found
+        if ($offending) {
+            $this->write($indent . "\033[33;1m> $offending\033[0m" . PHP_EOL);
+        }
+
+        foreach ($stacktrace as $frame) {
+            $this->write("$indent\033[30;1m# $frame\033[0m" . PHP_EOL);
+
+            if (!$this->verbose && !$this->debug) {
+                break;
+            }
+        }
+
+        $this->write(PHP_EOL);
     }
 }

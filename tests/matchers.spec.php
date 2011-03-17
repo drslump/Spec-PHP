@@ -13,6 +13,8 @@ describe. "Spec matchers".
             1.1 should be float;
             1.1 should be double;
             13e3 should have type 'double';
+            1 should be scalar;
+            .3 should be scalar;
 
             all(1, 2, 3) should be integer
         end.
@@ -21,6 +23,7 @@ describe. "Spec matchers".
 
             'foo' should be string;
             "foo" should have type 'string';
+            'foo' should be scalar;
 
             any(array(1, '2', 3)) should be string;
         end.
@@ -31,6 +34,7 @@ describe. "Spec matchers".
             false should be boolean;
             true should be bool;
             false should have type 'boolean';
+            true should be scalar;
 
             none(1,2,3) should be boolean
         end.
@@ -39,6 +43,7 @@ describe. "Spec matchers".
 
             $fp = fopen('php://memory', 'r');
             $fp should be resource;
+            $fp should NOT be scalar;
             fclose($fp);
         end.
 
@@ -46,6 +51,7 @@ describe. "Spec matchers".
 
             array(1) should be array;
             array() should be type 'array';
+            array(true) should not be scalar;
         end.
 
         it. "should support objects".
@@ -59,7 +65,42 @@ describe. "Spec matchers".
             null should be null;
             0 should not be null;
             null should be type 'null';
+            null should be nil;
+            null should not be scalar;
         end.
+
+        it. "should support scalars".
+            1 should be scalar;
+            .1 should be scalar;
+            "foo" should be scalar;
+            true should be scalar;
+            array() should not be scalar;
+            (new \stdClass) should not be scalar;
+            null should not be scalar;
+        end.
+
+        it. "should support numeric".
+            1 should be numeric;
+            .1 should be numeric;
+            "1" should be numeric;
+            '0.1' should be numeric;
+            "foo" should not be numeric;
+            true should not be numeric;
+            array() should not be numeric;
+            (new \stdClass) should not be numeric;
+            null should not be numeric;
+        end.
+
+        it. "should support callables".
+            1 should not be callable;
+            "foo" should not be callable;
+            "substr" should be callable;
+            array('\DrSlump\Spec', 'it') should be callable;
+            array('S_p_e_c', 'describe') should NOT be callable;
+            $fn = function(){};
+            $fn should be callable;
+        end.
+
     end.
 
     describe. "Comparison".

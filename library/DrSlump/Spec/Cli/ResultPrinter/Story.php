@@ -37,6 +37,8 @@ class Story extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
      */
     public function startTestSuite(\PHPUnit_Framework_TestSuite $suite)
     {
+        static $first = true;
+
         parent::startTestSuite($suite);
 
         if ($suite instanceof Spec\TestSuite) {
@@ -48,21 +50,21 @@ class Story extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
                 while($parent = $parent->getParent()) { $levels++; }
             }
 
-            $output = $suite->getTitle();
-            $filename = '[' . basename($suite->getFilename()) . ']';
-            if ($this->colors) {
-                //$output = "\033[34;4m" . $output . "\033[0m";
-                $output = "\033[37;4m" . $output . "\033[0m";
-                $filename = "\033[30;1m" . $filename . "\033[0m";
-            }
-
+            $output = "\033[37;4m" . $suite->getTitle() . "\033[0m";
             $output = str_repeat("  ", $levels) . $output;
 
             if ($this->verbose && !$suite->getParent()->getParent()) {
+                $filename = "\033[30;1m@ " . basename($suite->getFilename()) . "\033[0m";
                 $output .= ' ' . $filename;
             }
 
-            $this->write("\n" . $output . "\n");
+            if ($first) {
+                $first = false;
+            } else {
+                $this->write(PHP_EOL);
+            }
+
+            $this->write($output . PHP_EOL);
         }
     }
 
@@ -74,42 +76,33 @@ class Story extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
                 while($parent = $parent->getParent()) { $levels++; }
             }
 
-            $output = str_repeat("  ", $levels) . "" . $test->getTitle();
-            //$this->write(str_repeat('  ', $levels-1));
-            //$output = '  ' . $test->getTitle();
+            $output = str_repeat("  ", $levels) . $test->getTitle();
             if ($this->lastTestResult !== self::PASSED) {
 
                 $output = substr($output, 1);
-                if ($this->colors) {
-                    switch ($this->lastTestResult) {
-                    case self::FAILED:
-                        $output.= ' (FAILED - ' . count($this->exceptions) . ')';
-                        $output = "\033[31mF\033[0m\033[31m$output\033[0m";
-                        break;
-                    case self::ERROR:
-                        $output.= ' (ERROR - ' . count($this->exceptions) . ')';
-                        $output = "\033[31;1;5;7mE\033[0m\033[31m$output\033[0m";
-                        break;
-                    case self::INCOMPLETE:
-                        $output.= ' (INCOMPLETE)';
-                        $output = "\033[30;47mI\033[0m\033[30;1m$output\033[0m";
-                        break;
-                    case self::SKIPPED:
-                        $output.= ' (SKIPPED)';
-                        $output = "\033[30;47;7mS\033[0m\033[30;1m$output\033[0m";
-                        break;
-                    }
-                } else {
-                    $output = ' ' . $output;
+                switch ($this->lastTestResult) {
+                case self::FAILED:
+                    $output.= ' (FAILED - ' . count($this->exceptions) . ')';
+                    $output = "\033[31mF\033[0m\033[31m$output\033[0m";
+                    break;
+                case self::ERROR:
+                    $output.= ' (ERROR - ' . count($this->exceptions) . ')';
+                    $output = "\033[31;1;7mE\033[0m\033[31m$output\033[0m";
+                    break;
+                case self::INCOMPLETE:
+                    $output.= ' (INCOMPLETE)';
+                    $output = "\033[30;47mI\033[0m\033[30;1m$output\033[0m";
+                    break;
+                case self::SKIPPED:
+                    $output.= ' (SKIPPED)';
+                    $output = "\033[30;47;7mS\033[0m\033[30;1m$output\033[0m";
+                    break;
                 }
             } else {
-                if ($this->colors) {
-                  //$output = "\033[37m" . $output . "\033[0m";
-                  $output = "\033[32m" . $output . "\033[0m";
-                }
+                $output = "\033[32m" . $output . "\033[0m";
             }
 
-            $this->write($output . "\n");
+            $this->write($output . PHP_EOL);
         }
     }
 }

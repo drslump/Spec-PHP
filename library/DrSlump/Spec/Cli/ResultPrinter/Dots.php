@@ -31,6 +31,10 @@ use DrSlump\Spec\Cli;
  */
 class Dots extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 {
+    const MAX_COLUMN = 50;
+
+    protected $column = 0;
+
     /**
      * @param \PHPUnit_Framework_Test $test
      * @param float $time
@@ -41,23 +45,30 @@ class Dots extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 
         switch ($this->lastTestResult) {
         case self::FAILED:
-            $progress = $this->colors ? "\033[31mF\033[0m" : 'F';
+            $progress = "\033[31mF\033[0m";
             break;
         case self::ERROR:
-            $progress = $this->colors ? "\033[31;1;5;7mE\033[0m" : 'E';
+            $progress = "\033[31;1;7mE\033[0m";
             break;
         case self::INCOMPLETE:
-            $progress = $this->colors ? "\033[30;47mI\033[0m" : 'I';
+            $progress = "\033[30mI\033[0m";
             break;
         case self::SKIPPED:
-            $progress = $this->colors ? "\033[30;47;7mS\033[0m" : 'S';
+            $progress = "\033[30;1mS\033[0m";
             break;
         case self::PASSED:
-            $progress = $this->colors ? "\033[32;1m.\033[0m" : '.';
+            $char = $this->colors ? '+' : '.';
+            $progress = "\033[32m$char\033[0m";
             break;
         }
 
         $this->write($progress);
+
+        $this->column += 1;
+        if ($this->column >= self::MAX_COLUMN) {
+            $this->column = 0;
+            $this->write(PHP_EOL);
+        }
     }
 
     public function flush()

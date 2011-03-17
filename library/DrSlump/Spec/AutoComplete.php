@@ -107,6 +107,9 @@ define('bool', 'bool');
 define('array', 'array');
 define('object', 'object');
 define('resource', 'resource');
+define('scalar', 'scalar');
+define('numeric', 'numeric');
+define('callable', 'callable');
 
 // Value matchers
 define('null', 'null');
