@@ -35,7 +35,8 @@ Spec for PHP is Copyright (C) 2011 Ivan -DrSlump- Montes <http://pollinimini.net
 ## SEE ALSO
 
 spec4php(3), spec4php(5),
-<http://github.com/drslump/spec-for-php>
+<http://github.com/drslump/spec-php>
+
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
 [DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
