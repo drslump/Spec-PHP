@@ -185,6 +185,19 @@ the directory where the class is defined.
         }
     }
 
+If you already have a extended TestCase class with custom assertions
+and helper methods, you make use of it with Spec by using the `class`
+annotation. Spec will use the given class name as base when generating
+the tests. This is really useful to make use of current PHPUnit extensions
+like Zend_Test from Zend Framework.
+
+    # class My_TestCase
+    describe "My Test"
+      it "should access a method of My_TestCase"
+        $this->myMethod();
+      end
+    end
+
 It's even possible to use the `expect` component in PHPUnit's _native_
 test cases.
 
