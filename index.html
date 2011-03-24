@@ -1,81 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset='utf-8'>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />	
 
-  <title>drslump/Spec-PHP @ GitHub</title>
-
-  <style type="text/css">
+  <title>Spec for PHP</title>
+  <style>
     body {
-      margin-top: 1.0em;
-      background-color: #c60249;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #ffffff;
+      font-size:24px;
+      line-height:1.5;
+      font-family:georgia,serif;
+      color:#555;
     }
-    #container {
-      margin: 0 auto;
-      width: 700px;
+    div#index {
+      width:28em;
+      margin:0 auto;
     }
-    h1 { font-size: 3.8em; color: #39fdb6; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #39fdb6; }
-    h3 { text-align: center; color: #39fdb6; }
-    a { color: #39fdb6; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
+    h1 {
+      text-align:center;
+      font-weight:normal;
+      color:#000;
+      margin-bottom:0;
+      letter-spacing:-2px;
+    }
+    h3 {
+      text-align:center;
+      font-weight:normal;
+      color:#444;
+      margin-top:-18px;
+      margin-bottom:40px;
+    }
+    h4 {
+      font-weight:normal;
+      font-size:26px;
+      color:#111;
+    }
+    p, dl { margin-left:40px }
+    .aux { font-family:monospace;font-size:20px;letter-spacing:1px; }
+    .also { font-size:18px }
+    .copy { font-size:16px;text-align:center;color:#111 }
+    .man-ref { font-family:monospace;letter-spacing:-1px; }
   </style>
 </head>
-
 <body>
-  <a href="http://github.com/drslump/Spec-PHP"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+<a href="http://github.com/drslump/Spec-PHP"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+	
+<div id='index'>
+  <h1>Spec 4 PHP</h1>
+  <h3>A Behavior Driven Development tool</h3>
 
-  <div id="container">
+  <h4>Auxiliary</h4>
+  <p class='aux'>
+    <a href='http://github.com/drslump/Spec-PHP#readme'>README</a>,
+    <a href='http://github.com/drslump/Spec-PHP/blob/master/LICENSE#files'>LICENSE</a>
+  </p>
 
-    <div class="download">
-      <a href="http://github.com/drslump/Spec-PHP/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/drslump/Spec-PHP/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
+  <h4>Manuals</h4>
+  <dl>
+    <dt><a class='man-ref' href='spec4php.1.html'>spec4php(1)</a></dt>
+    <dd>cli runner tool</dd>
 
-    <h1><a href="http://github.com/drslump/Spec-PHP">Spec-PHP</a>
-      <span class="small">by <a href="http://github.com/drslump">drslump</a></span></h1>
+    <dt><a class='man-ref' href='spec4php.3.html'>spec4php(3)</a></dt>
+    <dd>library documentation</dd>
 
-    <div class="description">
-      A Behavior Driven Development tool for PHP
-    </div>
+    <dt><a class='man-ref' href='spec4php.5.html'>spec4php(5)</a></dt>
+    <dd>spec files format description</dd>
+  </dl>
 
-    <h2>Manuals</h2>
-    <ul>
-      <li><a href="spec4php.1.html">spec4php(1)</a>
-      <li><a href="spec4php.3.html">spec4php(3)</a>
-      <li><a href="spec4php.5.html">spec4php(5)</a>
-    </ul>
+  <h4>See Also</h4>
+  <p class='also'>
+    <a class='man-ref' href="http://phpunit.de">PHPUnit</a>,
+    <a class='man-ref' href="http://code.google.com/p/hamcrest/">Hamcrest</a>,
+    <a class='man-ref' href="http://rtomayko.github.com/ronn/">ronn(1)</a>
+  </p>
 
-    <h2>Authors</h2>
-<p>Iván -DrSlump- Montes<br/><br/>      </p>
-
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/drslump/Spec-PHP/zipball/master">zip</a> or
-      <a href="http://github.com/drslump/Spec-PHP/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/drslump/Spec-PHP</pre>
-    </p>
-
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/drslump/Spec-PHP">drslump/Spec-PHP</a>
-    </div>
-
-  </div>
-
-  
+  <p class='copy'>Copyright &copy; 2011 Iván -DrSlump- Montes</p>
+</div>
 </body>
 </html>
+
