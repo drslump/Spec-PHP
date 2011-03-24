@@ -36,7 +36,6 @@ class Parser
         // Order is important!
         $it = new Parser\TokenIterator($tokens, $tabsize);
         $it = new Parser\DetectKeywordsTokenIterator($it);
-        $it = new Parser\FilterTokenIterator($it);
 
         $php = Parser\Transform::transform($it);
         return $php;
