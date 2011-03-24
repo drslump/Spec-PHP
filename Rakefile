@@ -79,4 +79,38 @@ namespace :doc do
     sh "ronn -w -s toc,darktoc -r5 --markdown man/*.ronn"
   end
 
+  desc 'Publish to github pages'
+  task :github => 'doc:build' do
+    require 'git'
+    require 'logger'
+
+    remote = `git remote show origin`.grep(/Push.*URL/).first[/git@.*/]
+
+    files = [
+      'spec4php.1.html',
+      'spec4php.3.html',
+      'spec4php.5.html',
+    ]
+
+    root = "/tmp/checkout-#{Time.now.to_i}"
+    g = Git.clone(remote, root, :log => Logger.new(STDOUT))
+
+    # Make sure this actually switches branches.
+    g.checkout(g.branch('gh-pages'))
+    
+    files.each {|file|
+      cp "man/#{file}", "#{root}/."
+      g.add(file)
+    }
+
+    g.commit('Regenerating Github Pages.')
+
+    # PUSH!
+    g.push(g.remote('origin'), g.branch('gh-pages'))
+
+    puts '--> GitHub Pages Commit and Push successful.'
+  end
+
 end
+
+
