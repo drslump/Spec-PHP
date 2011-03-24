@@ -1,0 +1,9 @@
+# manuals
+spec4php(1) spec4php.1.ronn
+spec4php(3) spec4php.3.ronn
+spec4php(5) spec4php.5.ronn
+
+# external manuals
+ronn http://rtomayko.github.com/ronn
+phpunit http://phpunit.de
+

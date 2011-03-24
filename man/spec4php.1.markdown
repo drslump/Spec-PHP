@@ -51,3 +51,5 @@ spec4php(3), spec4php(5),
 [spec4php(1)]: spec4php.1.html
 [spec4php(3)]: spec4php.3.html
 [spec4php(5)]: spec4php.5.html
+[ronn]: http://rtomayko.github.com/ronn
+[phpunit]: http://phpunit.de

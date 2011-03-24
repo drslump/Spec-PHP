@@ -70,6 +70,7 @@
     <a href="#DESCRIPTION">DESCRIPTION</a>
     <a href="#BLOCKS">BLOCKS</a>
     <a href="#EXPECTATIONS">EXPECTATIONS</a>
+    <a href="#COORDINATION">COORDINATION</a>
     <a href="#ANNOTATIONS">ANNOTATIONS</a>
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
@@ -115,7 +116,83 @@ where each one has a single assertion (<strong>should</strong>).</p>
 
 <h2 id="EXPECTATIONS">EXPECTATIONS</h2>
 
+<h2 id="COORDINATION">COORDINATION</h2>
+
+<p>Complex expectations can be <em>coordinated</em> by using operators <code>and</code>, <code>or</code> and
+<code>but</code>. It's important to understand the operator precedence rules before
+using them, although they try to follow common conventions for the english
+language there might be cases where they don't quite do what they look like.</p>
+
+<p>All operators are left-associative and take two operands, thus the precedence
+rules are very simple:</p>
+
+<pre><code>  operator  |  precedence index
+---------------------------------
+    and     |        3
+    or      |        2
+    but     |        1
+    ,and    |        1
+</code></pre>
+
+<p>Please note that it's not possible to override the standard precedence rules
+by using parentheses. Expectations should be kept simple, when in doubt break
+up complex expectations into simpler ones.</p>
+
+<p>Please review the following examples to see how these precedence rules
+apply.</p>
+
+<pre><code>should be integer or string and equal "1"
+(integer) OR (string AND equal "1")
+
+-- Note that a comma followed by an operand behaves like an "or"
+should be integer, float or string
+(integer) OR (float) OR (string)
+should be integer, string and equal to 10 or float
+(integer) OR (string AND equal 10) OR (float)
+
+-- Note that a comma followed by "and" behaves like a "but"
+should be integer or string but less than 10
+should be integer or string, and less than 10
+(integer OR string) AND (less than 10)
+
+should be integer or string and equal 0 or float
+(integer) OR (string AND equal 0) OR (float)
+
+should be integer or string and equal "1" but not be a float
+( (integer) OR (string AND equal "1") ) AND (not be float)
+</code></pre>
+
 <h2 id="ANNOTATIONS">ANNOTATIONS</h2>
+
+<p>Annotations can be defined in two ways, using the standard javadoc like
+comment with <code>@tag</code> entries or a more lightweight alternative using
+a hash line comment followed by a word: <code># tag</code>.</p>
+
+<p>Most annotations are inherited by child <code>describe</code> groups and <code>it</code>
+blocks. In the case where there is a collision the deepest one in
+the hierarchy wins.</p>
+
+<p>Spec understands the following annotation tags:</p>
+
+<dl>
+<dt><code>class</code> <var>class_name</var></dt><dd><p>Tells Spec to create a test case inherting from the given class.
+This is very useful to allow the use of Spec with custom TestCase
+classes you might already have or for enabling the use of Zend_Test
+or PHPUnit's Selenium test case implementation.</p></dd>
+<dt><code>throws</code> [<em>code</em>] <var>class</var> [<var>message</var>]</dt><dd><p>This annotation instructs Spec to perform an additional assertion
+when runnning the test, ensuring that it should throw an exception
+matching the given code or the given exception class.</p></dd>
+<dt><code>todo</code>, <code>incomplete</code></dt><dd><p>Flags a test case as incomplete. Spec will report these test cases
+in a different way to standard ones, so it's easy to know when a
+test is passing but doesn't yet tests all the funcionality it should.</p></dd>
+<dt class="flush"><code>skip</code></dt><dd><p>A test case with this tag will make Spec skip its execution but log
+in the report that it was skipped. It's a great way to disable some
+test cases known to fail for any reason.</p></dd>
+</dl>
+
+
+<p>Additionally, most PHPUnit annotations should work when using spec files
+too, see <a href="http://www.phpunit.de/manual/current/en/appendixes.annotations.html"></a></p>
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
 
