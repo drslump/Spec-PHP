@@ -391,6 +391,9 @@ class Transform {
             // check if it' just before a "should" token
             $next = $this->skip(Token::WHITESPACE, Token::EOL);
             if ($next->type === Token::SHOULD) {
+                // Replace it with a single whitespace
+                $token = new Token(Token::WHITESPACE, ' ');
+                $this->appendStatement($token);
                 return $next;
             }
 
@@ -398,6 +401,21 @@ class Transform {
             return $next;
 
         case Token::SHOULD:
+
+            // Flush captured non-statement tokens
+            while (count($this->statement)) {
+                $token = array_shift($this->statement);
+                if ($token->type === Token::COMMENT ||
+                    $token->type === Token::WHITESPACE ||
+                    $token->type === Token::EOL) {
+                    $this->write($token->value);
+                }  else {
+                    array_unshift($this->statement, $token);
+                    break;
+                }
+            }
+
+            // Define the expectation wrapper
             $this->write(self::SPEC_CLASS . '::expect(');
             $this->dumpStatement();
             $this->write(')->');
@@ -444,15 +462,14 @@ class Transform {
             $token = $this->skip(Token::WHITESPACE, Token::EOL);
             $value = strtolower($token->value);
             if ($value === 'and' || $value === 'but') {
-                $this->write('->but'); // ,and;
+                $this->write('->but_'); // ,and;
                 return false;
             } else if ($value === 'or') {
-                $this->write('->or');  // ,or;
+                $this->write('->or_');  // ,or;
                 return false;
             }
-            // @todo? should have one of "foo", "bar" and "baz"
 
-            $this->write('->or'); // default
+            $this->write('->or_'); // default
             return $token;
 
         case Token::SEMICOLON:
@@ -476,8 +493,7 @@ class Transform {
             return false;
 
         // Logical operators
-        case $token->type === Token::TEXT &&
-             in_array(strtolower($token->value), array('and', 'or', 'but', 'as')):
+        case in_array(strtolower($token->value), array('and', 'or', 'but', 'as')):
 
             $this->write('->' . $token->value . '_');
             return false;

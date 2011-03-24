@@ -40,8 +40,8 @@ class Expect
     /** @var bool */
     protected $implicitAssert = true;
 
-    /** @var \Hamcrest_Matcher */
-    protected $matcher;
+    /** @var array */
+    protected $expression = array();
 
     /** @var array Words to ignore */
     protected $ignoredWords = array(
@@ -163,6 +163,15 @@ class Expect
         return $this->assert($fn, $args);
     }
 
+    /**
+     * For expectations not needing arguments (integer, empty, truthy...)
+     *
+     * @example
+     *  expect(1)->to_be_integer->or_string->and_equal(10)
+     *
+     * @param  $name
+     * @return Expect
+     */
     public function __get($name)
     {
         return $this->assert($name, array());
@@ -231,12 +240,14 @@ class Expect
         // Re-index array just in case
         $parts = array_values($parts);
 
+
         // By default use "same"
         if (empty($parts)) {
             $parts[] = 'same';
         }
 
-        // Manage combinations
+
+        // Manage coordination operators
         switch ($parts[0]) {
         case 'described':
             if (empty($parts[1]) || $parts[1] !== 'as') {
@@ -247,24 +258,28 @@ class Expect
             return $this;
 
         case 'and':
-            $combinator = 'AND';
+            $this->expression[] = new Operator('AND', 10);
             array_shift($parts);
             break;
         case 'or':
-            // @TODO
-            $combinator = 'OR';
+            $this->expression[] = new Operator('OR', 5);
             array_shift($parts);
             break;
         case 'but':
-            // @TODO
+            $this->expression[] = new Operator('BUT', 1);
+            array_shift($parts);
+            break;
         }
 
+        // @todo If $parts is empty reuse previous matcher
+        // example: expect(1)->to_equal(0)->or(1);
 
         // Generate a matcher name from the parts
         $matcher = implode('_', $parts);
         // @todo Find the longest match
+        //       This should be solved when the matchers get refactored
+        //       into a "broker" or "locator" object
         if (!Spec::hasMatcher($matcher)) {
-
             $matches = array();
             $from = str_replace('_', ' ', $matcher);
             $ops = Spec::getMatcherNames();
@@ -296,16 +311,7 @@ class Expect
             $matcher = \Hamcrest_Core_IsNot::not($matcher);
         }
 
-        if (isset($combinator) && $combinator === 'OR') {
-            $this->matcher = \Hamcrest_Core_AnyOf::anyOf($this->matcher, $matcher);
-        } else if (isset($combinator) && $combinator === 'AND') {
-            $this->matcher = \Hamcrest_Core_AllOf::allOf($this->matcher, $matcher);
-        } else {
-            $this->matcher = $matcher;
-        }
-
-        // Add to the list of matchers
-        //$this->matcher[] = $matcher;
+        $this->expression[] = $matcher;
 
         // Run the assertion now if the implicit flag is set
         if ($this->implicitAssert) {
@@ -315,78 +321,70 @@ class Expect
         return $this;
     }
 
+    /**
+     * Perform the assertion for the configured expression.
+     *
+     * It will apply binding rules to combinators (AND, OR, BUT)
+     *
+     * @throws \RuntimeException
+     */
     public function doAssert()
     {
-        $this->subject->doAssert($this->matcher, $this->message);
-    }
-
-
-    public function old__call($name, $args)
-    {
-        // Convert camelCase to underscores
-        $name = preg_replace_callback('/([a-z])([A-Z])/', function($m){
-            return $m[1] . '_' . strtolower($m[2]);
-        }, $name);
-
-        // Make it all lowercase
-        $name = strtolower($name);
-
-        // Explode by the underscore
-        $parts = explode('_', $name);
-
-        // Remove ignored parts
-        $parts = array_filter($parts, function($part){
-            return !in_array($part, array('to', 'be', 'a', 'an', 'of'));
-        });
-
-        // Calculate if it's a negation
-        $isNegation = false;
-        foreach ($parts as $part) {
-            if ($part === 'not' || $part == 'no') {
-                $isNegation = !$isNegation;
-            }
-        }
-
-        // By default use "same"
-        if (empty($parts)) {
-            $parts[] = 'same';
-        }
-
-        // Sort parts alphabetically
-        sort($parts);
-
-        // Generate an operation name from the parts
-        $operation = implode('_', $parts);
-
-        //echo "Operation: " . ($isNegation ? '!' : '') . "$operation\n";
-
-        if (!Spec::hasMatcher($operation)) {
-
-            $matches = array();
-            $from = str_replace('_', ' ', $operation);
-            $ops = Spec::getMatcherNames();
-            foreach ($ops as $op) {
-                $to = str_replace('_', ' ', $op);
-                $similarity = similar_text($from, $to);
-                if ($similarity >= 7) {
-                    $matches[$op] = $similarity;
+        // Apply Shunting Yard algorithm to convert the expression
+        // into Reverse Polish Notation. Since we have a very simple
+        // set of operators and binding rules the implementation becomes
+        // very simple
+        $ops = new \SplStack();
+        $rpn = array();
+        foreach ($this->expression as $token) {
+            if ($token instanceof Operator) {
+                while(!$ops->isEmpty() && $token->compare($ops->top()) <= 0) {
+                    $rpn[] = $ops->pop();
                 }
-                //echo "Similarity $operation -> $op = $similarity\n";
+                $ops->push($token);
+            } else {
+                $rpn[] = $token;
             }
-
-            $msg = "Expect operation $operation ($name) not found.";
-            if (!empty($matches)) {
-                asort($matches);
-                $match = array_pop(array_keys($matches));
-                $msg .= " Perhaps you meant to use $match?";
-            }
-
-            throw new \Exception($msg);
+        }
+        // Append the remaining operators
+        while(!$ops->isEmpty()) {
+            $rpn[] = $ops->pop();
         }
 
-        // Get callback and execute it
-        $cb = Spec::getMatcher($operation);
+        // Walk the RPN expression to create AnyOf and AllOf matchers
+        $stack = array();
+        foreach ($rpn as $token) {
+            if ($token instanceof Operator) {
 
-        $cb($this->value, $args, $isNegation);
+                // Our operators always need two operands
+                $operands = array(
+                    array_pop($stack),
+                    array_pop($stack),
+                );
+
+                switch ($token->getKeyword()) {
+                case 'AND':
+                case 'BUT':
+                    $matcher = new \Hamcrest_Core_AllOf($operands);
+                    $stack[] = $matcher;
+                    break;
+                case 'OR':
+                    $matcher = new \Hamcrest_Core_AnyOf($operands);
+                    $stack[] = $matcher;
+                    break;
+                }
+            } else {
+                $stack[] = $token;
+            }
+        }
+
+        if (count($stack) !== 1) {
+            throw new \RuntimeException('The RPN stack should have only one item');
+        }
+
+        $matcher = array_pop($stack);
+
+        $this->subject->doAssert($matcher, $this->message);
     }
+
 }
