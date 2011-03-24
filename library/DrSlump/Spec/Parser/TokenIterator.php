@@ -20,6 +20,11 @@ namespace DrSlump\Spec\Parser;
 /**
  * Creates an iterator from an array returned from token_get_all()
  *
+ * @todo Perhaps we could use php-token-stream (https://github.com/sebastianbergmann/php-token-stream)
+ *       to normalize and consume the tokens.
+ *       In any case, it should be possible to simplify the current
+ *       wrapped iterators approach.
+ *
  * @package     Spec\Parser
  * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>
  * @see         https://github.com/drslump/Spec
