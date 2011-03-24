@@ -34,20 +34,22 @@ _alpha_ quality software for the time being.
 
  - *Describe* and *It* block parsers
  - Natural language expectations parser
- - Non-combined (and, or, but) expectations
+ - Coordinated expectations (and, or, but)
  - Run expectations against collections/arrays (all, any, none)
- - PHPUnit integration
  - Parametrized *It* blocks
  - Annotations support (@group, @skip, @todo, @throw, ...)
- - Matcher factory to create matchers with a callback function
  - Custom CLI runner tool
+ - PHPUnit integration
  - Use annotation to inherit from custom PHPUnit_TestCase class (ie: Zend_Test)
+ - Matcher factory to create matchers with a callback function
+
 
 ### Upcoming
 
- - Combined expectations
  - *Before* and *After* blocks
  - Review configurable options and extension points
+ - Refactor matchers to get longest-match
+ - Coordination operator without explicit expectation should use latest one
 
 ### Later
 
@@ -80,6 +82,10 @@ Checkout a copy of _Spec for PHP_ in your computer and do a test run:
 
     cd tests/
     phpunit AllTests.php
+
+Also try the custom cli runner:
+
+    ./spec4php.php tests
 
 
 ## Example
