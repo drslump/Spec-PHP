@@ -31,9 +31,19 @@ use DrSlump\Spec\Cli;
  */
 class Dots extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 {
-    const MAX_COLUMN = 50;
+    const MAX_COLUMNS = 60;
 
+    protected $maxColumns = self::MAX_COLUMNS;
     protected $column = 0;
+
+    public function __construct($out = NULL, $verbose = FALSE, $colors = FALSE, $debug = FALSE)
+    {
+        parent::__construct($out, $verbose, $colors);
+
+        if (!empty($_SERVER['COLUMNS'])) {
+            $this->maxColumns = $_SERVER['COLUMNS'] - 10;
+        }
+    }
 
     /**
      * @param \PHPUnit_Framework_Test $test
@@ -45,27 +55,31 @@ class Dots extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 
         switch ($this->lastTestResult) {
         case self::FAILED:
-            $progress = "\033[31mF\033[0m";
+			$ch = $this->colors ? '✗ ' : 'F';
+            $progress = "\033[31m$ch\033[0m";
             break;
         case self::ERROR:
-            $progress = "\033[31;1;7mE\033[0m";
+            $ch = $this->colors ? '✖ ' : 'E';
+            $progress = "\033[31m$ch\033[0m";
             break;
         case self::INCOMPLETE:
-            $progress = "\033[30mI\033[0m";
+            $ch = $this->colors ? '⟐ ' : 'I';
+            $progress = "\033[30m$ch\033[0m";
             break;
         case self::SKIPPED:
-            $progress = "\033[30;1mS\033[0m";
+            $ch = $this->colors? '⟐ ' : 'S';
+            $progress = "\033[30;1m$ch\033[0m";
             break;
         case self::PASSED:
-            $char = $this->colors ? '+' : '.';
-            $progress = "\033[32m$char\033[0m";
+            $ch = $this->colors ? '✓ ' : '.';
+            $progress = "\033[32m$ch\033[0m";
             break;
         }
 
         $this->write($progress);
 
-        $this->column += 1;
-        if ($this->column >= self::MAX_COLUMN) {
+        $this->column += $this->colors ? 2 : 1;
+        if ($this->column >= $this->maxColumns) {
             $this->column = 0;
             $this->write(PHP_EOL);
         }

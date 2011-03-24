@@ -168,7 +168,8 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     {
         $this->write(PHP_EOL);
         if (count($this->exceptions)) {
-            $this->write("\033[31m.:: Failures ::.\033[0m" . PHP_EOL . PHP_EOL);
+			$ch = $this->colors ? '»' : '=>';
+            $this->write("\033[31m$ch Failures\033[0m" . PHP_EOL . PHP_EOL);
 
             foreach($this->exceptions as $idx => $pair) {
                 list($test, $ex) = $pair;
@@ -212,6 +213,13 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
 
                 $last = $frame;
 
+                // Skip blacklisted eval frames: /path/to/file(line) : eval()'d code:line
+                if (preg_match('/^(.+?)\([0-9]+\)\s:\seval/', $frame['file'], $m)) {
+                    if ($filter->isFiltered($m[1], $groups, TRUE)) {
+                        continue;
+                    }
+                }
+
                 // Check spec files
                 if (0 === strpos($frame['file'], Spec::SCHEME . '://')) {
                     $frame['file'] = substr($frame['file'], strlen(Spec::SCHEME . '://'));
@@ -220,7 +228,7 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
                     }
 
                     $lines = file($frame['file']);
-                    $offending = trim($lines[ $frame['line'] ]);
+                    $offending = trim($lines[ $frame['line']-1 ]);
                 }
 
                 $stacktrace[] = $frame['file'] . ':' . $frame['line'];
@@ -235,11 +243,13 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
 
         // Print offending spec line if found
         if ($offending) {
-            $this->write($indent . "\033[33;1m> $offending\033[0m" . PHP_EOL);
+            $ch = $this->colors ? '❯' : '>';
+            $this->write($indent . "\033[33;1m$ch $offending\033[0m" . PHP_EOL);
         }
 
+        $ch = '#';
         foreach ($stacktrace as $frame) {
-            $this->write("$indent\033[30;1m# $frame\033[0m" . PHP_EOL);
+            $this->write("$indent\033[30;1m$ch $frame\033[0m" . PHP_EOL);
 
             if (!$this->verbose && !$this->debug) {
                 break;

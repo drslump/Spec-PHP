@@ -54,7 +54,7 @@ class Story extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
             $output = str_repeat("  ", $levels) . $output;
 
             if ($this->verbose && !$suite->getParent()->getParent()) {
-                $filename = "\033[30;1m@ " . basename($suite->getFilename()) . "\033[0m";
+                $filename = "\033[30;1m[" . basename($suite->getFilename()) . "]\033[0m";
                 $output .= ' ' . $filename;
             }
 
@@ -79,23 +79,22 @@ class Story extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
             $output = str_repeat("  ", $levels) . $test->getTitle();
             if ($this->lastTestResult !== self::PASSED) {
 
-                $output = substr($output, 1);
                 switch ($this->lastTestResult) {
                 case self::FAILED:
                     $output.= ' (FAILED - ' . count($this->exceptions) . ')';
-                    $output = "\033[31mF\033[0m\033[31m$output\033[0m";
+                    $output = "\033[31m$output\033[0m";
                     break;
                 case self::ERROR:
                     $output.= ' (ERROR - ' . count($this->exceptions) . ')';
-                    $output = "\033[31;1;7mE\033[0m\033[31m$output\033[0m";
+                    $output = "\033[31m$output\033[0m";
                     break;
                 case self::INCOMPLETE:
                     $output.= ' (INCOMPLETE)';
-                    $output = "\033[30;47mI\033[0m\033[30;1m$output\033[0m";
+                    $output = "\033[30;1m$output\033[0m";
                     break;
                 case self::SKIPPED:
                     $output.= ' (SKIPPED)';
-                    $output = "\033[30;47;7mS\033[0m\033[30;1m$output\033[0m";
+                    $output = "\033[30;1m$output\033[0m";
                     break;
                 }
             } else {
