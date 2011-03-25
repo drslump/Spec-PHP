@@ -35,6 +35,7 @@ _alpha_ quality software for the time being.
  - *Describe* and *It* block parsers
  - Natural language expectations parser
  - Coordinated expectations (and, or, but)
+ - *Before* and *After* blocks
  - Run expectations against collections/arrays (all, any, none)
  - Parametrized *It* blocks
  - Annotations support (@group, @skip, @todo, @throw, ...)
@@ -46,7 +47,6 @@ _alpha_ quality software for the time being.
 
 ### Upcoming
 
- - *Before* and *After* blocks
  - Review configurable options and extension points
  - Refactor matchers to get longest-match
  - Coordination operator without explicit expectation should use latest one
