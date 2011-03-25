@@ -37,6 +37,8 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     const INCOMPLETE    = 4;
     const SKIPPED       = 5;
 
+    const MAX_COLUMNS = 79;
+
     /** @var int */
     protected $lastTestResult;
     protected $exceptions = array();
@@ -45,6 +47,25 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     protected $incomplete = array();
     protected $skipped = array();
 
+    protected $maxColumns = self::MAX_COLUMNS;
+    protected $column = 0;
+
+    public function __construct($out = NULL, $verbose = FALSE, $colors = FALSE, $debug = FALSE)
+    {
+        parent::__construct($out, $verbose, $colors);
+
+        if (!empty($_SERVER['COLUMNS'])) {
+            $this->maxColumns = $_SERVER['COLUMNS'];
+        } else if (function_exists('ncurses_getmaxyx')) {
+            ncurses_getmaxyx(STDSCR, $height, $this->maxColumns);
+        } else {
+            // Try to get it on *nix like systems
+            exec('resize 2>/dev/null', $output, $ret);
+            if ($ret === 0 && preg_match('/COLUMNS=([0-9]+)/', $output[0], $m)) {
+                $this->maxColumns = $m[1];
+            }
+        }
+    }
 
     /**
      * An error occurred.
@@ -139,16 +160,6 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     {
     }
 
-
-    /**
-     * Finish the reporting
-     *
-     */
-    public function flush()
-    {
-        $this->printFailures();
-    }
-
     /**
      * Override this method to automatically remove ansi codes
      */
@@ -160,6 +171,48 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
         parent::write($data);
     }
 
+    public function printResult(\PHPUnit_Framework_TestResult $result)
+    {
+        $upLine = str_repeat($this->colors ? '▁' : '-', $this->maxColumns);
+        $dnLine = str_repeat($this->colors ? '▔' : '-', $this->maxColumns);
+        $arrow = $this->colors ? '❯' : '=>';
+
+        $this->printFailures();
+        if (!count($this->exceptions)) {
+            $ch = $this->colors ? ' ✔' : '';
+            $upLine = "\033[32m" . $upLine . "\n\033[0m";
+            $dnLine = "\033[32m" . $dnLine . "\n\033[0m";
+            $str = "\x1b[32m$ch\x1b[0m OK $arrow Passed %s of %s";
+            $str = sprintf($str, count($result->passed()), $result->count());
+        } else {
+            $ch = $this->colors ? ' ✖' : '';
+            $upLine = "\033[31m" . $upLine . "\n\033[0m";
+            $dnLine = "\033[31m" . $dnLine . "\n\033[0m";
+            $str = "\x1b[31m$ch\x1b[0m KO $arrow Failed %s of %s";
+            $str = sprintf($str, $result->failureCount()+$result->errorCount(), $result->count());
+        }
+
+        if (!$result->allCompletlyImplemented()) {
+            $pair = array();
+            if ($result->notImplementedCount() > 0) {
+                $pair[] = $result->notImplementedCount() . ' not implemented';
+            }
+            if ($result->skippedCount() > 0) {
+                $pair[] = $result->skippedCount() . ' skipped';
+            }
+            $str .= " with " . implode(' and ', $pair);
+        }
+
+        // Add time spent
+        $str.= " \033[30;1m(" . number_format($result->time(), 2) . "s)\n\033[0m";
+
+        // Clean up the line above and print there
+        $this->write("\033[1A\033[2K");
+        $this->write($upLine);
+        $this->write($str);
+        $this->write($dnLine);
+    }
+
     /**
      * Prints the failures and errors found so far
      *
@@ -168,13 +221,14 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
     {
         $this->write(PHP_EOL);
         if (count($this->exceptions)) {
-			$ch = $this->colors ? '»' : '=>';
-            $this->write("\033[31m$ch Failures\033[0m" . PHP_EOL . PHP_EOL);
+			$ch = $this->colors ? '✖' : '=>';
+            $suffix = $this->colors ? str_repeat('▬', $this->maxColumns-12) : '';
+            $this->write("$ch Failures $suffix\033[0m" . PHP_EOL . PHP_EOL);
 
             foreach($this->exceptions as $idx => $pair) {
                 list($test, $ex) = $pair;
 
-                $title = $test->getSuite()->getTitle() . ', ' . $test->getTitle();
+                $title = $test->getSuite()->getTitle() . ': ' . $test->getTitle();
                 $this->printException($idx+1, $title, $ex);
             }
         }

@@ -31,19 +31,6 @@ use DrSlump\Spec\Cli;
  */
 class Dots extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 {
-    const MAX_COLUMNS = 60;
-
-    protected $maxColumns = self::MAX_COLUMNS;
-    protected $column = 0;
-
-    public function __construct($out = NULL, $verbose = FALSE, $colors = FALSE, $debug = FALSE)
-    {
-        parent::__construct($out, $verbose, $colors);
-
-        if (!empty($_SERVER['COLUMNS'])) {
-            $this->maxColumns = $_SERVER['COLUMNS'] - 10;
-        }
-    }
 
     /**
      * @param \PHPUnit_Framework_Test $test
@@ -55,31 +42,32 @@ class Dots extends Cli\ResultPrinter implements \PHPUnit_Framework_TestListener
 
         switch ($this->lastTestResult) {
         case self::FAILED:
-			$ch = $this->colors ? '✗ ' : 'F';
+			$ch = $this->colors ? '✘' : 'F';
             $progress = "\033[31m$ch\033[0m";
             break;
         case self::ERROR:
-            $ch = $this->colors ? '✖ ' : 'E';
+            $ch = $this->colors ? '▪' : 'E';
             $progress = "\033[31m$ch\033[0m";
             break;
         case self::INCOMPLETE:
-            $ch = $this->colors ? '⟐ ' : 'I';
+            $ch = $this->colors ? '▫' : 'I';
             $progress = "\033[30m$ch\033[0m";
             break;
         case self::SKIPPED:
-            $ch = $this->colors? '⟐ ' : 'S';
+            $ch = $this->colors? '▫' : 'S';
             $progress = "\033[30;1m$ch\033[0m";
             break;
         case self::PASSED:
-            $ch = $this->colors ? '✓ ' : '.';
+            $ch = $this->colors ? '•' : '.';
             $progress = "\033[32m$ch\033[0m";
             break;
+        default:
+            throw new \RuntimeException('Unknown test result "' . $this->lastTestResult . '"');
         }
 
         $this->write($progress);
-
-        $this->column += $this->colors ? 2 : 1;
-        if ($this->column >= $this->maxColumns) {
+        $this->column += 1;
+        if ($this->column >= $this->maxColumns-10) {
             $this->column = 0;
             $this->write(PHP_EOL);
         }

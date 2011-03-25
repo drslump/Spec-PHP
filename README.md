@@ -64,14 +64,16 @@ _alpha_ quality software for the time being.
  - PHP 5.3
  - PHPUnit 3 (only tested with 3.5)
  - Hamcrest matchers library
+ - PHP Object_Freezer 1.0.0
 
 
 ## Installation
 
-Install a recent version of PHPUnit
+Install a recent version of PHPUnit and PHP Object_Freezer
 
     pear channel-discover pear.phpunit.de
     pear install phpunit/PHPUnit
+    pear install phpunit/Object_Freezer
 
 Install Hamcrest matchers library
 

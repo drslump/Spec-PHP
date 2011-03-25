@@ -156,5 +156,7 @@ class Test
 
         unset($suite);
         $result->flushListeners();
+
+        $printer->printResult($result);
     }
 }
