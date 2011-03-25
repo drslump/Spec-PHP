@@ -297,6 +297,27 @@ class Spec
     {
         return new Spec\Expect($value, $implicitAssert);
     }
+
+
+    public static function before($cb)
+    {
+        self::currentSuite()->before($cb);
+    }
+
+    public static function before_each($cb)
+    {
+        self::currentSuite()->beforeEach($cb);
+    }
+
+    public static function after($cb)
+    {
+        self::currentSuite()->after($cb);
+    }
+
+    public static function after_each($cb)
+    {
+        self::currentSuite()->afterEach($cb);
+    }
 }
 
 

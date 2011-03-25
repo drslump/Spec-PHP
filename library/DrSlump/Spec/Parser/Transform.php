@@ -66,6 +66,9 @@ class Transform {
     /** @var Token[] */
     protected $statement = array();
 
+    /** @var bool */
+    protected $inBlock = false;
+
     // Indentation auto-close
     protected $endAuto = false;
     protected $isIndent = true;
@@ -321,6 +324,7 @@ class Transform {
         case 'after':
         case 'after_each':
 
+
             $next = $this->skip(Token::WHITESPACE, Token::DOT);
             if ($next->type === Token::LPAREN) {
                 $this->appendStatement($token);
@@ -333,6 +337,8 @@ class Transform {
 
             $this->closeIndentedBlocks();
 
+            $this->inBlock = $value !== 'describe';
+
             $this->write(self::SPEC_CLASS . '::' . $value . '(');
 
             $args = array('$world');
@@ -340,6 +346,7 @@ class Transform {
                 throw new Exception('Expected quoted string at line ' . $token->line);
             } else if ($hasMessage) {
                 $this->write($next->value);
+                $this->write(', ');
 
                 // Count "placeholders" in the message
                 $msg = substr($next->value, 1, -1);
@@ -349,16 +356,18 @@ class Transform {
                 }
             }
 
-            $this->write(', function(');
+            $this->write('function(');
             $this->write(implode(', ', $args));
             $this->write('){');
 
             $this->pushBlock($this->indent);
             $this->transition(self::PHP);
 
-            $next = $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON, Token::COLON);
             if ($next->type !== Token::EOL) {
-                throw new Exception('Expected EOL but found "' . $next->value . '" at line ' . $next->line);
+                $next = $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON, Token::COLON);
+                if ($next->type !== Token::EOL) {
+                    throw new Exception('Expected EOL but found "' . $next->value . '" at line ' . $next->line);
+                }
             }
 
             return $next;
@@ -367,6 +376,8 @@ class Transform {
             $this->popBlock();
             $this->write('});');
             $this->closeIndentedBlocks();
+
+            $this->inBlock = false;
 
             $this->transition(self::PHP);
             return $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON);
@@ -420,6 +431,14 @@ class Transform {
             $this->dumpStatement();
             $this->write(')->');
             $this->transition(self::SHOULD);
+            return false;
+
+        case Token::VARIABLE:
+            if ($this->inBlock && !preg_match('/^\$(arg[0-9]+|world)$/', $token->value)) {
+                $token->value = '$world->' . substr($token->value, 1);
+            }
+
+            $this->appendStatement($token);
             return false;
 
         default:
@@ -546,7 +565,12 @@ class Transform {
                 $parens--;
                 break;
 
-            // Check if the params are over
+            case Token::VARIABLE:
+                if ($this->inBlock && !preg_match('/^\$(arg[0-9]+|world)$/', $token->value)) {
+                    $token->value = '$world->' . substr($token->value, 1);
+                }
+                break;
+
             case Token::TEXT && strtolower($token->value) === 'or':
             case Token::TEXT && strtolower($token->value) === 'and':
             case Token::TEXT && strtolower($token->value) === 'but':

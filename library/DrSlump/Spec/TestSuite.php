@@ -17,6 +17,8 @@
 
 namespace DrSlump\Spec;
 
+require_once __DIR__ . '/../Object/Freezer.php';
+
 use \DrSlump\Spec;
 
 /**
@@ -42,6 +44,11 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
     /** @var String */
     protected $filename = NULL;
 
+    /** @var SplStack */
+    protected $snapshots = array();
+    /** @var stdClass */
+    protected $world = NULL;
+
     /** @var closure[] */
     protected $beforeCallbacks = array();
     /** @var closure[] */
@@ -50,6 +57,14 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
     protected $afterCallbacks = array();
     /** @var closure[] */
     protected $afterEachCallbacks = array();
+
+
+    public function __construct($theClass = '', $name = '')
+    {
+        parent::__construct($theClass, $name);
+
+        $this->snapshots = new \SplStack();
+    }
 
     /**
      * Set describe block title
@@ -136,7 +151,36 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
         $this->setFilename($reflFunc->getFileName());
     }
 
+    public function getWorld()
+    {
+        if (NULL === $this->world) {
+            if ($this->getParent()) {
+                $this->world = $this->getParent()->getWorld();
+            } else {
+                $this->world = new \stdClass();
+            }
+        }
 
+        return $this->world;
+    }
+
+    public function createWorldSnapshot()
+    {
+        $freezer = new \DrSlump\Object\Freezer();
+
+        $world = $this->getWorld();
+        $freezed = $freezer->freeze($world);
+        $this->snapshots->push($freezed);
+    }
+
+    public function restoreWorldSnapshot()
+    {
+        $freezer = new \DrSlump\Object\Freezer();
+
+        $freezed = $this->snapshots->pop();
+        $world = $freezer->thaw($freezed);
+        $this->world = $world;
+    }
 
     public function before($cb)
     {
@@ -166,6 +210,8 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
 
     public function runBeforeEachCallbacks($test)
     {
+        $this->createWorldSnapshot();
+
         $callbacks = array();
 
         // Navigate to the root suite collecting callbacks
@@ -183,7 +229,7 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
 
         // Finally run all the callbacks in order
         foreach ($callbacks as $cb) {
-            $cb($test);
+            $cb($this->getWorld());
         }
     }
 
@@ -211,8 +257,10 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
 
         // Finally run all of them
         foreach ($callbacks as $cb) {
-            $cb($test);
+            $cb($this->getWorld());
         }
+
+        $this->restoreWorldSnapshot();
     }
 
 
@@ -221,8 +269,10 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
      */
     public function setUp()
     {
+        $this->createWorldSnapshot();
+
         foreach ($this->beforeCallbacks as $cb) {
-            $cb($this);
+            $cb($this->getWorld());
         }
     }
 
@@ -232,8 +282,10 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
     public function tearDown()
     {
         foreach ($this->afterCallbacks as $cb) {
-            $cb($this);
+            $cb($this->getWorld());
         }
+
+        $this->restoreWorldSnapshot();
     }
 
 

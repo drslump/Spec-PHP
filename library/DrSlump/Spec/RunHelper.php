@@ -255,9 +255,6 @@ class RunHelper
         );
 
         return $e;
-
-        //$this->status        = PHPUnit_Runner_BaseTestRunner::STATUS_ERROR;
-        //$this->statusMessage = $e->getMessage();
     }
 
     /**
@@ -316,9 +313,13 @@ class RunHelper
      */
     public function setUp(Spec\TestCaseInterface  $test)
     {
+        $suite = $test->getSuite();
+
+        // Create a snapshot of the world
+        $suite->createWorldSnapshot();
+
         // Run before each callbacks
         // @todo Move callback invocation logic here
-        $suite = $test->getSuite();
         $suite->runBeforeEachCallbacks($test);
 
         if (class_exists('\Hamcrest_MatcherAssert', true)) {
@@ -337,8 +338,13 @@ class RunHelper
             $test->addToAssertionCount(\Hamcrest_MatcherAssert::getCount() - $test->hamcrestAssertCount);
         }
 
-        // @todo Move callback invocation logic here
         $suite = $test->getSuite();
+
+        // Restore the world
+        $suite->restoreWorldSnapshot();
+
+
+        // @todo Move callback invocation logic here
         $suite->runAfterEachCallbacks($test);
     }
 
@@ -364,7 +370,7 @@ class RunHelper
 
         // First param is always the current test object
         // @todo This should be a "world" instance and not the test object
-        $params = array($test);
+        $params = array($test->getSuite()->getWorld());
 
         // Extract values from parametrized titles
         preg_match_all('/([\'"<])(.*?)(\1|>)/', $test->getTitle(), $m);

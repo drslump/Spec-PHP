@@ -61,6 +61,10 @@ define('describe', 'Describe a functionality');
 define('it', 'Test a functionality');
 define('should', 'Define an expectation');
 define('end', 'End of block');
+define('before', 'Before');
+define('before_each', 'Before Each');
+define('after', 'After');
+define('after_each', 'After Each');
 
 // Combinators
 define('and', 'Both must be true');
