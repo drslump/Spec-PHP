@@ -203,8 +203,13 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
             $str .= " with " . implode(' and ', $pair);
         }
 
+        // Calculate time and peak memory usage
+        $time = number_format($result->time(), 2);
+        $mem = memory_get_peak_usage();
+        $mem = round($mem/1024/1024);
+
         // Add time spent
-        $str.= " \033[30;1m(" . number_format($result->time(), 2) . "s)\n\033[0m";
+        $str.= " \033[30;1m({$time}s {$mem}Mb)\n\033[0m";
 
         // Clean up the line above and print there
         $this->write("\033[1A\033[2K");
