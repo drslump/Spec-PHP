@@ -24,7 +24,7 @@
 namespace DrSlump\Spec;
 
 // Ensure this file is never parsed even if included by mistake
-__halt_compiler();
+if (true) __halt_compiler();
 
 
 /**

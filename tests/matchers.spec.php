@@ -110,7 +110,7 @@ describe. "Spec matchers".
             1 should equal 1;
             true should eq (true);
             "foo" should == "foo";
-            1 should equal to "1";
+            1 should equal "1";
             true should equal 1;
             1 should not equal 0;
             true should != (false);

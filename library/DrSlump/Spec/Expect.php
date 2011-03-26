@@ -231,21 +231,13 @@ class Expect
             }
         }
 
-        // Remove ignored parts (including negations)
-        $ignored = array_merge($this->ignoredWords, array('no', 'not'));
-        $parts = array_filter($parts, function($part) use ($ignored) {
-            return !in_array($part, $ignored);
-        });
-
         // Re-index array just in case
         $parts = array_values($parts);
-
 
         // By default use "same"
         if (empty($parts)) {
             $parts[] = 'same';
         }
-
 
         // Manage coordination operators
         switch ($parts[0]) {
@@ -276,37 +268,22 @@ class Expect
 
         // Generate a matcher name from the parts
         $matcher = implode('_', $parts);
-        // @todo Find the longest match
-        //       This should be solved when the matchers get refactored
-        //       into a "broker" or "locator" object
-        if (!Spec::hasMatcher($matcher)) {
-            $matches = array();
-            $from = str_replace('_', ' ', $matcher);
-            $ops = Spec::getMatcherNames();
-            foreach ($ops as $op) {
-                $to = str_replace('_', ' ', $op);
-                $similarity = similar_text($from, $to);
-                if ($similarity >= 7) {
-                    $matches[$op] = $similarity;
-                }
-                //echo "Similarity $operation -> $op = $similarity\n";
-            }
+        // Find the matcher for the given name
+        $callback = Spec::matchers()->find($matcher);
+        if (FALSE === $callback) {
 
-            $msg = "Expect matcher $matcher ($name) not found.";
-            if (!empty($matches)) {
-                asort($matches);
-                $match = array_pop(array_keys($matches));
-                $msg .= " Perhaps you meant to use $match?";
+            $msg = "Matcher '" . str_replace('_', ' ', $name) . "' not found.";
+
+            $suggestions = Spec::matchers()->suggest($name, 0.5);
+            if (count($suggestions)) {
+                $msg .= " Perhaps you meant to use '". array_shift($suggestions) . "' ?";
             }
 
             throw new \Exception($msg);
         }
 
-
-        // Get callback and execute it
-        $cb = Spec::getMatcher($matcher);
-
-        $matcher = call_user_func_array($cb, $args);
+        // Instantiate the matcher
+        $matcher = call_user_func_array($callback, $args);
         if ($isNegation) {
             $matcher = \Hamcrest_Core_IsNot::not($matcher);
         }
@@ -325,6 +302,8 @@ class Expect
      * Perform the assertion for the configured expression.
      *
      * It will apply binding rules to combinators (AND, OR, BUT)
+     *
+     * @todo Move this logic to an "expression" class
      *
      * @throws \RuntimeException
      */

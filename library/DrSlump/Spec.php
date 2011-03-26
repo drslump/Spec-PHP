@@ -131,61 +131,25 @@ class Spec
     }
 
     /**
-     * Register a matcher
+     * Obtain (or set) the matcher broker
      *
-     * @todo Use a "broker" class to manage matchers
-     *
-     * @static
-     * @param array $names
-     * @param callback $matcher
-     * @return void
+     * @param \DrSlump\Spec\MatcherBroker $set_broker
+     * @return \DrSlump\Spec\MatcherBroker
      */
-    public static function registerMatcher($names, $matcher)
+    public static function matchers($set_broker = NULL)
     {
-        if (!is_array($names)) {
-            $names = array($names);
+        static $broker = NULL;
+
+        if (NULL !== $set_broker) {
+            $broker = $set_broker;
         }
 
-        $name = array_shift($names);
-        self::$matchers[$name] = $matcher;
-        foreach ($names as $alias) {
-            self::aliasMatcher($name, $alias);
-        }
-    }
-
-    /**
-     * Makes an alias for an already registered matcher
-     *
-     * @static
-     * @param string $name
-     * @param string $alias
-     * @return bool
-     */
-    public static function aliasMatcher($name, $alias)
-    {
-        if (!isset(self::$matchers[$name])) {
-            return false;
+        if (NULL === $broker) {
+            $broker = new \DrSlump\Spec\MatcherBroker();
         }
 
-        self::$matchers[$alias] = self::$matchers[$name];
-        return true;
+        return $broker;
     }
-
-    public static function hasMatcher($name)
-    {
-        return isset(self::$matchers[$name]);
-    }
-
-    public static function getMatcher($name)
-    {
-        return self::$matchers[$name];
-    }
-
-    public static function getMatcherNames()
-    {
-        return array_keys(self::$matchers);
-    }
-
 
     public static function currentSuite()
     {

@@ -70,6 +70,7 @@ class Callback extends \Hamcrest_BaseMatcher
     public function setCallback($fn)
     {
         $this->callback = $fn;
+        return $this;
     }
 
     /**

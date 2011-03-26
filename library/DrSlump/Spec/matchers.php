@@ -21,191 +21,102 @@ use DrSlump\Spec;
 // Include Hamcrest matchers library
 require_once 'Hamcrest/MatcherAssert.php';
 require_once 'Hamcrest/Matchers.php';
+// Hamcrest does not include these ones by default
+require_once 'Hamcrest/Type/IsNumeric.php';
+require_once 'Hamcrest/Type/IsCallable.php';
 
 
 // Define standard set of matchers
+// Value should ...
 
-Spec::registerMatcher(
-    array('equal', 'eq'),
-    '\Hamcrest_Matchers::equalTo'
-);
+$matchers = Spec::matchers();
 
-Spec::registerMatcher(
-    array('same', 'identical', 'exactly', 'exactly_equal'),
-    '\Hamcrest_Matchers::identicalTo'
-);
+$matchers['be equal to'] = '\Hamcrest_Matchers::equalTo';
+$matchers['be eq to'] = '\Hamcrest_Matchers::equalTo';
 
-Spec::registerMatcher(
-    array('at_most', 'most', 'less_equal', 'le'),
-    '\Hamcrest_Matchers::lessThanOrEqualTo'
-);
+$matchers['be the same to'] = '\Hamcrest_Matchers::identicalTo';
+$matchers['be identical to'] = '\Hamcrest_Matchers::identicalTo';
+$matchers['be exactly'] = '\Hamcrest_Matchers::identicalTo';
+$matchers['be exactly equal to'] = '\Hamcrest_Matchers::identicalTo';
 
-Spec::registerMatcher(
-    array('at_least', 'least', 'more_equal', 'ge'),
-    '\Hamcrest_Matchers::greaterThanOrEqualTo'
-);
+$matchers['be at most'] = '\Hamcrest_Matchers::lessThanOrEqualTo';
+$matchers['be less equal to'] = '\Hamcrest_Matchers::lessThanOrEqualTo';
+$matchers['be less equal than'] = '\Hamcrest_Matchers::lessThanOrEqualTo';
+$matchers['be le to'] = '\Hamcrest_Matchers::lessThanOrEqualTo';
+$matchers['be le than'] = '\Hamcrest_Matchers::lessThanOrEqualTo';
 
-Spec::registerMatcher(
-    array('greater', 'more'),
-    '\Hamcrest_Matchers::greaterThan'
-);
+$matchers['be at least'] = '\Hamcrest_Matchers::greaterThanOrEqualTo';
+$matchers['be more equal to'] = '\Hamcrest_Matchers::greaterThanOrEqualTo';
+$matchers['be more equal than'] = '\Hamcrest_Matchers::greaterThanOrEqualTo';
+$matchers['be greater equal to'] = '\Hamcrest_Matchers::greaterThanOrEqualTo';
+$matchers['be greater equal than'] = '\Hamcrest_Matchers::greaterThanOrEqualTo';
+$matchers['be ge to'] = '\Hamcrest_Matchers::greaterThanOrEqualTo';
+$matchers['be ge than'] = '\Hamcrest_Matchers::greaterThanOrEqualTo';
 
-Spec::registerMatcher(
-    array('less'),
-    '\Hamcrest_Matchers::lessThan'
-);
+$matchers['be greater than'] = '\Hamcrest_Matchers::greaterThan';
+$matchers['be more than'] = '\Hamcrest_Matchers::greaterThan';
 
-Spec::registerMatcher(
-    array('instance', 'instanceof', 'instance_of'),
-    function($expected){
-        return \Hamcrest_Matchers::anInstanceOf($expected);
-    }
-);
+$matchers['be less than'] = '\Hamcrest_Matchers::lessThan';
 
-Spec::registerMatcher(
-    array('empty_string'),
-    '\Hamcrest_Matchers::isEmptyString'
-);
+$matchers['be an instance of'] = '\Hamcrest_Matchers::anInstanceOf';
+$matchers['be an instanceof'] = '\Hamcrest_Matchers::anInstanceOf';
 
-Spec::registerMatcher(
-    array('empty_array'),
-    '\Hamcrest_Matchers::emptyArray'
-);
+$matchers['be an empty string'] = '\Hamcrest_Matchers::isEmptyString';
+$matchers['be an empty array'] = '\Hamcrest_Matchers::emptyArray';
 
-Spec::registerMatcher(
-    array('type', 'of_type', 'typeof', 'type_of', 'has_type', 'have_type'),
-    '\Hamcrest_Matchers::typeOf'
-);
+$matchers['be of type'] = '\Hamcrest_Matchers::typeOf';
+$matchers['has type of'] = '\Hamcrest_Matchers::typeOf';
+$matchers['have type of'] = '\Hamcrest_Matchers::typeOf';
 
-Spec::registerMatcher(
-    array('array'),
-    '\Hamcrest_Matchers::arrayValue'
-);
+$matchers['be an array'] = '\Hamcrest_Matchers::arrayValue';
+$matchers['be a string'] = '\Hamcrest_Matchers::stringValue';
+$matchers['be a boolean'] = '\Hamcrest_Matchers::booleanValue';
+$matchers['be a bool'] = '\Hamcrest_Matchers::booleanValue';
+$matchers['be a double'] = '\Hamcrest_Matchers::doubleValue';
+$matchers['be a float'] = '\Hamcrest_Matchers::floatValue';
+$matchers['be an integer'] = '\Hamcrest_Matchers::integerValue';
+$matchers['be an int'] = '\Hamcrest_Matchers::integerValue';
+$matchers['be an object'] = '\Hamcrest_Matchers::objectValue';
+$matchers['be a resource'] = '\Hamcrest_Matchers::resourceValue';
 
-Spec::registerMatcher(
-    array('string'),
-    '\Hamcrest_Matchers::stringValue'
-);
+$matchers['be a scalar'] = '\Hamcrest_Matchers::scalarValue';
+$matchers['be a scalar value'] = '\Hamcrest_Matchers::scalarValue';
+$matchers['be numeric'] = '\Hamcrest_Matchers::numericValue';
+$matchers['be a numeric value'] = '\Hamcrest_Matchers::numericValue';
+$matchers['be callable'] = '\Hamcrest_Matchers::callable';
+$matchers['be a callable value'] = '\Hamcrest_Matchers::callable';
 
-Spec::registerMatcher(
-    array('boolean', 'bool'),
-    '\Hamcrest_Matchers::booleanValue'
-);
+$matchers['be a null'] = '\Hamcrest_Matchers::nullValue';
+$matchers['be a null value'] = '\Hamcrest_Matchers::nullValue';
+$matchers['be a nil'] = '\Hamcrest_Matchers::nullValue';
+$matchers['be a nil value'] = '\Hamcrest_Matchers::nullValue';
 
-Spec::registerMatcher(
-    array('double'),
-    '\Hamcrest_Matchers::doubleValue'
-);
+$matchers['be a true'] = '\DrSlump\Spec\Matcher\True::trueValue';
+$matchers['be a true value'] = '\DrSlump\Spec\Matcher\True::trueValue';
 
-Spec::registerMatcher(
-    array('float'),
-    '\Hamcrest_Matchers::floatValue'
-);
+$matchers['be truthy'] = '\DrSlump\Spec\Matcher\Truthy::truthyValue';
+$matchers['be a truthy value'] = '\DrSlump\Spec\Matcher\Truthy::truthyValue';
+$matchers['be truly'] = '\DrSlump\Spec\Matcher\Truthy::truthyValue';
+$matchers['be a truly value'] = '\DrSlump\Spec\Matcher\Truthy::truthyValue';
 
-Spec::registerMatcher(
-    array('numeric'),
-    function(){
-        // Hamcrest does not include this one by default
-        include_once 'Hamcrest/Type/IsNumeric.php';
-        return \Hamcrest_Matchers::numericValue();
-    }
-);
+$matchers['be a false'] = '\DrSlump\Spec\Matcher\False::falseValue';
+$matchers['be a false value'] = '\DrSlump\Spec\Matcher\False::falseValue';
 
-Spec::registerMatcher(
-    array('integer', 'int'),
-    '\Hamcrest_Matchers::integerValue'
-);
+$matchers['be falsy'] = '\DrSlump\Spec\Matcher\Falsy::falsyValue';
+$matchers['be a falsy value'] = '\DrSlump\Spec\Matcher\Falsy::falsyValue';
 
-Spec::registerMatcher(
-    array('object'),
-    '\Hamcrest_Matchers::objectValue'
-);
 
-Spec::registerMatcher(
-    array('resource'),
-    '\Hamcrest_Matchers::resourceValue'
-);
+$matchers['contain'] = '\Hamcrest_Matchers::hasItemInArray';
+$matchers['have an item'] = '\Hamcrest_Matchers::hasItemInArray';
+$matchers['have an item like'] = '\Hamcrest_Matchers::hasItemInArray';
 
-Spec::registerMatcher(
-    array('scalar'),
-    '\Hamcrest_Matchers::scalarValue'
-);
+$matchers['contain the key'] = '\Hamcrest_Matchers::hasKeyInArray';
+$matchers['have the key'] = '\Hamcrest_Matchers::hasKeyInArray';
 
-Spec::registerMatcher(
-    array('callable'),
-    function(){
-        // Hamcrest does not include this one by default
-        include_once 'Hamcrest/Type/IsCallable.php';
-        return \Hamcrest_Matchers::callable();
-    }
-);
-
-Spec::registerMatcher(
-    array('null', 'nil'),
-    '\Hamcrest_Matchers::nullValue'
-);
-
-Spec::registerMatcher(
-    array('true'),
-    function(){
-        $matcher = new DrSlump\Spec\Matcher\Callback();
-        $matcher->setDescription('a boolean of value true');
-        $matcher->setCallback(function($v){
-            return $v === true;
-        });
-        return $matcher;
-    }
-);
-
-Spec::registerMatcher(
-    array('truthy', 'truly'),
-    function(){
-        $matcher = new DrSlump\Spec\Matcher\Callback();
-        $matcher->setDescription('a truthy value');
-        $matcher->setCallback(function($v){
-            return $v == true;
-        });
-        return $matcher;
-    }
-);
-
-Spec::registerMatcher(
-    array('false'),
-    function(){
-        $matcher = new DrSlump\Spec\Matcher\Callback();
-        $matcher->setDescription('a boolean of value false');
-        $matcher->setCallback(function($v){
-            return $v === false;
-        });
-        return $matcher;
-    }
-);
-
-Spec::registerMatcher(
-    array('falsy'),
-    function(){
-        $matcher = new DrSlump\Spec\Matcher\Callback();
-        $matcher->setDescription('a falsy value');
-        $matcher->setCallback(function($v){
-            return $v == false;
-        });
-        return $matcher;
-    }
-);
-
-Spec::registerMatcher(
-    array('contain', 'contains', 'have_item'),
-    '\Hamcrest_Matchers::hasItemInArray'
-);
-
-Spec::registerMatcher(
-    array('have_key', 'contain_key', 'contains_key'),
-    '\Hamcrest_Matchers::hasKeyInArray'
-);
 
 // Example matcher with callback
-Spec::registerMatcher(
-    array('odd'),
+$matchers->register(
+    array('be odd', 'be an odd value'),
     function(){
         $matcher = new DrSlump\Spec\Matcher\Callback();
         $matcher->setDescription('an odd number');
@@ -217,8 +128,8 @@ Spec::registerMatcher(
 );
 
 // Example matcher with expected value and callback
-Spec::registerMatcher(
-    array('case_insensitive_equal', 'nocase_equal', 'equal_nocase', 'nocase_eq', 'eq_nocase'),
+$matchers->register(
+    array('be case insensitive equal', 'be nocase equal', 'be equal nocase', 'be nocase eq', 'be eq nocase'),
     function($expected){
         $matcher = new DrSlump\Spec\Matcher\Callback($expected);
         $matcher->setDescription('equal (case insensitive) to ' . $expected);
