@@ -48,7 +48,6 @@ _alpha_ quality software for the time being.
 ### Upcoming
 
  - Review configurable options and extension points
- - Refactor matchers to get longest-match
  - Coordination operator without explicit expectation should use latest one
 
 ### Later

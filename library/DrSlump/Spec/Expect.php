@@ -40,8 +40,8 @@ class Expect
     /** @var bool */
     protected $implicitAssert = true;
 
-    /** @var array */
-    protected $expression = array();
+    /** @var \DrSlump\Spec\Expression */
+    protected $expression;
 
     /** @var array Words to ignore */
     protected $ignoredWords = array(
@@ -62,6 +62,8 @@ class Expect
 
         $this->subject = $value;
         $this->implicitAssert = $implicitAssert;
+
+        $this->expression = new Expression();
     }
 
     /**
@@ -169,7 +171,7 @@ class Expect
      * @example
      *  expect(1)->to_be_integer->or_string->and_equal(10)
      *
-     * @param  $name
+     * @param string $name
      * @return Expect
      */
     public function __get($name)
@@ -181,6 +183,19 @@ class Expect
     public function assert($name, $args)
     {
         $name = trim($name, '_');
+
+        // Convert camelCase to underscores
+        $name = preg_replace_callback('/([a-z])([A-Z])/', function($m){
+            return $m[1] . '_' . $m[2];
+        }, $name);
+
+        // Make it all lowercase
+        $name = strtolower($name);
+
+        // Remove 'to' if it's at the beginning since it might be used
+        // when manually calling expect()
+        $name = preg_replace('/^to_/', '', $name);
+
 
         // Extract ORs/ANDs/BUTs/AS from name
         if (preg_match('/^[a-z]_(or|and|but|as)$/i', $name)) {
@@ -212,14 +227,6 @@ class Expect
         }
 
 
-        // Convert camelCase to underscores
-        $name = preg_replace_callback('/([a-z])([A-Z])/', function($m){
-            return $m[1] . '_' . strtolower($m[2]);
-        }, $name);
-
-        // Make it all lowercase
-        $name = strtolower($name);
-
         // Explode by the underscore
         $parts = explode('_', $name);
 
@@ -250,15 +257,15 @@ class Expect
             return $this;
 
         case 'and':
-            $this->expression[] = new Operator('AND', 10);
+            $this->expression->addOperator('AND', 10);
             array_shift($parts);
             break;
         case 'or':
-            $this->expression[] = new Operator('OR', 5);
+            $this->expression->addOperator('OR', 5);
             array_shift($parts);
             break;
         case 'but':
-            $this->expression[] = new Operator('BUT', 1);
+            $this->expression->addOperator('BUT', 1);
             array_shift($parts);
             break;
         }
@@ -288,7 +295,7 @@ class Expect
             $matcher = \Hamcrest_Core_IsNot::not($matcher);
         }
 
-        $this->expression[] = $matcher;
+        $this->expression->addOperand($matcher);
 
         // Run the assertion now if the implicit flag is set
         if ($this->implicitAssert) {
@@ -301,68 +308,11 @@ class Expect
     /**
      * Perform the assertion for the configured expression.
      *
-     * It will apply binding rules to combinators (AND, OR, BUT)
-     *
-     * @todo Move this logic to an "expression" class
-     *
      * @throws \RuntimeException
      */
     public function doAssert()
     {
-        // Apply Shunting Yard algorithm to convert the expression
-        // into Reverse Polish Notation. Since we have a very simple
-        // set of operators and binding rules the implementation becomes
-        // very simple
-        $ops = new \SplStack();
-        $rpn = array();
-        foreach ($this->expression as $token) {
-            if ($token instanceof Operator) {
-                while(!$ops->isEmpty() && $token->compare($ops->top()) <= 0) {
-                    $rpn[] = $ops->pop();
-                }
-                $ops->push($token);
-            } else {
-                $rpn[] = $token;
-            }
-        }
-        // Append the remaining operators
-        while(!$ops->isEmpty()) {
-            $rpn[] = $ops->pop();
-        }
-
-        // Walk the RPN expression to create AnyOf and AllOf matchers
-        $stack = array();
-        foreach ($rpn as $token) {
-            if ($token instanceof Operator) {
-
-                // Our operators always need two operands
-                $operands = array(
-                    array_pop($stack),
-                    array_pop($stack),
-                );
-
-                switch ($token->getKeyword()) {
-                case 'AND':
-                case 'BUT':
-                    $matcher = new \Hamcrest_Core_AllOf($operands);
-                    $stack[] = $matcher;
-                    break;
-                case 'OR':
-                    $matcher = new \Hamcrest_Core_AnyOf($operands);
-                    $stack[] = $matcher;
-                    break;
-                }
-            } else {
-                $stack[] = $token;
-            }
-        }
-
-        if (count($stack) !== 1) {
-            throw new \RuntimeException('The RPN stack should have only one item');
-        }
-
-        $matcher = array_pop($stack);
-
+        $matcher = $this->expression->build();
         $this->subject->doAssert($matcher, $this->message);
     }
 

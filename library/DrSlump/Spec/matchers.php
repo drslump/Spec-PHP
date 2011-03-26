@@ -26,8 +26,10 @@ require_once 'Hamcrest/Type/IsNumeric.php';
 require_once 'Hamcrest/Type/IsCallable.php';
 
 
-// Define standard set of matchers
-// Value should ...
+// Matcher names should be written as if they were to complete the
+// sentence "value should ...". Words like 'be', 'to', 'at', 'the' ...
+// will be automatically ignored but when Spec finds two conflicting
+// matchers they will be used to disambiguate.
 
 $matchers = Spec::matchers();
 
