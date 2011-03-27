@@ -59,7 +59,7 @@ class Dump
             $data = $this->highlight($data);
         }
 
-        if ($this->result->options['lines']) {
+        if ($this->result->options['verbose']) {
             $data = $this->linenumbers($data);
         }
 
@@ -130,28 +130,4 @@ class Dump
         return $src;
     }
 
-
-
-    static public function command()
-    {
-        require_once 'Console/CommandLine/Command.php';
-
-        $cmd = new \Console_CommandLine_Command(array(
-            'name'          => 'dump',
-            'description'   => 'Shows the generated source code',
-        ));
-
-        $cmd->addOption('lines', array(
-            'short_name'    => '-l',
-            'long_name'     => '--lines',
-            'action'        => 'StoreTrue',
-            'description'   => 'show line numbers'
-        ));
-
-        $cmd->addArgument('file', array(
-            'description'   => 'spec file to show'
-        ));
-
-        return $cmd;
-    }
 }

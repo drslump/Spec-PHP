@@ -76,7 +76,7 @@ namespace :doc do
     version = ENV['version']
     ENV['RONN_MANUAL'] = "Spec for PHP #{version}"
     ENV['RONN_ORGANIZATION'] = "Ivan -DrSlump- Montes"
-    sh "ronn -w -s toc,darktoc -r5 --markdown man/*.ronn"
+    sh "ronn -w -s toc -r5 --markdown man/*.ronn"
   end
 
   desc 'Publish to github pages'
