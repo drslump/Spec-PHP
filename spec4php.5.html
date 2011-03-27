@@ -47,12 +47,6 @@
   .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {display:block;margin:0;padding:5px 2px 5px 30px;color:#999;text-decoration:none}
   .man-navigation a:hover {color:#111;text-decoration:underline}
   </style>
-  <style type='text/css' media='all'>
-  /* style: darktoc */
-  .man-navigation {border-left:2px solid #222;background-color:#131211}
-  .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {color:#777;text-decoration:none}
-  .man-navigation a:hover {color:#fff;text-decoration:underline}
-  </style>
 </head>
 <!--
   The following styles are deprecated and will be removed at some point:
@@ -72,6 +66,7 @@
     <a href="#EXPECTATIONS">EXPECTATIONS</a>
     <a href="#COORDINATION">COORDINATION</a>
     <a href="#ANNOTATIONS">ANNOTATIONS</a>
+    <a href="#CUSTOM-TEST-CLASSES">CUSTOM TEST CLASSES</a>
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
     <a href="#SEE-ALSO">SEE ALSO</a>
@@ -104,17 +99,97 @@ end
 </code></pre>
 
 <p>In this example we have grouped (<strong>describe</strong>) two tests (<strong>it</strong>)
-where each one has a single assertion (<strong>should</strong>).</p>
+where each one has a single expectation (<strong>should</strong>).</p>
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p>Spec files are ... TBD</p>
+<p>Spec files are normal PHP source code files with additional syntax to
+define <code>blocks</code> and <code>expectations</code>. By convention they should end in
+<code>.spec.php</code> or <code>Spec.php</code> although this not a requirement.</p>
+
+<p>The custom syntax for Spec can be made compatible with that of PHP by
+using dots "." as a replacement for spaces. This feature is mostly useful
+when you don't want your spec files to report errors in an IDE or when
+running the files thru a <em>linting</em> procress.</p>
+
+<p>In order to transform the custom Spec syntax to valid (and runnable) PHP
+source code you'll need to use the <code>compiler</code> component of <a href="spec4php.3.html" class="man-ref">spec4php<span class="s">(3)</span></a>. The
+command line tool, <a href="spec4php.1.html" class="man-ref">spec4php<span class="s">(1)</span></a>, takes care of this process and will
+automatically transform the files. By default, Spec will register a custom
+PHP stream wrapper with the prefix <em>spec://</em> which will apply the transformation
+to any file it references.</p>
 
 <h2 id="BLOCKS">BLOCKS</h2>
 
-<p>TBD</p>
+<p>These are the differnt blocks supported. All of them are to be terminated with
+the <code>end</code> keyword.</p>
+
+<dl>
+<dt><code>describe</code> "<var>description</var>"</dt><dd><p>This block allows to define a group of tests. These blocks can be
+nested inside other <code>describe</code> blocks. They can be think of as the
+equivalent of a PHPUnit suite.</p></dd>
+<dt><code>it</code> "<var>description</var>"</dt><dd><p>This is basically a test case. These blocks MUST appear inside <code>describe</code>
+blocks. Inside <code>it</code> blocks you should include your test logic an apply
+expectations over it. This is the equivalent to a PHPUnit test case method.</p></dd>
+<dt class="flush"><code>before</code></dt><dd><p>This block MUST appear inside a <code>describe</code> one. It's used to setup the
+<em>world</em> for the tests contained in the parent <code>describe</code> block.</p></dd>
+<dt class="flush"><code>after</code></dt><dd><p>This block MUST appear inside a <code>describe</code> one. It's used to restore or
+clean up the <em>world</em> after all the tests contained in the parent <code>describe</code>
+block have been run.</p></dd>
+<dt><code>before_each</code></dt><dd><p>Almost the same as the <code>before</code> block but this one is run just before every
+test (<code>it</code> block).</p></dd>
+<dt><code>after_each</code></dt><dd><p>Almost the same as the <code>after</code> block but this one is run just after every
+test (<code>it</code> block).</p></dd>
+</dl>
+
+
+<p>Note that <code>before</code>, <code>after</code>, <code>before_each</code> and <code>after_each</code> are inherited
+in nested <code>describe</code> groups.</p>
 
 <h2 id="EXPECTATIONS">EXPECTATIONS</h2>
+
+<p>Expectations are defined in Spec by using a subject-predicate form that mimics
+english natural language. Basically they take the form "<code>subject</code> <em>should</em> <code>predicate</code>"
+where <code>subject</code> is a PHP expression and <code>predicate</code> defines matchers and expected
+values.</p>
+
+<p>Any PHP expressions can be used before <em>should</em>, however some are not completely
+supported, for example, it's not possible to use annonymous functions as the
+expectation <code>subject</code>. To improve readability and ensure the parser works as
+expected is useful to wrap them in parenthesis.</p>
+
+<p>Matchers in the <code>predicate</code> part can have an expected value, any simple PHP
+expression following the matcher phrase idents will be used as an argument to
+the matcher function.</p>
+
+<p>Expectations do not need to be ended with a semicolon character (';') when the
+next word is the <code>end</code> keyword or there is an empty line below it.</p>
+
+<p>In some cases it makes sense to use comparison symbols instead of writing it
+as text. See the following table for the mapping between the comparison symbols
+and their matchers.</p>
+
+<pre><code>   Symbol     |     Matcher
+------------------------------
+    ===       |    same
+    !==       |    not same
+    ==        |    equal
+    !=        |    not equal
+    &gt;         |    greater
+    &lt;         |    less
+    >=        |    at least
+    &lt;=        |    at most
+</code></pre>
+
+<p>See the following examples of expectations:</p>
+
+<pre><code>$result should be integer;
+(1+1) should equal 2;
+trim("  foo ") should be exactly "foo";
+count(array(1,2,3)) should &gt;= 2;
+$result should equal (1/2 + 5);
+1 should != 2;
+</code></pre>
 
 <h2 id="COORDINATION">COORDINATION</h2>
 
@@ -193,6 +268,35 @@ test cases known to fail for any reason.</p></dd>
 
 <p>Additionally, most PHPUnit annotations should work when using spec files
 too, see <a href="http://www.phpunit.de/manual/current/en/appendixes.annotations.html"></a></p>
+
+<h2 id="CUSTOM-TEST-CLASSES">CUSTOM TEST CLASSES</h2>
+
+<p>It's possible to use custom test case classes that extend the
+<code>PHPUnit_Framework_TestCase</code> one. They can be implemented by you or come
+from a framework, like the ones from Zend_Test.</p>
+
+<p>Spec is able to <em>patch</em> any given class to add support for its features, so
+it's completely possible to use those classes without having to modify them in
+any way.</p>
+
+<p>The way to tell Spec what class it should use is by definning an annotation
+for a <code>describe</code> or <code>it</code> block, like in the following example:</p>
+
+<pre><code># class Zend_Test_PHPUnit_ControllerTestCase
+describe "Calculator"
+  it "should multiply"
+    (1*3) should equal 3;
+  end
+
+  // @class PHPUnit_Framework_TestCase
+  it "should divide"
+    (3/1) should equal 3;
+  end
+end
+</code></pre>
+
+<p>Note that this annotation is inherited by child blocks, so there is no need
+to specify it for each test.</p>
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
 

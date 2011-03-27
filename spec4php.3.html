@@ -47,12 +47,6 @@
   .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {display:block;margin:0;padding:5px 2px 5px 30px;color:#999;text-decoration:none}
   .man-navigation a:hover {color:#111;text-decoration:underline}
   </style>
-  <style type='text/css' media='all'>
-  /* style: darktoc */
-  .man-navigation {border-left:2px solid #222;background-color:#131211}
-  .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {color:#777;text-decoration:none}
-  .man-navigation a:hover {color:#fff;text-decoration:underline}
-  </style>
 </head>
 <!--
   The following styles are deprecated and will be removed at some point:
@@ -68,7 +62,6 @@
     <a href="#NAME">NAME</a>
     <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
-    <a href="#CUSTOM-TEST-CLASSES">CUSTOM TEST CLASSES</a>
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
     <a href="#SEE-ALSO">SEE ALSO</a>
@@ -94,19 +87,19 @@ use DrSlump\Spec;
 
 Spec::describe('Calculator', function($world){
     Spec::it('should multiply', function($world){
-        $result = calculator(1, '*',
-        expect(
+        $result = calculator(1, '*', 3);
+        expect($result)-&gt;to_be_equal_to(3);
     });
 });
 </code></pre>
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p>The Spec framework sits on top of PHPUnit</p>
-
-<h2 id="CUSTOM-TEST-CLASSES">CUSTOM TEST CLASSES</h2>
-
-<p>TBD</p>
+<p>The Spec framework sits on top of PHPUnit, delegating to it the job of
+actually running the tests. This is accomplished with two separate components,
+the first is in charge of transforming custom Spec syntax to valid PHP source
+code compatible with PHPUnit. The second is a an assertion manager that takes
+care of running the expectations following a subject-predicate approach.</p>
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
 
