@@ -11,7 +11,7 @@ spec4php(1) -- cli runner
 
 **Spec4php** runs the specified spec files and reports the results
 in the terminal. For information on how to create spec files please
-refer to spec4php(7).
+refer to spec4php(5).
 
 
 ## SPEC FILES
@@ -19,18 +19,56 @@ refer to spec4php(7).
 The `spec4php` command expects input files to contain PHP code with
 **describe** and **it** blocks in it.
 
-Giving a file path as argument, `spec4php` runs the tests contained
-in it
+Giving a directory as argument, `spec4php` will run all the files ending
+with `.spec.php` or `Spec.php` it finds below that directory.
+
 
 ## OPTIONS ##
 
+The following options (switches) are supported.
+
+  * `-h`, `--help`:
+    Prints the usage help message and quits.
+
+  * `-v`, `--verbose`:
+    Enables verbose mode. Additional information will be printed.
+
+  * `--debug`:
+    Enables debug mode. Stack traces will be shown unfiltered.
+
+  * `--color`=[_auto_|_yes_|_no_]:
+    Tells Spec if it should use colors when printing messages. By default
+    (if the option is not set) it will use the _auto_ mode, which will try
+    to detect if it's safe to use ansi color sequences.
+
+  * `-f` _format_, `--format`=_format_:
+    The formatter to use to present the result of the tests. The default
+    formatter is <var>dots</var>, the other supported formatter is <var>story</var>.
+
+  * `-s`:
+    An alias for `--format story`
+
+  * `-b`, `--beep`:
+    Turn on beep-on-failures, which will issue a beep sound for each failed
+    test.
+
+  * `-d` <var>file</var>, `--dump` <var>file</var>:
+    Outputs the generated PHP code for a Spec file. If verbose mode is enabled
+    it will print line numbers too.
+
+
 ## EXAMPLES ##
 
+
 ## BUGS ##
+
+Please report bugs via GitHub's issue tracker at http://github.com/drslump/spec-php/issues
+
 
 ## COPYRIGHT ##
 
 Spec for PHP is Copyright (C) 2011 Ivan -DrSlump- Montes <http://pollinimini.net>
+
 
 ## SEE ALSO
 

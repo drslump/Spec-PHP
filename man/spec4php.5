@@ -28,15 +28,98 @@ end
 .IP "" 0
 .
 .P
-In this example we have grouped (\fBdescribe\fR) two tests (\fBit\fR) where each one has a single assertion (\fBshould\fR)\.
+In this example we have grouped (\fBdescribe\fR) two tests (\fBit\fR) where each one has a single expectation (\fBshould\fR)\.
 .
 .SH "DESCRIPTION"
-Spec files are \.\.\. TBD
+Spec files are normal PHP source code files with additional syntax to define \fBblocks\fR and \fBexpectations\fR\. By convention they should end in \fB\.spec\.php\fR or \fBSpec\.php\fR although this not a requirement\.
+.
+.P
+The custom syntax for Spec can be made compatible with that of PHP by using dots "\." as a replacement for spaces\. This feature is mostly useful when you don\'t want your spec files to report errors in an IDE or when running the files thru a \fIlinting\fR procress\.
+.
+.P
+In order to transform the custom Spec syntax to valid (and runnable) PHP source code you\'ll need to use the \fBcompiler\fR component of spec4php(3)\. The command line tool, spec4php(1), takes care of this process and will automatically transform the files\. By default, Spec will register a custom PHP stream wrapper with the prefix \fIspec://\fR which will apply the transformation to any file it references\.
 .
 .SH "BLOCKS"
-TBD
+These are the differnt blocks supported\. All of them are to be terminated with the \fBend\fR keyword\.
+.
+.TP
+\fBdescribe\fR "\fIdescription\fR"
+This block allows to define a group of tests\. These blocks can be nested inside other \fBdescribe\fR blocks\. They can be think of as the equivalent of a PHPUnit suite\.
+.
+.TP
+\fBit\fR "\fIdescription\fR"
+This is basically a test case\. These blocks MUST appear inside \fBdescribe\fR blocks\. Inside \fBit\fR blocks you should include your test logic an apply expectations over it\. This is the equivalent to a PHPUnit test case method\.
+.
+.TP
+\fBbefore\fR
+This block MUST appear inside a \fBdescribe\fR one\. It\'s used to setup the \fIworld\fR for the tests contained in the parent \fBdescribe\fR block\.
+.
+.TP
+\fBafter\fR
+This block MUST appear inside a \fBdescribe\fR one\. It\'s used to restore or clean up the \fIworld\fR after all the tests contained in the parent \fBdescribe\fR block have been run\.
+.
+.TP
+\fBbefore_each\fR
+Almost the same as the \fBbefore\fR block but this one is run just before every test (\fBit\fR block)\.
+.
+.TP
+\fBafter_each\fR
+Almost the same as the \fBafter\fR block but this one is run just after every test (\fBit\fR block)\.
+.
+.P
+Note that \fBbefore\fR, \fBafter\fR, \fBbefore_each\fR and \fBafter_each\fR are inherited in nested \fBdescribe\fR groups\.
 .
 .SH "EXPECTATIONS"
+Expectations are defined in Spec by using a subject\-predicate form that mimics english natural language\. Basically they take the form "\fBsubject\fR \fIshould\fR \fBpredicate\fR" where \fBsubject\fR is a PHP expression and \fBpredicate\fR defines matchers and expected values\.
+.
+.P
+Any PHP expressions can be used before \fIshould\fR, however some are not completely supported, for example, it\'s not possible to use annonymous functions as the expectation \fBsubject\fR\. To improve readability and ensure the parser works as expected is useful to wrap them in parenthesis\.
+.
+.P
+Matchers in the \fBpredicate\fR part can have an expected value, any simple PHP expression following the matcher phrase idents will be used as an argument to the matcher function\.
+.
+.P
+Expectations do not need to be ended with a semicolon character (\';\') when the next word is the \fBend\fR keyword or there is an empty line below it\.
+.
+.P
+In some cases it makes sense to use comparison symbols instead of writing it as text\. See the following table for the mapping between the comparison symbols and their matchers\.
+.
+.IP "" 4
+.
+.nf
+
+   Symbol     |     Matcher
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    ===       |    same
+    !==       |    not same
+    ==        |    equal
+    !=        |    not equal
+    >         |    greater
+    <         |    less
+    >=        |    at least
+    <=        |    at most
+.
+.fi
+.
+.IP "" 0
+.
+.P
+See the following examples of expectations:
+.
+.IP "" 4
+.
+.nf
+
+$result should be integer;
+(1+1) should equal 2;
+trim("  foo ") should be exactly "foo";
+count(array(1,2,3)) should >= 2;
+$result should equal (1/2 + 5);
+1 should != 2;
+.
+.fi
+.
+.IP "" 0
 .
 .SH "COORDINATION"
 Complex expectations can be \fIcoordinated\fR by using operators \fBand\fR, \fBor\fR and \fBbut\fR\. It\'s important to understand the operator precedence rules before using them, although they try to follow common conventions for the english language there might be cases where they don\'t quite do what they look like\.
@@ -120,6 +203,38 @@ A test case with this tag will make Spec skip its execution but log in the repor
 .
 .P
 Additionally, most PHPUnit annotations should work when using spec files too, see  \fIhttp://www\.phpunit\.de/manual/current/en/appendixes\.annotations\.html\fR
+.
+.SH "CUSTOM TEST CLASSES"
+It\'s possible to use custom test case classes that extend the \fBPHPUnit_Framework_TestCase\fR one\. They can be implemented by you or come from a framework, like the ones from Zend_Test\.
+.
+.P
+Spec is able to \fIpatch\fR any given class to add support for its features, so it\'s completely possible to use those classes without having to modify them in any way\.
+.
+.P
+The way to tell Spec what class it should use is by definning an annotation for a \fBdescribe\fR or \fBit\fR block, like in the following example:
+.
+.IP "" 4
+.
+.nf
+
+# class Zend_Test_PHPUnit_ControllerTestCase
+describe "Calculator"
+  it "should multiply"
+    (1*3) should equal 3;
+  end
+
+  // @class PHPUnit_Framework_TestCase
+  it "should divide"
+    (3/1) should equal 3;
+  end
+end
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Note that this annotation is inherited by child blocks, so there is no need to specify it for each test\.
 .
 .SH "EXAMPLES"
 .

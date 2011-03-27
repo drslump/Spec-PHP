@@ -10,20 +10,20 @@ spec4php(3) -- The framework
 
     Spec::describe('Calculator', function($world){
         Spec::it('should multiply', function($world){
-            $result = calculator(1, '*',
-            expect(
+            $result = calculator(1, '*', 3);
+            expect($result)->to_be_equal_to(3);
         });
     });
 
 
 ## DESCRIPTION
 
-The Spec framework sits on top of PHPUnit
+The Spec framework sits on top of PHPUnit, delegating to it the job of
+actually running the tests. This is accomplished with two separate components,
+the first is in charge of transforming custom Spec syntax to valid PHP source
+code compatible with PHPUnit. The second is a an assertion manager that takes
+care of running the expectations following a subject-predicate approach.
 
-
-## CUSTOM TEST CLASSES
-
-TBD
 
 ## EXAMPLES ##
 
@@ -41,7 +41,6 @@ spec4php(1), spec4php(5),
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
 [DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
-[CUSTOM TEST CLASSES]: #CUSTOM-TEST-CLASSES "CUSTOM TEST CLASSES"
 [EXAMPLES]: #EXAMPLES "EXAMPLES"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"

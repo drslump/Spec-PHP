@@ -16,19 +16,53 @@ spec4php <DIRECTORY>
 .fi
 .
 .SH "DESCRIPTION"
-\fBSpec4php\fR runs the specified spec files and reports the results in the terminal\. For information on how to create spec files please refer to spec4php(7)\.
+\fBSpec4php\fR runs the specified spec files and reports the results in the terminal\. For information on how to create spec files please refer to spec4php(5)\.
 .
 .SH "SPEC FILES"
 The \fBspec4php\fR command expects input files to contain PHP code with \fBdescribe\fR and \fBit\fR blocks in it\.
 .
 .P
-Giving a file path as argument, \fBspec4php\fR runs the tests contained in it
+Giving a directory as argument, \fBspec4php\fR will run all the files ending with \fB\.spec\.php\fR or \fBSpec\.php\fR it finds below that directory\.
 .
 .SH "OPTIONS"
+The following options (switches) are supported\.
+.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Prints the usage help message and quits\.
+.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Enables verbose mode\. Additional information will be printed\.
+.
+.TP
+\fB\-\-debug\fR
+Enables debug mode\. Stack traces will be shown unfiltered\.
+.
+.TP
+\fB\-\-color\fR=[\fIauto\fR|\fIyes\fR|\fIno\fR]
+Tells Spec if it should use colors when printing messages\. By default (if the option is not set) it will use the \fIauto\fR mode, which will try to detect if it\'s safe to use ansi color sequences\.
+.
+.TP
+\fB\-f\fR \fIformat\fR, \fB\-\-format\fR=\fIformat\fR
+The formatter to use to present the result of the tests\. The default formatter is \fIdots\fR, the other supported formatter is \fIstory\fR\.
+.
+.TP
+\fB\-s\fR
+An alias for \fB\-\-format story\fR
+.
+.TP
+\fB\-b\fR, \fB\-\-beep\fR
+Turn on beep\-on\-failures, which will issue a beep sound for each failed test\.
+.
+.TP
+\fB\-d\fR \fIfile\fR, \fB\-\-dump\fR \fIfile\fR
+Outputs the generated PHP code for a Spec file\. If verbose mode is enabled it will print line numbers too\.
 .
 .SH "EXAMPLES"
 .
 .SH "BUGS"
+Please report bugs via GitHub\'s issue tracker at http://github\.com/drslump/spec\-php/issues
 .
 .SH "COPYRIGHT"
 Spec for PHP is Copyright (C) 2011 Ivan \-DrSlump\- Montes \fIhttp://pollinimini\.net\fR

@@ -47,12 +47,6 @@
   .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {display:block;margin:0;padding:5px 2px 5px 30px;color:#999;text-decoration:none}
   .man-navigation a:hover {color:#111;text-decoration:underline}
   </style>
-  <style type='text/css' media='all'>
-  /* style: darktoc */
-  .man-navigation {border-left:2px solid #222;background-color:#131211}
-  .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {color:#777;text-decoration:none}
-  .man-navigation a:hover {color:#fff;text-decoration:underline}
-  </style>
 </head>
 <!--
   The following styles are deprecated and will be removed at some point:
@@ -97,21 +91,42 @@ spec4php &lt;DIRECTORY>
 
 <p><strong>Spec4php</strong> runs the specified spec files and reports the results
 in the terminal. For information on how to create spec files please
-refer to <span class="man-ref">spec4php<span class="s">(7)</span></span>.</p>
+refer to <a href="spec4php.5.html" class="man-ref">spec4php<span class="s">(5)</span></a>.</p>
 
 <h2 id="SPEC-FILES">SPEC FILES</h2>
 
 <p>The <code>spec4php</code> command expects input files to contain PHP code with
 <strong>describe</strong> and <strong>it</strong> blocks in it.</p>
 
-<p>Giving a file path as argument, <code>spec4php</code> runs the tests contained
-in it</p>
+<p>Giving a directory as argument, <code>spec4php</code> will run all the files ending
+with <code>.spec.php</code> or <code>Spec.php</code> it finds below that directory.</p>
 
 <h2 id="OPTIONS">OPTIONS</h2>
+
+<p>The following options (switches) are supported.</p>
+
+<dl>
+<dt><code>-h</code>, <code>--help</code></dt><dd><p>Prints the usage help message and quits.</p></dd>
+<dt><code>-v</code>, <code>--verbose</code></dt><dd><p>Enables verbose mode. Additional information will be printed.</p></dd>
+<dt class="flush"><code>--debug</code></dt><dd><p>Enables debug mode. Stack traces will be shown unfiltered.</p></dd>
+<dt><code>--color</code>=[<em>auto</em>|<em>yes</em>|<em>no</em>]</dt><dd><p>Tells Spec if it should use colors when printing messages. By default
+(if the option is not set) it will use the <em>auto</em> mode, which will try
+to detect if it's safe to use ansi color sequences.</p></dd>
+<dt><code>-f</code> <em>format</em>, <code>--format</code>=<em>format</em></dt><dd><p>The formatter to use to present the result of the tests. The default
+formatter is <var>dots</var>, the other supported formatter is <var>story</var>.</p></dd>
+<dt class="flush"><code>-s</code></dt><dd><p>An alias for <code>--format story</code></p></dd>
+<dt><code>-b</code>, <code>--beep</code></dt><dd><p>Turn on beep-on-failures, which will issue a beep sound for each failed
+test.</p></dd>
+<dt><code>-d</code> <var>file</var>, <code>--dump</code> <var>file</var></dt><dd><p>Outputs the generated PHP code for a Spec file. If verbose mode is enabled
+it will print line numbers too.</p></dd>
+</dl>
+
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
 
 <h2 id="BUGS">BUGS</h2>
+
+<p>Please report bugs via GitHub's issue tracker at http://github.com/drslump/spec-php/issues</p>
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>
 

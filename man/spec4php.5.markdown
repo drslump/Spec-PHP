@@ -16,18 +16,107 @@ A typical spec file:
     end
 
 In this example we have grouped (**describe**) two tests (**it**)
-where each one has a single assertion (**should**).
+where each one has a single expectation (**should**).
+
 
 ## DESCRIPTION
 
-Spec files are ... TBD
+Spec files are normal PHP source code files with additional syntax to
+define `blocks` and `expectations`. By convention they should end in
+`.spec.php` or `Spec.php` although this not a requirement.
+
+The custom syntax for Spec can be made compatible with that of PHP by
+using dots "." as a replacement for spaces. This feature is mostly useful
+when you don't want your spec files to report errors in an IDE or when
+running the files thru a _linting_ procress.
+
+In order to transform the custom Spec syntax to valid (and runnable) PHP
+source code you'll need to use the `compiler` component of spec4php(3). The
+command line tool, spec4php(1), takes care of this process and will
+automatically transform the files. By default, Spec will register a custom
+PHP stream wrapper with the prefix _spec://_ which will apply the transformation
+to any file it references.
 
 
 ## BLOCKS
 
-TBD
+These are the differnt blocks supported. All of them are to be terminated with
+the `end` keyword.
+
+  * `describe` "<var>description</var>":
+    This block allows to define a group of tests. These blocks can be
+    nested inside other `describe` blocks. They can be think of as the
+    equivalent of a PHPUnit suite.
+
+  * `it` "<var>description</var>":
+    This is basically a test case. These blocks MUST appear inside `describe`
+    blocks. Inside `it` blocks you should include your test logic an apply
+    expectations over it. This is the equivalent to a PHPUnit test case method.
+
+  * `before`:
+    This block MUST appear inside a `describe` one. It's used to setup the
+    _world_ for the tests contained in the parent `describe` block.
+
+  * `after`:
+    This block MUST appear inside a `describe` one. It's used to restore or
+    clean up the _world_ after all the tests contained in the parent `describe`
+    block have been run.
+
+  * `before_each`:
+    Almost the same as the `before` block but this one is run just before every
+    test (`it` block).
+
+  * `after_each`:
+    Almost the same as the `after` block but this one is run just after every
+    test (`it` block).
+
+
+Note that `before`, `after`, `before_each` and `after_each` are inherited
+in nested `describe` groups.
+
 
 ## EXPECTATIONS ##
+
+Expectations are defined in Spec by using a subject-predicate form that mimics
+english natural language. Basically they take the form "`subject` _should_ `predicate`"
+where `subject` is a PHP expression and `predicate` defines matchers and expected
+values.
+
+Any PHP expressions can be used before _should_, however some are not completely
+supported, for example, it's not possible to use annonymous functions as the
+expectation `subject`. To improve readability and ensure the parser works as
+expected is useful to wrap them in parenthesis.
+
+Matchers in the `predicate` part can have an expected value, any simple PHP
+expression following the matcher phrase idents will be used as an argument to
+the matcher function.
+
+Expectations do not need to be ended with a semicolon character (';') when the
+next word is the `end` keyword or there is an empty line below it.
+
+In some cases it makes sense to use comparison symbols instead of writing it
+as text. See the following table for the mapping between the comparison symbols
+and their matchers.
+
+       Symbol     |     Matcher
+    ------------------------------
+        ===       |    same
+        !==       |    not same
+        ==        |    equal
+        !=        |    not equal
+        >         |    greater
+        <var>         |    less
+        </var>=        |    at least
+        <=        |    at most
+
+See the following examples of expectations:
+
+    $result should be integer;
+    (1+1) should equal 2;
+    trim("  foo ") should be exactly "foo";
+    count(array(1,2,3)) should >= 2;
+    $result should equal (1/2 + 5);
+    1 should != 2;
 
 
 ## COORDINATION ##
@@ -75,6 +164,7 @@ apply.
     ( (integer) OR (string AND equal "1") ) AND (not be float)
 
 
+
 ## ANNOTATIONS ##
 
 Annotations can be defined in two ways, using the standard javadoc like
@@ -112,6 +202,37 @@ Additionally, most PHPUnit annotations should work when using spec files
 too, see [](http://www.phpunit.de/manual/current/en/appendixes.annotations.html)
 
 
+
+## CUSTOM TEST CLASSES
+
+It's possible to use custom test case classes that extend the
+`PHPUnit_Framework_TestCase` one. They can be implemented by you or come
+from a framework, like the ones from Zend_Test.
+
+Spec is able to _patch_ any given class to add support for its features, so
+it's completely possible to use those classes without having to modify them in
+any way.
+
+The way to tell Spec what class it should use is by definning an annotation
+for a `describe` or `it` block, like in the following example:
+
+    # class Zend_Test_PHPUnit_ControllerTestCase
+    describe "Calculator"
+      it "should multiply"
+        (1*3) should equal 3;
+      end
+
+      // @class PHPUnit_Framework_TestCase
+      it "should divide"
+        (3/1) should equal 3;
+      end
+    end
+
+Note that this annotation is inherited by child blocks, so there is no need
+to specify it for each test.
+
+
+
 ## EXAMPLES ##
 
 
@@ -132,6 +253,7 @@ spec4php(1), spec4php(3),
 [EXPECTATIONS]: #EXPECTATIONS "EXPECTATIONS"
 [COORDINATION]: #COORDINATION "COORDINATION"
 [ANNOTATIONS]: #ANNOTATIONS "ANNOTATIONS"
+[CUSTOM TEST CLASSES]: #CUSTOM-TEST-CLASSES "CUSTOM TEST CLASSES"
 [EXAMPLES]: #EXAMPLES "EXAMPLES"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
