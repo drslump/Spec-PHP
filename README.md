@@ -44,11 +44,9 @@ _alpha_ quality software for the time being.
  - Use annotation to inherit from custom PHPUnit_TestCase class (ie: Zend_Test)
  - Matcher factory to create matchers with a callback function
 
-
 ### Upcoming
 
  - Review configurable options and extension points
- - Coordination operator without explicit expectation should use latest one
 
 ### Later
 
