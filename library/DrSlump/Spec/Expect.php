@@ -21,7 +21,7 @@ use DrSlump\Spec;
 
 
 /**
- * Expection class
+ * Expectation class
  *
  * @package     Spec
  * @author      Iván -DrSlump- Montes <drslump@pollinimini.net>
