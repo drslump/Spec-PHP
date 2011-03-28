@@ -120,3 +120,11 @@ define('null', 'null');
 define('falsy', 'falsy');
 define('truthy', 'truthy');
 
+
+// Let's try to fool smart auto-completion
+
+/** @var $this \PHPUnit_Framework_TestCase */
+$this = new \PHPUnit_Framework_TestCase();
+
+/** @var $W \stdClass */
+$W = new \stdClass();
