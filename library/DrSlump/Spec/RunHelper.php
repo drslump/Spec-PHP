@@ -356,20 +356,13 @@ class RunHelper
      */
     public function runTest(Spec\TestCaseInterface  $test, array $args = array())
     {
-        // Check for incomplete or skip annotations
+        // Check for skip annotations
         $ann = $test->annotations;
         if (isset($ann['skip'])) {
             $test->markTestSkipped(isset($ann['skip'][0]) ? $ann['skip'][0] : '');
         }
-        if (isset($ann['todo'])) {
-            $test->markTestIncomplete(isset($ann['todo'][0]) ? $ann['todo'][0] : '');
-        }
-        if (isset($ann['incomplete'])) {
-            $test->markTestIncomplete(isset($ann['incomplete'][0]) ? $ann['incomplete'][0] : '');
-        }
 
         // First param is always the current test object
-        // @todo This should be a "world" instance and not the test object
         $params = array($test->getSuite()->getWorld());
 
         // Extract values from parametrized titles
@@ -381,5 +374,12 @@ class RunHelper
 
         // Finally, execute the test block
         call_user_func_array($test->callback, $params);
+
+        // Check for incomplete annotations
+        if (isset($ann['todo'])) {
+            $test->markTestIncomplete(isset($ann['todo'][0]) ? $ann['todo'][0] : '');
+        } elseif (isset($ann['incomplete'])) {
+            $test->markTestIncomplete(isset($ann['incomplete'][0]) ? $ann['incomplete'][0] : '');
+        }
     }
 }

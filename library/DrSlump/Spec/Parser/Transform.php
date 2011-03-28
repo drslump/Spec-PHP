@@ -63,8 +63,8 @@ class Transform {
     /** @var array */
     protected $nestedBlocks = array();
 
-    /** @var Token[] */
-    protected $statement = array();
+    /** @var \SplQueue */
+    protected $statement;
 
     /** @var bool */
     protected $inBlock = false;
@@ -77,6 +77,9 @@ class Transform {
     public function __construct(\Iterator $it)
     {
         $this->it = $it;
+
+        $this->statement = new \SplQueue();
+        $this->statement->setIteratorMode(\SplDoublyLinkedList::IT_MODE_DELETE);
     }
 
     static public function transform(\Iterator $it)
@@ -199,7 +202,7 @@ class Transform {
 
     public function appendStatement(Token $token)
     {
-        $this->statement[] = $token;
+        $this->statement->push($token);
     }
 
     public function dumpStatement()
@@ -207,11 +210,7 @@ class Transform {
         foreach ($this->statement as $token) {
             $this->write($token->value);
         }
-        $this->statement = array();
     }
-
-
-
 
 
     public function stateTop(Token $token)
@@ -247,16 +246,14 @@ class Transform {
                 if (preg_match('/^#\s*[A-Z-]+/i', $value, $m)) {
                     $value = '/** @' . trim($value, ' #') . ' */' . "\n";
                 } else {
-                    $value = '/** ' . substr($value, 2) . ' */' . "\n";
+                    $value = '/** ' . trim(substr($value, 2)) . ' */' . "\n";
                 }
                 $value .= str_repeat(' ', max(0, $this->indent-4));
 
-                // Merge single line comments in a docblock
+                // Merge consecutive single line comments
                 $prevs = array();
-                do {
-                    $prev = array_pop($this->statement);
-                    if (!$prev) break;
-                    $prevs[] = $prev;
+                while (!$this->statement->isEmpty()) {
+                    $prevs[] = $prev = $this->statement->pop();
                     if ($prev->type === Token::COMMENT) {
                         $prev->value = str_replace('*/', '', $prev->value);
                         $value = substr($value, 3);
@@ -264,9 +261,11 @@ class Transform {
                     } else if ($prev->type !== Token::WHITESPACE && $prev->type !== Token::EOL) {
                         break;
                     }
+                }
 
-                } while(count($this->statement));
-                $this->statement = array_merge($this->statement, $prevs);
+                while (count($prevs)) {
+                    $this->statement->push( array_pop($prevs) );
+                }
 
                 $token->value = $value;
 
@@ -283,8 +282,6 @@ class Transform {
             }
 
             $this->appendStatement($token);
-
-
             return false;
 
         case Token::IDENT:
@@ -341,7 +338,7 @@ class Transform {
 
             $this->write(self::SPEC_CLASS . '::' . $value . '(');
 
-            $args = array('$world');
+            $args = array('$W');
             if ($hasMessage && $next->type !== Token::QUOTED) {
                 throw new Exception('Expected quoted string at line ' . $token->line);
             } else if ($hasMessage) {
@@ -414,14 +411,15 @@ class Transform {
         case Token::SHOULD:
 
             // Flush captured non-statement tokens
-            while (count($this->statement)) {
-                $token = array_shift($this->statement);
+            while (!$this->statement->isEmpty()) {
+                $token = $this->statement->bottom();
                 if ($token->type === Token::COMMENT ||
                     $token->type === Token::WHITESPACE ||
                     $token->type === Token::EOL) {
+
                     $this->write($token->value);
-                }  else {
-                    array_unshift($this->statement, $token);
+                    $this->statement->shift();
+                } else {
                     break;
                 }
             }
@@ -431,14 +429,6 @@ class Transform {
             $this->dumpStatement();
             $this->write(')->');
             $this->transition(self::SHOULD);
-            return false;
-
-        case Token::VARIABLE:
-            if ($this->inBlock && !preg_match('/^\$(arg[0-9]+|world)$/', $token->value)) {
-                $token->value = '$world->' . substr($token->value, 1);
-            }
-
-            $this->appendStatement($token);
             return false;
 
         default:
@@ -566,10 +556,14 @@ class Transform {
                 break;
 
             case Token::VARIABLE:
-                if ($this->inBlock && !preg_match('/^\$(arg[0-9]+|world)$/', $token->value)) {
-                    $token->value = '$world->' . substr($token->value, 1);
+                $this->write($token->value);
+                $token = $this->skip(Token::WHITESPACE);
+                if ($token->value === '->') {
+                    $token = $this->skip(Token::WHITESPACE);
+                    $this->write('->' . $token->value);
+                    $token = $this->skip(Token::WHITESPACE);
                 }
-                break;
+                continue 2;
 
             case Token::TEXT && strtolower($token->value) === 'or':
             case Token::TEXT && strtolower($token->value) === 'and':

@@ -42,6 +42,8 @@ class Expect
 
     /** @var \DrSlump\Spec\Expression */
     protected $expression;
+    /** @var string */
+    protected $prevMatcher;
 
     /** @var array Words to ignore */
     protected $ignoredWords = array(
@@ -79,77 +81,12 @@ class Expect
 
 
     /**
-     * ->to_be_type('string')->or('bool')->or('null')
-     * should have type 'string', 'bool' or 'null'
-     *        \----------------------------------/
-     * ->to_be_equal()->or_less(10) ==> ->to_be_equal_or_less(10)
-     * should be equal or less than 10
-     *           \-------------------/
-     * ->to_be_truly_or_null()
-     * should be truly or null
-     *        \--------------/
-     * ->to_be_instance_of('MyClass')->and_have_property('foo')
-     * should be instance of 'MyClass' and have property 'foo'
-     *           \-------------------------------------------/
-     * ->to_be_integer()->and_greater_than(10)->and_less_than_or_equal_to(20)
-     * should be an integer and greater than 10 and less than or equal to 20
-     *           \------------------------------------------/    \---------/
-     * ->to_equal(1)->or(3)->or(4)->but_not_string()
-     * should equal 1, 3 or 4 but not be string
-     *        \-------------/     \-----------/
-     *
-     * ->to_be_integer_and_equal(10)->or_boolean_and_true()
-     * should be an integer and equal 10 or a boolean and be true
-     *           \---------------------/    \-------------------/
-     * ->to_be_greater(10)->or_equal(10)->but_less(20)->or_equal(20)
-     * should be greater than 10 or equal to 10 but less than 20 or equal to 20
-     *           \----------------------------/     \-------------------------/
-     * ->to_be_integer_or_string_and_numeric_or_null()
-     * should be integer or string and numeric or null
-     *           \-----/    \----------------/    \--/
-     * ->to_be_integer_or_string_and_numeric_but_less(10)
-     * should be integer or string and numeric, and be less than 10
-     *           \-----/    \----------------/         \----------/
-     *           \---------------------------/         \----------/
-     *
-     *
-     * Coordination by and and or is governed by the standard binding order of logic,
-     * i.e. and binds stronger than or. Commas can be used to override the standard
-     * binding order
-     *
-     *    and > or > ,and / but > ,or
-     *
-     *    "but" is an alias of ",and"
-     *
-     *
-     * Commas without and/or just after assume an "or" was given:
-     *
-     *      be an integer, float and empty --> integer or (float and empty)
-     *
-     *
-     *
-     * should be an integer or a boolean, and be truthy
-     *        \-------------------------/ \------------/
-     *
-     * should be an integer, a string or a boolean, and not be empty
-     *        \----------------------------------/  \--------------/
-     *
-     * should be an integer or a boolean and not empty
-     *        \-----------/    \---------------------/
-     *
-     * should be an integer, a string or a boolean and not empty
-     *        \---------------------/    \----------------------/
-     *
-     * should have one of "one", "two" or "three", and be string
-     *        \---------------------------------/      \-------/
-     *
-     *
      * Magic PHP method to handle any method name not defined in
      * the class.
      *
      * @param String $fn
      * @param Array $args
-     * @return Expect
+     * @return ExpectAutoComplete
      */
     public function __call($fn, $args)
     {
@@ -196,9 +133,8 @@ class Expect
         // when manually calling expect()
         $name = preg_replace('/^to_/', '', $name);
 
-
         // Extract ORs/ANDs/BUTs/AS from name
-        if (preg_match('/^[a-z]_(or|and|but|as)$/i', $name)) {
+        if (preg_match('/^[a-z]+_(or|and|but|as)_?$/i', $name)) {
             // We need to disable implicit assertion if set
             $origImplicit = $this->implicitAssert;
             $this->implicitAssert = false;
@@ -238,14 +174,6 @@ class Expect
             }
         }
 
-        // Re-index array just in case
-        $parts = array_values($parts);
-
-        // By default use "same"
-        if (empty($parts)) {
-            $parts[] = 'same';
-        }
-
         // Manage coordination operators
         switch ($parts[0]) {
         case 'described':
@@ -268,13 +196,26 @@ class Expect
             $this->expression->addOperator('BUT', 1);
             array_shift($parts);
             break;
+        default:
+            // If no operator was given assume OR
+            if (NULL !== $this->prevMatcher) {
+                $this->expression->addOperator('OR', 5);
+            }
         }
 
-        // @todo If $parts is empty reuse previous matcher
-        // example: expect(1)->to_equal(0)->or(1);
+        // If nothing left reuse previous matcher
+        if (empty($parts)) {
+            if (NULL === $this->prevMatcher) {
+                throw new \RuntimeException("Unable to re-use previous matcher since it's empty");
+            } else if (empty($args)) {
+                throw new \RuntimeException("Unable to re-use previous matcher without arguments being given");
+            }
+            $matcher = $this->prevMatcher;
+        } else {
+            $matcher = implode(' ', $parts);
+            $this->prevMatcher = $matcher;
+        }
 
-        // Generate a matcher name from the parts
-        $matcher = implode('_', $parts);
         // Find the matcher for the given name
         $callback = Spec::matchers()->find($matcher);
         if (FALSE === $callback) {

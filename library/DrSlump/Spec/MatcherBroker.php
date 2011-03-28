@@ -93,8 +93,11 @@ class MatcherBroker implements \ArrayAccess
         $find = strtolower($name);
         $find = str_replace('_', ' ', $find);
 
-        // Remove ignored words
+        // Remove ignored words, if the result is empty use "same"
         $find = $this->filter($find);
+        if (empty($find)) {
+            $find = 'same';
+        }
 
         // Iterate over all registered matchers to find candidates
         $candidates = array();
