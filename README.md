@@ -205,3 +205,60 @@ test cases.
             expect(1)->to_equal(1);
         }
     }
+
+
+## Beyond Testing
+
+The `Expect` component is not really tied to PHPUnit or the test harness. It's
+primary dependency is the Hamcrest set of matchers, as such, it can also be used
+in other scenarios, like for example to validate parameters received in an application
+controller.
+
+See the following Zend Framework controller for example:
+
+    class MyController extends Zend_Controller_Action {
+        public function myAction() {
+            expect($this->getParam('id'))
+            ->to_be_numeric->and_more_than(0)
+            ->do();
+
+            expect($this->getParam('action')
+            ->to_equal('create')->or('update')->or('delete')
+            ->as('Invalid action')
+            ->do();
+
+            // ... your logic goes here ...
+        }
+    }
+
+When an expectation fails an exception is raised so it fits well with most web
+frameworks that capture exceptions to render an error page. Of course, the real
+power comes by writing custom `matchers`, like an _user exists_ that checks if
+an user id is valid for example.
+
+
+## LICENSE
+
+	The MIT License
+
+	Copyright (c) 2011 Iván -DrSlump- Montes
+
+	Permission is hereby granted, free of charge, to any person obtaining
+	a copy of this software and associated documentation files (the
+	'Software'), to deal in the Software without restriction, including
+	without limitation the rights to use, copy, modify, merge, publish,
+	distribute, sublicense, and/or sell copies of the Software, and to
+	permit persons to whom the Software is furnished to do so, subject to
+	the following conditions:
+
+	The above copyright notice and this permission notice shall be
+	included in all copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+

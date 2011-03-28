@@ -2,18 +2,10 @@
 REM  Spec for PHP
 REM  Copyright (C) 2011 Iván -DrSlump- Montes <drslump@pollinimini.net>
 REM
-REM  This program is free software: you can redistribute it and/or modify
-REM  it under the terms of the GNU Affero General Public License as
-REM  published by the Free Software Foundation, either version 3 of the
-REM  License, or (at your option) any later version.
-REM
-REM  This program is distributed in the hope that it will be useful,
-REM  but WITHOUT ANY WARRANTY; without even the implied warranty of
-REM  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-REM  GNU Affero General Public License for more details.
-REM
-REM  You should have received a copy of the GNU Affero General Public License
-REM  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+REM  This source file is subject to the MIT license that is bundled
+REM  with this package in the file LICENSE.
+REM  It is also available through the world-wide-web at this URL:
+REM  http://creativecommons.org/licenses/MIT/
 
 if "%PHPBIN%" == "" set PHPBIN=@php_bin@
 if not exist "%PHPBIN%" if "%PHP_PEAR_PHP_BIN%" neq "" goto USE_PEAR_PATH
