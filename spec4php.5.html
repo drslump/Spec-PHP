@@ -63,6 +63,8 @@
     <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
     <a href="#BLOCKS">BLOCKS</a>
+    <a href="#TEST-BLOCKS">TEST BLOCKS</a>
+    <a href="#WORLD">WORLD</a>
     <a href="#EXPECTATIONS">EXPECTATIONS</a>
     <a href="#COORDINATION">COORDINATION</a>
     <a href="#ANNOTATIONS">ANNOTATIONS</a>
@@ -105,12 +107,12 @@ where each one has a single expectation (<strong>should</strong>).</p>
 
 <p>Spec files are normal PHP source code files with additional syntax to
 define <code>blocks</code> and <code>expectations</code>. By convention they should end in
-<code>.spec.php</code> or <code>Spec.php</code> although this not a requirement.</p>
+<code>.spec.php</code> or <code>Spec.php</code> although this is not a requirement.</p>
 
 <p>The custom syntax for Spec can be made compatible with that of PHP by
 using dots "." as a replacement for spaces. This feature is mostly useful
 when you don't want your spec files to report errors in an IDE or when
-running the files thru a <em>linting</em> procress.</p>
+running the files thru a <em>linting</em> process.</p>
 
 <p>In order to transform the custom Spec syntax to valid (and runnable) PHP
 source code you'll need to use the <code>compiler</code> component of <a href="spec4php.3.html" class="man-ref">spec4php<span class="s">(3)</span></a>. The
@@ -121,7 +123,7 @@ to any file it references.</p>
 
 <h2 id="BLOCKS">BLOCKS</h2>
 
-<p>These are the differnt blocks supported. All of them are to be terminated with
+<p>These are the different blocks supported. All of them are to be terminated with
 the <code>end</code> keyword.</p>
 
 <dl>
@@ -143,8 +145,92 @@ test (<code>it</code> block).</p></dd>
 </dl>
 
 
-<p>Note that <code>before</code>, <code>after</code>, <code>before_each</code> and <code>after_each</code> are inherited
-in nested <code>describe</code> groups.</p>
+<p>Note that <code>before_each</code> and <code>after_each</code> are inherited in nested <code>describe</code>
+groups.</p>
+
+<h2 id="TEST-BLOCKS">TEST BLOCKS</h2>
+
+<p>Test blocks are defined with the <code>it</code> keyword. These blocks should test
+your code by performing expectations over its functionality. They are equivalent
+to PHPUnit's TestCase class methods. In fact, they are wrapped at runtime
+in a PHPUnit TestCase class.</p>
+
+<p>You can even access the test case class methods by using the <code>$this</code> variable,
+as you would in a class method. Spec will automatically translate occurrences
+of <code>$this</code> inside code blocks and convert them to a call to the underlying
+test case class instance. This allows to mix the usage of Spec's native
+expectations and original PHPUnit assertions.</p>
+
+<pre><code>it "should use asserts"
+    $this-&gt;assertEquals(1, 1);
+end
+</code></pre>
+
+<p>This feature comes really handy when you have an extended PHPUnit test case
+class, like for example with the Zend_Test classes, without having to port
+those custom assertions to Spec matchers. Besides, it will ease the path
+when converting PHPUnit test cases to Spec, since most of the code used
+in your current tests will run unmodified when placed in a spec file.</p>
+
+<p>An additional feature of <code>it</code> blocks is their ability to get arguments
+for the test from their own description string. Any <em>value</em> enclosed in
+quotes (single or double) or between angle brackets (&lt;>) will be made
+available inside the code block with variables named <code>$argX</code>, where X
+is an integer count starting at 1.</p>
+
+<pre><code>it "should multiply '100' by '10' and return &lt;1000>"
+    $arg1 * $arg2 should equal $arg3;
+end
+</code></pre>
+
+<p>This feature is specially suited to create <em>dynamic</em> tests, something that
+is a bit more difficult with other testing frameworks. Since test code blocks
+are converted to simple anonymous functions, it's possible to wrap them in
+loops to feed a set of data to test. The following example will create 5
+individual tests feeding different data to each one of them.</p>
+
+<pre><code>$results = array(0, 100, 200, 300, 400);
+foreach ($results as $i=&gt;$result) {
+    it "should multiply '$i' by '100' and return '{$result[$i]}'"
+        $arg1 * $arg2 should equal $arg3;
+    end
+}
+</code></pre>
+
+<h2 id="WORLD">WORLD</h2>
+
+<p>All the code blocks (<code>it</code>, <code>before</code>, <code>after</code>, <code>before_each</code> and <code>after_each</code>)
+get automatic access to an object thru a variable named <code>$W</code> (uppercase W)
+representing the <em>world</em>. Hooks like <code>before</code> or <code>before_each</code> can be used
+to configure this <em>world</em> by initializing variables, resources, database
+connections, mocks...</p>
+
+<p>Spec will create and restore <em>snapshots</em> of this object so that every test
+(<code>it</code> blocks) in a <code>describe</code> group receives the exact same values configured
+in their <em>world</em> object. There are some things that can't be automatically
+restored by Spec though, like database connections or file resources, so try
+to configure them in <code>before</code> hooks instead of <code>before_each</code> ones.</p>
+
+<p>Note that since the <em>world</em> is restored after each test is ran, it's not
+possible to pass values using it from one test to another. You should always
+use the hooks to configure the <em>world</em>, otherwise you would run into problems
+when tests are executed in a different order or skipped for some reason.</p>
+
+<pre><code>describe "World"
+
+    before
+       $W-&gt;foo = 'bar';
+    end
+
+    before_each
+        $W-&gt;foo .= 'baz';
+    end
+
+    it "should get an initialized world"
+        $W-&gt;foo should equal "barbaz";
+    end
+end
+</code></pre>
 
 <h2 id="EXPECTATIONS">EXPECTATIONS</h2>
 
@@ -154,7 +240,7 @@ where <code>subject</code> is a PHP expression and <code>predicate</code> define
 values.</p>
 
 <p>Any PHP expressions can be used before <em>should</em>, however some are not completely
-supported, for example, it's not possible to use annonymous functions as the
+supported, for example, it's not possible to use anonymous functions as the
 expectation <code>subject</code>. To improve readability and ensure the parser works as
 expected is useful to wrap them in parenthesis.</p>
 
@@ -181,13 +267,16 @@ and their matchers.</p>
     &lt;=        |    at most
 </code></pre>
 
+<p>Additionally, any matcher can be negated by using the word <code>not</code> in it.</p>
+
 <p>See the following examples of expectations:</p>
 
 <pre><code>$result should be integer;
-(1+1) should equal 2;
+(1+1) should not equal 1;
 trim("  foo ") should be exactly "foo";
 count(array(1,2,3)) should &gt;= 2;
 $result should equal (1/2 + 5);
+1 should not equal 2;
 1 should != 2;
 </code></pre>
 
@@ -254,7 +343,7 @@ the hierarchy wins.</p>
 <p>Spec understands the following annotation tags:</p>
 
 <dl>
-<dt><code>class</code> <var>class_name</var></dt><dd><p>Tells Spec to create a test case inherting from the given class.
+<dt><code>class</code> <var>class_name</var></dt><dd><p>Tells Spec to create a test case inheriting from the given class.
 This is very useful to allow the use of Spec with custom TestCase
 classes you might already have or for enabling the use of Zend_Test
 or PHPUnit's Selenium test case implementation.</p></dd>
@@ -263,7 +352,7 @@ when runnning the test, ensuring that it should throw an exception
 matching the given code or the given exception class.</p></dd>
 <dt><code>todo</code>, <code>incomplete</code></dt><dd><p>Flags a test case as incomplete. Spec will report these test cases
 in a different way to standard ones, so it's easy to know when a
-test is passing but doesn't yet tests all the funcionality it should.</p></dd>
+test is passing but doesn't yet tests all the functionality it should.</p></dd>
 <dt class="flush"><code>skip</code></dt><dd><p>A test case with this tag will make Spec skip its execution but log
 in the report that it was skipped. It's a great way to disable some
 test cases known to fail for any reason.</p></dd>
@@ -283,7 +372,7 @@ from a framework, like the ones from Zend_Test.</p>
 it's completely possible to use those classes without having to modify them in
 any way.</p>
 
-<p>The way to tell Spec what class it should use is by definning an annotation
+<p>The way to tell Spec what class it should use is by defining an annotation
 for a <code>describe</code> or <code>it</code> block, like in the following example:</p>
 
 <pre><code># class Zend_Test_PHPUnit_ControllerTestCase
@@ -303,6 +392,8 @@ end
 to specify it for each test.</p>
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
+
+<p>See Spec's own tests in the GitHub repository to see examples.</p>
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>
 
