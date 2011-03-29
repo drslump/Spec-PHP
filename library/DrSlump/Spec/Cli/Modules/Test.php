@@ -137,14 +137,37 @@ class Test
             );
         }
 
-        // Run the suite
-        $suite->run(
-          $result,
-          false, //$arguments['filter'],
-          array(), //$arguments['groups'],
-          array(), //$arguments['excludeGroups'],
-          false  //$arguments['processIsolation']
-        );
+        try {
+
+            // Run the suite
+            $suite->run(
+              $result,
+              false, //$arguments['filter'],
+              array(), //$arguments['groups'],
+              array(), //$arguments['excludeGroups'],
+              false  //$arguments['processIsolation']
+            );
+
+        } catch (\Exception $e) {
+
+            // Recursive function to flag all tests in a suite as failed
+            $fail = function($suite) use (&$result, &$fail, &$e) {
+                foreach ($suite->tests() as $test) {
+                    if ($test instanceof \PHPUnit_Framework_TestSuite) {
+                        $fail($test);
+                        continue;
+                    }
+
+                    // Only flag as failed the ones that haven't been run yet
+                    if (NULL === $test->getStatus()) {
+                        $result->addError($test, $e, 0);
+                    }
+                }
+            };
+
+            // Check starting at the current suite since it's the one that have failed
+            $fail(Spec::suite());
+        }
 
         unset($suite);
         $result->flushListeners();

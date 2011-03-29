@@ -28,14 +28,12 @@ class Spec
     /** Scheme used to register the stream wrapper */
     const SCHEME = 'spec';
 
-    /** @var Spec\PHPUnit\TestSuite[] */
-    protected static $suitesStack = array();
-
-    /** @var Closure[] */
-    protected static $matchers = array();
+    /** @var \SplStack */
+    protected static $suites = null;
 
     /** @var Spec\RunHelper */
     protected static $runHelper = null;
+
 
     /**
      * Initializes the Spec library
@@ -91,6 +89,9 @@ class Spec
         include_once __DIR__ . '/Spec/keywords.php';
         include_once __DIR__ . '/Spec/matchers.php';
 
+        // Setup suite stack
+        self::$suites = new \SplStack();
+
         return true;
     }
 
@@ -142,27 +143,51 @@ class Spec
         return $broker;
     }
 
-    public static function currentSuite()
+    /**
+     * Get the current suite
+     *
+     * @static
+     * @return \DrSlump\Spec\TestSuite
+     */
+    public static function suite()
     {
-        if (empty(self::$suitesStack)) {
+        if (self::$suites->isEmpty()) {
             return null;
         }
-        return self::$suitesStack[ count(self::$suitesStack)-1 ];
+        return self::$suites->top();
     }
 
-    public static function pushSuite($suite)
+    /**
+     * Get (or set) the current test case
+     *
+     * @static
+     * @param \DrSlump\Spec\TestCaseInterface $test
+     * @return \DrSlump\Spec\TestCaseInterface
+     */
+    public static function test(Spec\TestCaseInterface $test = NULL)
     {
-        array_push(self::$suitesStack, $suite);
+        static $current;
+
+        if (NULL !== $test) {
+            $current = $test;
+        }
+
+        return $current;
     }
 
-    public static function popSuite()
-    {
-        return array_pop(self::$suitesStack);
-    }
-
+    /**
+     * Resets the suites tree with a new root
+     *
+     * @static
+     * @param \DrSlump\Spec\TestSuite
+     */
     public static function reset(Spec\TestSuite $root)
     {
-        self::$suitesStack = array($root);
+        while (!self::$suites->isEmpty()) {
+            self::$suites->pop();
+        }
+
+        self::$suites->push($root);
     }
 
     /**
@@ -207,17 +232,17 @@ class Spec
         $suite->setCallback($cb);
 
         // Link parent suite and the new one
-        $parent = self::currentSuite();
+        $parent = self::suite();
         $suite->setParent($parent);
 
         // Set this suite as the current one
-        self::pushSuite($suite);
+        self::$suites->push($suite);
 
         // Run the describe block
         $cb($suite);
 
         // Go back to the previous parent
-        self::popSuite();
+        self::$suites->pop();
 
         // Finally add the suite to the parent one
         $parent->addTest($suite, $suite->getGroups());
@@ -236,10 +261,54 @@ class Spec
     {
         $runHelper = self::getRunHelper();
 
-        $suite = self::currentSuite();
+        $suite = self::suite();
         $test = $runHelper->buildTest($suite, $title, $cb);
         $groups = $runHelper->findGroups($test);
         $suite->addTest($test, $groups);
+    }
+
+    /**
+     * Register a _before_ hook in the current suite
+     *
+     * @static
+     * @param Closure $cb
+     */
+    public static function before($cb)
+    {
+        self::suite()->before($cb);
+    }
+
+    /**
+     * Register a _before_each_ hook in the current suite
+     *
+     * @static
+     * @param Closure $cb
+     */
+    public static function before_each($cb)
+    {
+        self::suite()->beforeEach($cb);
+    }
+
+    /**
+     * Register an _after_ hook in the current suite
+     *
+     * @static
+     * @param Closure $cb
+     */
+    public static function after($cb)
+    {
+        self::suite()->after($cb);
+    }
+
+    /**
+     * Register an _after_each_ hook in the current suite
+     *
+     * @static
+     * @param Closure $cb
+     */
+    public static function after_each($cb)
+    {
+        self::suite()->afterEach($cb);
     }
 
     /**
@@ -253,26 +322,6 @@ class Spec
         return new Spec\Expect($value, $implicitAssert);
     }
 
-
-    public static function before($cb)
-    {
-        self::currentSuite()->before($cb);
-    }
-
-    public static function before_each($cb)
-    {
-        self::currentSuite()->beforeEach($cb);
-    }
-
-    public static function after($cb)
-    {
-        self::currentSuite()->after($cb);
-    }
-
-    public static function after_each($cb)
-    {
-        self::currentSuite()->afterEach($cb);
-    }
 }
 
 

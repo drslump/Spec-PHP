@@ -52,6 +52,9 @@ class Transform {
     /** @var string */
     protected $target = '';
 
+    /** @var \SplStack */
+    protected $blocks;
+
     /** @var array */
     protected $nestedBlocks = array();
 
@@ -72,6 +75,8 @@ class Transform {
 
         $this->statement = new \SplQueue();
         $this->statement->setIteratorMode(\SplDoublyLinkedList::IT_MODE_DELETE);
+
+        $this->blocks = new \SplStack();
     }
 
     static public function transform(\Iterator $it)
@@ -326,6 +331,7 @@ class Transform {
 
             $this->closeIndentedBlocks();
 
+            $this->blocks->push($value);
             $this->inBlock = $value !== 'describe';
 
             $this->write(self::SPEC_CLASS . '::' . $value . '(');
@@ -367,6 +373,7 @@ class Transform {
             $this->closeIndentedBlocks();
 
             $this->inBlock = false;
+            $this->blocks->pop();
 
             $this->transition(self::PHP);
             return $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON);
@@ -422,6 +429,22 @@ class Transform {
             $this->write(')->');
             $this->transition(self::SHOULD);
             return false;
+
+        case Token::VARIABLE:
+            if ($token->value === '$this') {
+                switch (strtoupper($this->blocks->top())) {
+                case 'DESCRIBE':
+                case 'BEFORE':
+                case 'AFTER':
+                    $token->value = self::SPEC_CLASS . '::suite()';
+                    break;
+                case 'BEFORE_EACH':
+                case 'AFTER_EACH':
+                case 'IT':
+                    $token->value = self::SPEC_CLASS . '::test()';
+                    break;
+                }
+            }
 
         default:
             if ($token->token === T_CLOSE_TAG) {
@@ -502,6 +525,19 @@ class Transform {
         case strtolower($token->value) === 'described':
             // Ignore this token, it should always come before "as"
             return false;
+
+        // Handle array(...) with a special case
+        case strtolower($token->value) === 'array':
+
+            $token = $this->skip(Token::WHITESPACE);
+            if ($token->type === Token::LPAREN) {
+                $this->write('(array');
+                $token = $this->consumeParams($token);
+                $this->write(')');
+            } else {
+                $this->write('array_');
+            }
+            return $token;
 
         case Token::IDENT:
         case $token->type === Token::TEXT &&

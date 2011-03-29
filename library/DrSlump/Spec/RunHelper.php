@@ -286,6 +286,9 @@ class RunHelper
                 $test->setExpectedException($class, $message, $code);
             }
         }
+
+        // Register the current test case as the active one
+        Spec::test($test);
     }
 
     /**
