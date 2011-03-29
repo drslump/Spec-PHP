@@ -24,6 +24,11 @@ you can go to the line number reported in an exception and actually see the
 statement that failed. Check the "How does it work?" section for more
 details.
 
+
+> Check [the documentation](http://drslump.github.com/Spec-PHP/) for further
+details.
+
+
 ## Features
 
 _Spec for PHP_ is being actively developed and while functional doesn't
