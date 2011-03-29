@@ -62,7 +62,7 @@ The following options (switches) are supported.
 
 ## BUGS ##
 
-Please report bugs via GitHub's issue tracker at http://github.com/drslump/spec-php/issues
+Please report bugs via [GitHub's issue tracker](http://github.com/drslump/spec-php/issues)
 
 
 ## COPYRIGHT ##

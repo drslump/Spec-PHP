@@ -23,12 +23,12 @@ where each one has a single expectation (**should**).
 
 Spec files are normal PHP source code files with additional syntax to
 define `blocks` and `expectations`. By convention they should end in
-`.spec.php` or `Spec.php` although this not a requirement.
+`.spec.php` or `Spec.php` although this is not a requirement.
 
 The custom syntax for Spec can be made compatible with that of PHP by
 using dots "." as a replacement for spaces. This feature is mostly useful
 when you don't want your spec files to report errors in an IDE or when
-running the files thru a _linting_ procress.
+running the files thru a _linting_ process.
 
 In order to transform the custom Spec syntax to valid (and runnable) PHP
 source code you'll need to use the `compiler` component of spec4php(3). The
@@ -40,7 +40,7 @@ to any file it references.
 
 ## BLOCKS
 
-These are the differnt blocks supported. All of them are to be terminated with
+These are the different blocks supported. All of them are to be terminated with
 the `end` keyword.
 
   * `describe` "<description>":
@@ -71,8 +71,90 @@ the `end` keyword.
     test (`it` block).
 
 
-Note that `before`, `after`, `before_each` and `after_each` are inherited
-in nested `describe` groups.
+Note that `before_each` and `after_each` are inherited in nested `describe`
+groups.
+
+
+## TEST BLOCKS ##
+
+Test blocks are defined with the `it` keyword. These blocks should test
+your code by performing expectations over its functionality. They are equivalent
+to PHPUnit's TestCase class methods. In fact, they are wrapped at runtime
+in a PHPUnit TestCase class.
+
+You can even access the test case class methods by using the `$this` variable,
+as you would in a class method. Spec will automatically translate occurrences
+of `$this` inside code blocks and convert them to a call to the underlying
+test case class instance. This allows to mix the usage of Spec's native
+expectations and original PHPUnit assertions.
+
+    it "should use asserts"
+        $this->assertEquals(1, 1);
+    end
+
+This feature comes really handy when you have an extended PHPUnit test case
+class, like for example with the Zend_Test classes, without having to port
+those custom assertions to Spec matchers. Besides, it will ease the path
+when converting PHPUnit test cases to Spec, since most of the code used
+in your current tests will run unmodified when placed in a spec file.
+
+An additional feature of `it` blocks is their ability to get arguments
+for the test from their own description string. Any _value_ enclosed in
+quotes (single or double) or between angle brackets (<>) will be made
+available inside the code block with variables named `$argX`, where X
+is an integer count starting at 1.
+
+    it "should multiply '100' by '10' and return <1000>"
+        $arg1 * $arg2 should equal $arg3;
+    end
+
+This feature is specially suited to create _dynamic_ tests, something that
+is a bit more difficult with other testing frameworks. Since test code blocks
+are converted to simple anonymous functions, it's possible to wrap them in
+loops to feed a set of data to test. The following example will create 5
+individual tests feeding different data to each one of them.
+
+    $results = array(0, 100, 200, 300, 400);
+    foreach ($results as $i=>$result) {
+        it "should multiply '$i' by '100' and return '{$result[$i]}'"
+            $arg1 * $arg2 should equal $arg3;
+        end
+    }
+
+
+## WORLD ##
+
+All the code blocks (`it`, `before`, `after`, `before_each` and `after_each`)
+get automatic access to an object thru a variable named `$W` (uppercase W)
+representing the _world_. Hooks like `before` or `before_each` can be used
+to configure this _world_ by initializing variables, resources, database
+connections, mocks...
+
+Spec will create and restore _snapshots_ of this object so that every test
+(`it` blocks) in a `describe` group receives the exact same values configured
+in their _world_ object. There are some things that can't be automatically
+restored by Spec though, like database connections or file resources, so try
+to configure them in `before` hooks instead of `before_each` ones.
+
+Note that since the _world_ is restored after each test is ran, it's not
+possible to pass values using it from one test to another. You should always
+use the hooks to configure the _world_, otherwise you would run into problems
+when tests are executed in a different order or skipped for some reason.
+
+    describe "World"
+
+        before
+           $W->foo = 'bar';
+        end
+
+        before_each
+            $W->foo .= 'baz';
+        end
+
+        it "should get an initialized world"
+            $W->foo should equal "barbaz";
+        end
+    end
 
 
 ## EXPECTATIONS ##
@@ -83,7 +165,7 @@ where `subject` is a PHP expression and `predicate` defines matchers and expecte
 values.
 
 Any PHP expressions can be used before _should_, however some are not completely
-supported, for example, it's not possible to use annonymous functions as the
+supported, for example, it's not possible to use anonymous functions as the
 expectation `subject`. To improve readability and ensure the parser works as
 expected is useful to wrap them in parenthesis.
 
@@ -109,13 +191,16 @@ and their matchers.
         >=        |    at least
         <=        |    at most
 
+Additionally, any matcher can be negated by using the word `not` in it.
+
 See the following examples of expectations:
 
     $result should be integer;
-    (1+1) should equal 2;
+    (1+1) should not equal 1;
     trim("  foo ") should be exactly "foo";
     count(array(1,2,3)) should >= 2;
     $result should equal (1/2 + 5);
+    1 should not equal 2;
     1 should != 2;
 
 
@@ -168,7 +253,6 @@ apply.
     (equal 10) OR (equal 20) OR (equal 30)
 
 
-
 ## ANNOTATIONS ##
 
 Annotations can be defined in two ways, using the standard javadoc like
@@ -182,7 +266,7 @@ the hierarchy wins.
 Spec understands the following annotation tags:
 
   * `class` <class_name>:
-    Tells Spec to create a test case inherting from the given class.
+    Tells Spec to create a test case inheriting from the given class.
     This is very useful to allow the use of Spec with custom TestCase
     classes you might already have or for enabling the use of Zend_Test
     or PHPUnit's Selenium test case implementation.
@@ -195,7 +279,7 @@ Spec understands the following annotation tags:
   * `todo`, `incomplete`:
     Flags a test case as incomplete. Spec will report these test cases
     in a different way to standard ones, so it's easy to know when a
-    test is passing but doesn't yet tests all the funcionality it should.
+    test is passing but doesn't yet tests all the functionality it should.
 
   * `skip`:
     A test case with this tag will make Spec skip its execution but log
@@ -217,7 +301,7 @@ Spec is able to _patch_ any given class to add support for its features, so
 it's completely possible to use those classes without having to modify them in
 any way.
 
-The way to tell Spec what class it should use is by definning an annotation
+The way to tell Spec what class it should use is by defining an annotation
 for a `describe` or `it` block, like in the following example:
 
     # class Zend_Test_PHPUnit_ControllerTestCase
@@ -238,6 +322,8 @@ to specify it for each test.
 
 
 ## EXAMPLES ##
+
+See Spec's own tests in the GitHub repository to see examples.
 
 
 ## COPYRIGHT ##
