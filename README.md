@@ -82,14 +82,23 @@ Install Hamcrest matchers library
     pear channel-discover hamcrest.googlecode.com/svn/pear
     pear install hamcrest/Hamcrest
 
-Checkout a copy of _Spec for PHP_ in your computer and do a test run:
+Install Spec for PHP
+
+    pear channel-discover pear.pollinimini.net
+    pear install drslump/Spec
+
+You can also get the latest version by checking a copy of the repository
+in your computer.
+
+To do a test run, simply checkout the repository to get the tests directory
+and run the following commands:
 
     cd tests/
     phpunit AllTests.php
 
 Also try the custom cli runner:
 
-    ./spec4php.php tests
+    spec4php tests
 
 
 ## Example

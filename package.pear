@@ -22,10 +22,10 @@
      <api>{VERSION}</api>
  </version>
  <stability>
-  <release>devel</release>
-  <api>devel</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
- <license uri="http://opensource.org/licenses/agpl-v3">Affero GPL v3</license>
+ <license uri="http://creativecommons.org/licenses/MIT">The MIT License</license>
  <notes>http://github.com/drslump/Spec-for-PHP</notes>
  <contents>
      <dir name="/">
@@ -57,6 +57,11 @@
     <name>PHPUnit</name>
     <channel>pear.phpunit.de</channel>
     <min>3.5.0</min>
+   </package>
+   <package>
+    <name>Object_Freezer</name>
+    <channel>pear.phpunit.de</channel>
+    <min>1.0.0</min>
    </package>
    <package>
     <name>Console_CommandLine</name>
