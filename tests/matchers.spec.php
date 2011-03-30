@@ -24,6 +24,7 @@ describe. "Spec matchers".
             'foo' should be string;
             "foo" should have type 'string';
             'foo' should be scalar;
+            '' should be empty string;
 
             any(array(1, '2', 3)) should be string;
         end.
@@ -35,6 +36,12 @@ describe. "Spec matchers".
             true should be bool;
             false should have type 'boolean';
             true should be scalar;
+            true should be true;
+            1 should NOT be true;
+            false should be false;
+            0 should NOT be false;
+            all(true, 1, "1", "foo") should be truthy;
+            all(false, null, 0, "0", "") should be falsy;
 
             none(1,2,3) should be boolean
         end.
@@ -43,7 +50,10 @@ describe. "Spec matchers".
 
             $fp = fopen('php://memory', 'r');
             $fp should be resource;
+            $fp should have type 'resource';
             $fp should NOT be scalar;
+            $fp should be truthy;
+            $fp should NOT be falsy;
             fclose($fp);
         end.
 
@@ -52,12 +62,19 @@ describe. "Spec matchers".
             array(1) should be array;
             array() should be type 'array';
             array(true) should not be scalar;
+            array() should be falsy;
+            array(1) should be truthy;
+            array(1,2,3) should contain 2;
+            array('foo'=>'foo', 'bar'=>'bar') should have key 'bar';
+            array() should be empty array;
         end.
 
         it. "should support objects".
 
             new \stdClass() should be object;
             new \ArrayObject() should be object;
+            new \stdClass() should be of type 'object';
+            new \stdClass() should be truthy;
         end.
 
         it. "should support nulls".
@@ -99,6 +116,7 @@ describe. "Spec matchers".
             array('S_p_e_c', 'describe') should NOT be callable;
             $fn = function(){};
             $fn should be callable;
+            $fn should be truthy;
         end.
 
     end.

@@ -91,6 +91,8 @@ define('least', 'least');
 define('most', 'most');
 define('empty', 'empty');
 define('type', 'type');
+define('contain', 'contain');
+define('key', 'key');
 
 // Type matchers
 define('integer', 'integer');
