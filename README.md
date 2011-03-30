@@ -85,7 +85,7 @@ Install Hamcrest matchers library
 Install Spec for PHP
 
     pear channel-discover pear.pollinimini.net
-    pear install drslump/Spec
+    pear install drslump/Spec-beta
 
 You can also get the latest version by checking a copy of the repository
 in your computer.
