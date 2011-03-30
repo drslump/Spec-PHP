@@ -287,7 +287,7 @@ Spec understands the following annotation tags:
     test cases known to fail for any reason.
 
 Additionally, most PHPUnit annotations should work when using spec files
-too, see [](http://www.phpunit.de/manual/current/en/appendixes.annotations.html)
+too, see [PHPUnit documentation](http://www.phpunit.de/manual/current/en/appendixes.annotations.html)
 
 
 
