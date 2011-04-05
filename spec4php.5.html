@@ -68,6 +68,7 @@
     <a href="#EXPECTATIONS">EXPECTATIONS</a>
     <a href="#COORDINATION">COORDINATION</a>
     <a href="#ANNOTATIONS">ANNOTATIONS</a>
+    <a href="#GOTCHAS">GOTCHAS</a>
     <a href="#CUSTOM-TEST-CLASSES">CUSTOM TEST CLASSES</a>
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
@@ -246,7 +247,9 @@ expected is useful to wrap them in parenthesis.</p>
 
 <p>Matchers in the <code>predicate</code> part can have an expected value, any simple PHP
 expression following the matcher phrase idents will be used as an argument to
-the matcher function.</p>
+the matcher function. If you need to use function calls or other more complex
+expressions you can wrap them in parenthesis, otherwise the parser might not
+be able to parse it correctly.</p>
 
 <p>Expectations do not need to be ended with a semicolon character (';') when the
 next word is the <code>end</code> keyword or there is an empty line below it.</p>
@@ -278,6 +281,8 @@ count(array(1,2,3)) should &gt;= 2;
 $result should equal (1/2 + 5);
 1 should not equal 2;
 1 should != 2;
+"foo" should equal (trim("  foo  "))
+true should be ((bool)$var)
 </code></pre>
 
 <h2 id="COORDINATION">COORDINATION</h2>
@@ -360,7 +365,31 @@ test cases known to fail for any reason.</p></dd>
 
 
 <p>Additionally, most PHPUnit annotations should work when using spec files
-too, see <a href="http://www.phpunit.de/manual/current/en/appendixes.annotations.html"></a></p>
+too, see <a href="http://www.phpunit.de/manual/current/en/appendixes.annotations.html">PHPUnit documentation</a></p>
+
+<h2 id="GOTCHAS">GOTCHAS</h2>
+
+<p>Spec will load the spec files via a custom stream wrapper which provokes
+<code>__DIR__</code> and <code>__FILE__</code> magic constants to include the stream prefix in
+them. Often times it's needed to load files relative to the spec file
+location, in these cases we would usually use the <code>__DIR__</code> constant. Spec
+takes this into account and will automatically convert this constant to
+calls to <code>Spec::dir(__DIR__)</code> which returns a normalized version of the
+value. For <code>__FILE__</code> however there is no special threatment, so if you
+use code like <code>dirname(__FILE__)</code> please update it to use the <code>__DIR__</code>
+one.</p>
+
+<pre><code>// /path/to/fixtures/class.php
+include __DIR__ . '/fixtures/class.php';
+// /path/to/fixtures/data.txt
+$data = file_get_contents(__DIR__ . '/fixtures/data.txt');
+// spec://fixtures/data.txt
+$data = file_get_contents(dirname(__FILE__) . '/fixtures/data.txt');
+</code></pre>
+
+<p>Note that including spec files from another spec file is not officially
+supported yet. It might work in some cases but it's desirable to layout
+your tests using individual files to avoid conflicts and erroneous behavior.</p>
 
 <h2 id="CUSTOM-TEST-CLASSES">CUSTOM TEST CLASSES</h2>
 
@@ -407,7 +436,7 @@ to specify it for each test.</p>
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'>Ivan -DrSlump- Montes</li>
-    <li class='tc'>March 2011</li>
+    <li class='tc'>April 2011</li>
     <li class='tr'>spec4php(5)</li>
   </ol>
 
