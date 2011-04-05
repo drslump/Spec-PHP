@@ -322,6 +322,26 @@ class Spec
         return new Spec\Expect($value, $implicitAssert);
     }
 
+    /**
+     * Helper method to modify the __DIR__ constant value in spec files
+     * so that it doesn't include the spec:// prefix
+     *
+     * Example: include Spec::dir(__DIR__) . '/fixtures/one.php';
+     *
+     * @static
+     * @param string $dir
+     */
+    public static function dir($dir)
+    {
+        $prefix = self::SCHEME . '://';
+        if (strpos($dir, $prefix) === 0) {
+            $dir = substr($dir, strlen($prefix));
+            $dir = realpath($dir);
+        }
+
+        return strlen($dir) > 0 ? $dir : '.';
+    }
+
 }
 
 

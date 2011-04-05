@@ -233,6 +233,11 @@ class Transform {
             $this->appendStatement($token);
             return false;
 
+        case Token::TEXT && $token->value === '__DIR__':
+            $token->value = self::SPEC_CLASS . '::dir(__DIR__)';
+            $this->appendStatement($token);
+            return false;
+
         case Token::COMMENT:
             $value = trim($token->value);
 
@@ -406,6 +411,12 @@ class Transform {
 
             $this->appendStatement($token);
             return $next;
+
+
+        case Token::TEXT && $token->value === '__DIR__':
+            $token->value = self::SPEC_CLASS . '::dir(__DIR__)';
+            $this->appendStatement($token);
+            return false;
 
         case Token::SHOULD:
 
