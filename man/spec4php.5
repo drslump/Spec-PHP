@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "SPEC4PHP" "5" "March 2011" "Ivan -DrSlump- Montes" "Spec for PHP 0.9.0"
+.TH "SPEC4PHP" "5" "April 2011" "Ivan -DrSlump- Montes" "Spec for PHP "
 .
 .SH "NAME"
 \fBspec4php\fR \- Spec files
@@ -162,7 +162,7 @@ Expectations are defined in Spec by using a subject\-predicate form that mimics 
 Any PHP expressions can be used before \fIshould\fR, however some are not completely supported, for example, it\'s not possible to use anonymous functions as the expectation \fBsubject\fR\. To improve readability and ensure the parser works as expected is useful to wrap them in parenthesis\.
 .
 .P
-Matchers in the \fBpredicate\fR part can have an expected value, any simple PHP expression following the matcher phrase idents will be used as an argument to the matcher function\.
+Matchers in the \fBpredicate\fR part can have an expected value, any simple PHP expression following the matcher phrase idents will be used as an argument to the matcher function\. If you need to use function calls or other more complex expressions you can wrap them in parenthesis, otherwise the parser might not be able to parse it correctly\.
 .
 .P
 Expectations do not need to be ended with a semicolon character (\';\') when the next word is the \fBend\fR keyword or there is an empty line below it\.
@@ -206,6 +206,8 @@ count(array(1,2,3)) should >= 2;
 $result should equal (1/2 + 5);
 1 should not equal 2;
 1 should != 2;
+"foo" should equal (trim("  foo  "))
+true should be ((bool)$var)
 .
 .fi
 .
@@ -296,7 +298,28 @@ Flags a test case as incomplete\. Spec will report these test cases in a differe
 A test case with this tag will make Spec skip its execution but log in the report that it was skipped\. It\'s a great way to disable some test cases known to fail for any reason\.
 .
 .P
-Additionally, most PHPUnit annotations should work when using spec files too, see  \fIhttp://www\.phpunit\.de/manual/current/en/appendixes\.annotations\.html\fR
+Additionally, most PHPUnit annotations should work when using spec files too, see PHPUnit documentation \fIhttp://www\.phpunit\.de/manual/current/en/appendixes\.annotations\.html\fR
+.
+.SH "GOTCHAS"
+Spec will load the spec files via a custom stream wrapper which provokes \fB__DIR__\fR and \fB__FILE__\fR magic constants to include the stream prefix in them\. Often times it\'s needed to load files relative to the spec file location, in these cases we would usually use the \fB__DIR__\fR constant\. Spec takes this into account and will automatically convert this constant to calls to \fBSpec::dir(__DIR__)\fR which returns a normalized version of the value\. For \fB__FILE__\fR however there is no special threatment, so if you use code like \fBdirname(__FILE__)\fR please update it to use the \fB__DIR__\fR one\.
+.
+.IP "" 4
+.
+.nf
+
+// /path/to/fixtures/class\.php
+include __DIR__ \. \'/fixtures/class\.php\';
+// /path/to/fixtures/data\.txt
+$data = file_get_contents(__DIR__ \. \'/fixtures/data\.txt\');
+// spec://fixtures/data\.txt
+$data = file_get_contents(dirname(__FILE__) \. \'/fixtures/data\.txt\');
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Note that including spec files from another spec file is not officially supported yet\. It might work in some cases but it\'s desirable to layout your tests using individual files to avoid conflicts and erroneous behavior\.
 .
 .SH "CUSTOM TEST CLASSES"
 It\'s possible to use custom test case classes that extend the \fBPHPUnit_Framework_TestCase\fR one\. They can be implemented by you or come from a framework, like the ones from Zend_Test\.

@@ -171,7 +171,9 @@ expected is useful to wrap them in parenthesis.
 
 Matchers in the `predicate` part can have an expected value, any simple PHP
 expression following the matcher phrase idents will be used as an argument to
-the matcher function.
+the matcher function. If you need to use function calls or other more complex
+expressions you can wrap them in parenthesis, otherwise the parser might not
+be able to parse it correctly.
 
 Expectations do not need to be ended with a semicolon character (';') when the
 next word is the `end` keyword or there is an empty line below it.
@@ -202,6 +204,8 @@ See the following examples of expectations:
     $result should equal (1/2 + 5);
     1 should not equal 2;
     1 should != 2;
+    "foo" should equal (trim("  foo  "))
+    true should be ((bool)$var)
 
 
 ## COORDINATION ##
@@ -287,8 +291,32 @@ Spec understands the following annotation tags:
     test cases known to fail for any reason.
 
 Additionally, most PHPUnit annotations should work when using spec files
-too, see [](http://www.phpunit.de/manual/current/en/appendixes.annotations.html)
+too, see [PHPUnit documentation](http://www.phpunit.de/manual/current/en/appendixes.annotations.html)
 
+
+## GOTCHAS
+
+Spec will load the spec files via a custom stream wrapper which provokes
+`__DIR__` and `__FILE__` magic constants to include the stream prefix in
+them. Often times it's needed to load files relative to the spec file
+location, in these cases we would usually use the `__DIR__` constant. Spec
+takes this into account and will automatically convert this constant to
+calls to `Spec::dir(__DIR__)` which returns a normalized version of the
+value. For `__FILE__` however there is no special threatment, so if you
+use code like `dirname(__FILE__)` please update it to use the `__DIR__`
+one.
+
+    // /path/to/fixtures/class.php
+    include __DIR__ . '/fixtures/class.php';
+    // /path/to/fixtures/data.txt
+    $data = file_get_contents(__DIR__ . '/fixtures/data.txt');
+    // spec://fixtures/data.txt
+    $data = file_get_contents(dirname(__FILE__) . '/fixtures/data.txt');
+
+
+Note that including spec files from another spec file is not officially
+supported yet. It might work in some cases but it's desirable to layout
+your tests using individual files to avoid conflicts and erroneous behavior.
 
 
 ## CUSTOM TEST CLASSES
@@ -345,6 +373,7 @@ spec4php(1), spec4php(3),
 [EXPECTATIONS]: #EXPECTATIONS "EXPECTATIONS"
 [COORDINATION]: #COORDINATION "COORDINATION"
 [ANNOTATIONS]: #ANNOTATIONS "ANNOTATIONS"
+[GOTCHAS]: #GOTCHAS "GOTCHAS"
 [CUSTOM TEST CLASSES]: #CUSTOM-TEST-CLASSES "CUSTOM TEST CLASSES"
 [EXAMPLES]: #EXAMPLES "EXAMPLES"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
