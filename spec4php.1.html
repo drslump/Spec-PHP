@@ -112,7 +112,14 @@ with <code>.spec.php</code> or <code>Spec.php</code> it finds below that directo
 <dt><code>--color</code>=[<em>auto</em>|<em>yes</em>|<em>no</em>]</dt><dd><p>Tells Spec if it should use colors when printing messages. By default
 (if the option is not set) it will use the <em>auto</em> mode, which will try
 to detect if it's safe to use ansi color sequences.</p></dd>
-<dt><code>-f</code> <em>format</em>, <code>--format</code>=<em>format</em></dt><dd><p>The formatter to use to present the result of the tests. The default
+<dt><code>-f</code> <em>regexp</em>, <code>--filter</code>=<em>regexp</em></dt><dd><p>Runs only the tests matching the given regular expression. You can
+specify this option multiple times to build complex expressions.</p></dd>
+<dt><code>-g</code> <em>group</em>, <code>--group</code>=<em>group</em></dt><dd><p>Runs only the tests assigned to the given group or groups. Use commas
+to define multiple groups or specify this option multiple times.</p></dd>
+<dt><code>--exclude-group</code>=<em>group</em></dt><dd><p>Do not run the tests assigned to the given group or groups. Use commas
+to define multiple groups or specify this option multiple times.</p></dd>
+<dt><code>--list-group</code>=<em>group</em></dt><dd><p>Print a list of the available group names.</p></dd>
+<dt><code>--format</code>=<em>format</em></dt><dd><p>The formatter to use to present the result of the tests. The default
 formatter is <var>dots</var>, the other supported formatter is <var>story</var>.</p></dd>
 <dt class="flush"><code>-s</code></dt><dd><p>An alias for <code>--format story</code></p></dd>
 <dt><code>-b</code>, <code>--beep</code></dt><dd><p>Turn on beep-on-failures, which will issue a beep sound for each failed
@@ -140,7 +147,7 @@ it will print line numbers too.</p></dd>
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'>Ivan -DrSlump- Montes</li>
-    <li class='tc'>March 2011</li>
+    <li class='tc'>April 2011</li>
     <li class='tr'>spec4php(1)</li>
   </ol>
 
