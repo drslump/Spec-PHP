@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "SPEC4PHP" "1" "March 2011" "Ivan -DrSlump- Montes" "Spec for PHP "
+.TH "SPEC4PHP" "1" "April 2011" "Ivan -DrSlump- Montes" "Spec for PHP "
 .
 .SH "NAME"
 \fBspec4php\fR \- cli runner
@@ -44,7 +44,23 @@ Enables debug mode\. Stack traces will be shown unfiltered\.
 Tells Spec if it should use colors when printing messages\. By default (if the option is not set) it will use the \fIauto\fR mode, which will try to detect if it\'s safe to use ansi color sequences\.
 .
 .TP
-\fB\-f\fR \fIformat\fR, \fB\-\-format\fR=\fIformat\fR
+\fB\-f\fR \fIregexp\fR, \fB\-\-filter\fR=\fIregexp\fR
+Runs only the tests matching the given regular expression\. You can specify this option multiple times to build complex expressions\.
+.
+.TP
+\fB\-g\fR \fIgroup\fR, \fB\-\-group\fR=\fIgroup\fR
+Runs only the tests assigned to the given group or groups\. Use commas to define multiple groups or specify this option multiple times\.
+.
+.TP
+\fB\-\-exclude\-group\fR=\fIgroup\fR
+Do not run the tests assigned to the given group or groups\. Use commas to define multiple groups or specify this option multiple times\.
+.
+.TP
+\fB\-\-list\-group\fR=\fIgroup\fR
+Print a list of the available group names\.
+.
+.TP
+\fB\-\-format\fR=\fIformat\fR
 The formatter to use to present the result of the tests\. The default formatter is \fIdots\fR, the other supported formatter is \fIstory\fR\.
 .
 .TP

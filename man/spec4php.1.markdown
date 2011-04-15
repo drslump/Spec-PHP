@@ -41,7 +41,22 @@ The following options (switches) are supported.
     (if the option is not set) it will use the _auto_ mode, which will try
     to detect if it's safe to use ansi color sequences.
 
-  * `-f` _format_, `--format`=_format_:
+  * `-f` _regexp_, `--filter`=_regexp_:
+    Runs only the tests matching the given regular expression. You can
+    specify this option multiple times to build complex expressions.
+
+  * `-g` _group_, `--group`=_group_:
+    Runs only the tests assigned to the given group or groups. Use commas
+    to define multiple groups or specify this option multiple times.
+
+  * `--exclude-group`=_group_:
+    Do not run the tests assigned to the given group or groups. Use commas
+    to define multiple groups or specify this option multiple times.
+
+  * `--list-group`=_group_:
+    Print a list of the available group names.
+
+  * `--format`=_format_:
     The formatter to use to present the result of the tests. The default
     formatter is <var>dots</var>, the other supported formatter is <var>story</var>.
 

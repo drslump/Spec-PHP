@@ -67,6 +67,50 @@ class Cli
         );
 
         $main->addOption(
+            'filter',
+            array(
+                'multiple'      => true,
+                'short_name'    => '-f',
+                'long_name'     => '--filter',
+                'action'        => 'StoreArray',
+                'help_name'     => 'regexp',
+                'description'   => 'filter which tests to run (regexp)'
+            )
+        );
+
+        $main->addOption(
+            'groups',
+            array(
+                'multiple'      => true,
+                'short_name'    => '-g',
+                'long_name'     => '--group',
+                'action'        => 'StoreArray',
+                'help_name'     => 'group',
+                'description'   => 'run only this group (csv)'
+            )
+        );
+
+        $main->addOption(
+            'exclude_groups',
+            array(
+                'multiple'      => true,
+                'long_name'     => '--exclude-group',
+                'action'        => 'StoreArray',
+                'help_name'     => 'group',
+                'description'   => 'do not run this group (csv)'
+            )
+        );
+
+        $main->addOption(
+            'list_groups',
+            array(
+                'long_name'     => '--list-groups',
+                'action'        => 'StoreTrue',
+                'description'   => 'show available groups'
+            )
+        );
+
+        $main->addOption(
             'story',
             array(
                 'short_name'    => '-s',
@@ -78,7 +122,6 @@ class Cli
         $main->addOption(
             'format',
             array(
-                'short_name'    => '-f',
                 'long_name'     => '--format',
                 'action'        => 'StoreString',
                 'default'       => 'dots',
@@ -103,15 +146,6 @@ class Cli
                 'long_name'     => '--dump',
                 'action'        => 'StoreTrue',
                 'description'   => 'dump a spec file transformed to PHP',
-            )
-        );
-
-        $main->addOption(
-            'lines',
-            array(
-                'long_name'     => '--show-lines',
-                'action'        => 'StoreTrue',
-                'description'   => 'include line numbers on dump',
             )
         );
 
@@ -153,5 +187,4 @@ class Cli
             $main->displayError($exc->getMessage());
         }
     }
-
 }

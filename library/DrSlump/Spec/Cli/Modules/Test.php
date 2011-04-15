@@ -96,6 +96,21 @@ class Test
             }
         }
 
+        // Check if we just want to list the available groups
+        if (!empty($this->result->options['list_groups'])) {
+
+            print "Available test group(s):\n";
+
+            $groups = $suite->getGroups();
+            sort($groups);
+
+            foreach ($groups as $group) {
+                print " - $group\n";
+            }
+
+            exit(0);
+        }
+
         // Create a printer instance
 
         if ($this->result->options['story']) {
@@ -137,14 +152,46 @@ class Test
             );
         }
 
+        // Configure filter
+        $filter = false;
+        if (!empty($this->result->options['filter'])) {
+            // Escape delimiters in regular expression.
+            $filter = '/(' .
+                      implode(')|(', $this->result->options['filter']) .
+                      ')/i';
+        }
+
+        // Configure groups
+        $groups = array();
+        if (!empty($this->result->options['groups'])) {
+            foreach ($this->result->options['groups'] as $opt) {
+                $groups = array_merge($groups, explode(',', $opt));
+            }
+            $groups = array_map('trim', $groups);
+            $groups = array_filter($groups);
+            $groups = array_unique($groups);
+        }
+
+        // Configure excluded groups
+        $excluded = array();
+        if (!empty($this->result->options['exclude_groups'])) {
+            foreach ($this->result->options['exclude_groups'] as $opt) {
+                $excluded = array_merge($excluded, explode(',', $opt));
+            }
+            $excluded = array_map('trim', $excluded);
+            $excluded = array_filter($excluded);
+            $excluded = array_unique($excluded);
+        }
+
+
         try {
 
             // Run the suite
             $suite->run(
               $result,
-              false, //$arguments['filter'],
-              array(), //$arguments['groups'],
-              array(), //$arguments['excludeGroups'],
+              $filter,
+              $groups,
+              $excluded,
               false  //$arguments['processIsolation']
             );
 
