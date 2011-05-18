@@ -37,9 +37,9 @@ class Expect
     /** @var string */
     protected $prevMatcher;
 
-    /** @var array Words to ignore */
-    protected $ignoredWords = array(
-        'to', 'be', 'is', 'a', 'an', 'the', 'than',
+    /** @var array Words to ignore when looking for suggestions */
+    protected $specialWords = array(
+        'no', 'not', 'and', 'or', 'but'
     );
 
 
@@ -211,6 +211,11 @@ class Expect
         // Find the matcher for the given name
         $callback = Spec::matchers()->find($matcher);
         if (FALSE === $callback) {
+
+            // Remove special words from the original matcher name
+            $parts = explode('_', $name);
+            $parts = array_diff($parts, $this->specialWords);
+            $name = implode('_', $parts);
 
             $msg = "Matcher '" . str_replace('_', ' ', $name) . "' not found.";
 
