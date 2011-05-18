@@ -99,6 +99,8 @@ $matchers['be a false value'] = '\DrSlump\Spec\Matcher\False::falseValue';
 $matchers['be falsy'] = '\DrSlump\Spec\Matcher\Falsy::falsyValue';
 $matchers['be a falsy value'] = '\DrSlump\Spec\Matcher\Falsy::falsyValue';
 
+$matchers['be empty'] = '\DrSlump\Spec\Matcher\IsEmpty::emptyValue';
+$matchers['be an empty value'] = '\DrSlump\Spec\Matcher\IsEmpty::emptyValue';
 
 $matchers['contain'] = '\Hamcrest_Matchers::hasItemInArray';
 $matchers['have an item'] = '\Hamcrest_Matchers::hasItemInArray';

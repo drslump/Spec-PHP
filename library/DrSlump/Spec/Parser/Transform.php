@@ -109,7 +109,6 @@ class Transform {
             // blocks open at this point
             $unclosed = count($this->nestedBlocks);
             if ($unclosed > 0) {
-                var_dump($this->nestedBlocks);
                 throw new Exception(
                     "The end of file was reached but $unclosed blocks were found still open. " .
                     "Please make sure you've used the 'end' keyword for all blocks"
