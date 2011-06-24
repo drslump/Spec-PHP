@@ -12,7 +12,7 @@ namespace :pear do
     end
 
     # Get template contents
-    text = File.read(tpl_file)
+    text = File.read(tpl_file, :encoding => "UTF-8")
     # Replace the version, date and time
     text = text.gsub("{VERSION}", ENV['version'])
     text = text.gsub('{DATE}', Time.now.strftime('%Y-%m-%d'))
