@@ -333,13 +333,16 @@ class Spec
      */
     public static function dir($dir)
     {
-        $prefix = self::SCHEME . '://';
-        if (strpos($dir, $prefix) === 0) {
-            $dir = substr($dir, strlen($prefix));
-            $dir = realpath($dir);
+        if (strpos($dir, self::SCHEME . '://') === 0) {
+            $dir = substr($dir, strlen(self::SCHEME . '://'));
+        } else if (strpos($dir, self::SCHEME . ':') === 0) {
+            $dir = substr($dir, strlen(self::SCHEME . ':'));
         }
 
-        return strlen($dir) > 0 ? $dir : '.';
+        $dir = $dir && strlen($dir) > 0 ? $dir : '.';
+        $dir = realpath($dir);
+
+        return $dir;
     }
 
 }
