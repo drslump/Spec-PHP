@@ -286,11 +286,12 @@ class Transform {
             return false;
 
         case Token::IDENT:
+        case Token::RCURLY:
         case Token::DESCRIBE: // todo Deprecate this type
         case Token::IT:       // todo Deprecate this type
         case Token::END:      // todo Deprecate this type
             $ident = strtolower($token->value);
-            if (in_array($ident, array('describe', 'it', 'before', 'before_each', 'after', 'after_each', 'end'))) {
+            if (in_array($ident, array('describe', 'it', 'before', 'before_each', 'after', 'after_each', 'end', '}'))) {
                 $this->dumpStatement();
                 $this->transition(self::BLOCK);
                 return $token;
@@ -363,7 +364,7 @@ class Transform {
             $this->transition(self::PHP);
 
             if ($next->type !== Token::EOL) {
-                $next = $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON, Token::COLON);
+                $next = $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON, Token::COLON, Token::LCURLY);
                 if ($next->type !== Token::EOL) {
                     throw new Exception('Expected EOL but found "' . $next->value . '" at line ' . $next->line);
                 }
@@ -372,6 +373,7 @@ class Transform {
             return $next;
 
         case 'end': // Token::END
+        case '}':   // Token::RCURLY
             $this->popBlock();
             $this->write('});');
             $this->closeIndentedBlocks();
