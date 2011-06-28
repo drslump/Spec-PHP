@@ -144,6 +144,19 @@ class RunHelper
                     parent::onNotSuccessfulTest(\$e);
                 }
 
+                function __isset(\$prop) {
+                    return isset(\$this->\$prop);
+                }
+
+                function __get(\$prop) {
+                    return isset(\$this->\$prop) ? \$this->\$prop : null;
+                }
+
+                function __set(\$prop, \$value) {
+                    return \$this->\$prop = \$value;
+                }
+
+
                 $docblock
                 function $method(){
                     \$args = func_get_args();
