@@ -323,6 +323,8 @@ class TestSuite extends \PHPUnit_Framework_TestSuite
         // Try to convert it to a relative path
         if (strpos($filename, getcwd()) === 0) {
             $filename = substr($filename, strlen(getcwd()) + 1);
+        } else if (strpos($filename, './') === 0) {
+            $filename = substr($filename, strlen('./'));
         }
 
         // Use stream wrapper for spec files
