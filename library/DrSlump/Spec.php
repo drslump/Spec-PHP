@@ -56,9 +56,30 @@ class Spec
         }
 
         // Register stream wrapper for spec files
-        if (!in_array(self::SCHEME, stream_get_wrappers())) {
+        $scheme = self::SCHEME;
+        if (!in_array($scheme, stream_get_wrappers())) {
+
+            // Get loaded extensions
+            $extensions = array_merge(
+                get_loaded_extensions(),
+                get_loaded_extensions(true)
+            );
+
+            // Check if the Suhosin patch is loaded
+            if (in_array('suhosin', $extensions)) {
+                $list = ini_get('suhosin.executor.include.whitelist');
+                $list = explode(',', $list);
+                $list = array_filter(array_map('trim', $list));
+                if (!in_array($scheme, $list)) {
+                    throw new \RuntimeException(
+                        "The Suhosin patch has been detected but the custom '$scheme' scheme was not found as allowed. " .
+                        "Please review your php.ini settings to include '$scheme' in 'suhosin.executor.include.whitelist'."
+                    );
+                }
+            }
+
             stream_wrapper_register(
-                self::SCHEME,
+                $scheme,
                 __NAMESPACE__ . '\Spec\StreamWrapper'
             );
         }
