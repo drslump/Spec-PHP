@@ -184,7 +184,17 @@ class Cli
             throw new \Exception('Unsupported option');
 
         } catch (\Exception $exc) {
-            $main->displayError($exc->getMessage());
+            $msg = $exc->getMessage();
+            if ($result && ($result->options['verbose'] || $result->options['debug'])) {
+                $msg .= PHP_EOL . $exc->getTraceAsString();
+                while ($exc->getPrevious()) {
+                    $exc = $exc->getPrevious();
+                    $msg .= PHP_EOL . $exc->getMessage();
+                    $msg .= PHP_EOL . $exc->getTraceAsString();
+                }
+            }
+
+            $main->displayError($msg);
         }
     }
 }

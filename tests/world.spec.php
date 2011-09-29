@@ -1,6 +1,6 @@
 <?php
 
-describe. "World"
+describe. "World".
 
     before.
         $W->foo = array('before');
@@ -8,12 +8,20 @@ describe. "World"
 
     before_each.
         $W->foo[] = 'before_each';
+        if ($W->foo) {
+          //
+        }
     end;
 
     it. "should access initialized variables";
         $W->foo should eq array('before', 'before_each');
         // Modify the value to check if that contaminates further tests
         $W->foo[] = 'it';
+
+        if ($W->foo) {
+          //
+        }
+
     end.
 
     describe. "nested suite"

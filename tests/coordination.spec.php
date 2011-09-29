@@ -2,6 +2,8 @@
 
 describe "Coordination" {
 
+    if (1) { }
+
     it. "should coordinate with OR" {
         1 should be equal 0 or be an integer;
         1 should be less than 0 or equal 1;
@@ -12,10 +14,19 @@ describe "Coordination" {
     it. "should coordinate with AND" {
         1 should be an integer and equal 1;
         1 should equal 1 and be less than 2;
+
+
+        while (false) {
+            if (1) {
+                $b = function($foo){ };
+            }
+        }
+
         1 should be more than 0 and less than 2;
         1 should be an integer and less than 2 and equal 1;
     }
-
+}
+/*
     it. "should coordinate with BUT" {
         1 should be an integer but equal 1;
         1 should be an integer, but equal 1;
@@ -44,4 +55,4 @@ describe "Coordination" {
 
 }
 
-
+ */

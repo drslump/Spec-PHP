@@ -61,13 +61,14 @@ class Transform {
     /** @var \SplQueue */
     protected $statement;
 
-    /** @var bool */
-    protected $inBlock = false;
-
     // Indentation auto-close
     protected $endAuto = false;
     protected $isIndent = true;
     protected $indent = 0;
+
+    // Braces counters
+    protected $curlyLevel = 0;
+    protected $curlyBlocks = array();
 
     public function __construct(\Iterator $it)
     {
@@ -117,6 +118,9 @@ class Transform {
 
             //$this->indent = 0;
             //$this->closeIndentedBlocks();
+        } catch (\Exception $e) {
+            $tkn = $this->it->current();
+            throw new Exception("Unexpected exception found while parsing token $tkn->type '$tkn->value' at line $tkn->line", null, $e);
         }
 
         return $this->target;
@@ -323,7 +327,6 @@ class Transform {
         case 'after':
         case 'after_each':
 
-
             $next = $this->skip(Token::WHITESPACE, Token::DOT);
             if ($next->type === Token::LPAREN) {
                 $this->appendStatement($token);
@@ -337,7 +340,6 @@ class Transform {
             $this->closeIndentedBlocks();
 
             $this->blocks->push($value);
-            $this->inBlock = $value !== 'describe';
 
             $this->write(self::SPEC_CLASS . '::' . $value . '(');
 
@@ -364,7 +366,15 @@ class Transform {
             $this->transition(self::PHP);
 
             if ($next->type !== Token::EOL) {
-                $next = $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON, Token::COLON, Token::LCURLY);
+                $next = $this->skip(Token::WHITESPACE);
+                // If there is an open brace register the current nested braces to match the close one
+                if ($next->type === Token::LCURLY) {
+                    $this->curlyBlocks[] = $this->curlyLevel;
+                    $next = $this->skip(Token::WHITESPACE);
+                } else if ($next->type !== Token::EOL) {
+                    $next = $this->skip(Token::WHITESPACE, Token::DOT, Token::SEMICOLON, Token::COLON);
+                }
+
                 if ($next->type !== Token::EOL) {
                     throw new Exception('Expected EOL but found "' . $next->value . '" at line ' . $next->line);
                 }
@@ -372,13 +382,21 @@ class Transform {
 
             return $next;
 
-        case 'end': // Token::END
         case '}':   // Token::RCURLY
+            if (empty($this->curlyBlocks) || $this->curlyBlocks[count($this->curlyBlocks)-1] !== $this->curlyLevel) {
+                $this->curlyLevel--;
+                $this->write('}');
+                $this->transition(self::PHP);
+                return false;
+            }
+
+            array_pop($this->curlyBlocks);
+
+        case 'end': // Token::END
             $this->popBlock();
             $this->write('});');
             $this->closeIndentedBlocks();
 
-            $this->inBlock = false;
             $this->blocks->pop();
 
             $this->transition(self::PHP);
@@ -394,6 +412,7 @@ class Transform {
         switch ($token->type) {
         case Token::LCURLY:
         case Token::RCURLY:
+            $this->curlyLevel += $token->type === Token::LCURLY ? +1 : -1;
         case Token::SEMICOLON:
             $this->appendStatement($token);
             $this->dumpStatement();
