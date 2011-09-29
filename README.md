@@ -205,11 +205,11 @@ tests. This allows to make use of current PHPUnit extensions like Zend_Test
 from Zend Framework for example.
 
     # class My_TestCase
-    describe "My Test"
+    describe "My Test" {
       it "should access a method of My_TestCase"
         $this->myMethod();
       end
-    end
+    }
 
 It's even possible to use the `expect` component in PHPUnit's _native_
 test cases.
@@ -236,7 +236,7 @@ See the following Zend Framework controller for example:
             ->to_be_numeric->and_more_than(0)
             ->do();
 
-            expect($this->getParam('action')
+            expect($this->getParam('action'))
             ->to_equal('create')->or('update')->or('delete')
             ->as('Invalid action')
             ->do();

@@ -73,11 +73,11 @@
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
     <a href="#SEE-ALSO">SEE ALSO</a>
-    </div>
+  </div>
 
   <ol class='man-decor man-head man head'>
     <li class='tl'>spec4php(5)</li>
-    <li class='tc'>Spec for PHP </li>
+    <li class='tc'>Spec for PHP 0.9.3</li>
     <li class='tr'>spec4php(5)</li>
   </ol>
 
@@ -116,8 +116,8 @@ when you don't want your spec files to report errors in an IDE or when
 running the files thru a <em>linting</em> process.</p>
 
 <p>In order to transform the custom Spec syntax to valid (and runnable) PHP
-source code you'll need to use the <code>compiler</code> component of <a href="spec4php.3.html" class="man-ref">spec4php<span class="s">(3)</span></a>. The
-command line tool, <a href="spec4php.1.html" class="man-ref">spec4php<span class="s">(1)</span></a>, takes care of this process and will
+source code you'll need to use the <code>compiler</code> component of <a class="man-ref" href="spec4php.3.html">spec4php<span class="s">(3)</span></a>. The
+command line tool, <a class="man-ref" href="spec4php.1.html">spec4php<span class="s">(1)</span></a>, takes care of this process and will
 automatically transform the files. By default, Spec will register a custom
 PHP stream wrapper with the prefix <em>spec://</em> which will apply the transformation
 to any file it references.</p>
@@ -125,7 +125,7 @@ to any file it references.</p>
 <h2 id="BLOCKS">BLOCKS</h2>
 
 <p>These are the different blocks supported. All of them are to be terminated with
-the <code>end</code> keyword.</p>
+the <code>end</code> keyword or enclosed in curly braces.</p>
 
 <dl>
 <dt><code>describe</code> "<var>description</var>"</dt><dd><p>This block allows to define a group of tests. These blocks can be
@@ -179,9 +179,9 @@ quotes (single or double) or between angle brackets (&lt;>) will be made
 available inside the code block with variables named <code>$argX</code>, where X
 is an integer count starting at 1.</p>
 
-<pre><code>it "should multiply '100' by '10' and return &lt;1000>"
+<pre><code>it "should multiply '100' by '10' and return &lt;1000>" {
     $arg1 * $arg2 should equal $arg3;
-end
+}
 </code></pre>
 
 <p>This feature is specially suited to create <em>dynamic</em> tests, something that
@@ -227,9 +227,9 @@ when tests are executed in a different order or skipped for some reason.</p>
         $W-&gt;foo .= 'baz';
     end
 
-    it "should get an initialized world"
+    it "should get an initialized world" {
         $W-&gt;foo should equal "barbaz";
-    end
+    }
 end
 </code></pre>
 
@@ -406,9 +406,9 @@ for a <code>describe</code> or <code>it</code> block, like in the following exam
 
 <pre><code># class Zend_Test_PHPUnit_ControllerTestCase
 describe "Calculator"
-  it "should multiply"
+  it "should multiply" {
     (1*3) should equal 3;
-  end
+  }
 
   // @class PHPUnit_Framework_TestCase
   it "should divide"
@@ -430,13 +430,13 @@ to specify it for each test.</p>
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
-<p><a href="spec4php.1.html" class="man-ref">spec4php<span class="s">(1)</span></a>, <a href="spec4php.3.html" class="man-ref">spec4php<span class="s">(3)</span></a>,
+<p><a class="man-ref" href="spec4php.1.html">spec4php<span class="s">(1)</span></a>, <a class="man-ref" href="spec4php.3.html">spec4php<span class="s">(3)</span></a>,
 <a href="http://github.com/drslump/spec-php" data-bare-link="true">http://github.com/drslump/spec-php</a></p>
 
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'>Ivan -DrSlump- Montes</li>
-    <li class='tc'>April 2011</li>
+    <li class='tc'>September 2011</li>
     <li class='tr'>spec4php(5)</li>
   </ol>
 

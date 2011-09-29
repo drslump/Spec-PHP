@@ -41,7 +41,7 @@ to any file it references.
 ## BLOCKS
 
 These are the different blocks supported. All of them are to be terminated with
-the `end` keyword.
+the `end` keyword or enclosed in curly braces.
 
   * `describe` "<var>description</var>":
     This block allows to define a group of tests. These blocks can be
@@ -104,9 +104,9 @@ quotes (single or double) or between angle brackets (<>) will be made
 available inside the code block with variables named `$argX`, where X
 is an integer count starting at 1.
 
-    it "should multiply '100' by '10' and return <var>1000</var>"
+    it "should multiply '100' by '10' and return <var>1000</var>" {
         $arg1 * $arg2 should equal $arg3;
-    end
+    }
 
 This feature is specially suited to create _dynamic_ tests, something that
 is a bit more difficult with other testing frameworks. Since test code blocks
@@ -151,9 +151,9 @@ when tests are executed in a different order or skipped for some reason.
             $W->foo .= 'baz';
         end
 
-        it "should get an initialized world"
+        it "should get an initialized world" {
             $W->foo should equal "barbaz";
-        end
+        }
     end
 
 
@@ -334,9 +334,9 @@ for a `describe` or `it` block, like in the following example:
 
     # class Zend_Test_PHPUnit_ControllerTestCase
     describe "Calculator"
-      it "should multiply"
+      it "should multiply" {
         (1*3) should equal 3;
-      end
+      }
 
       // @class PHPUnit_Framework_TestCase
       it "should divide"
