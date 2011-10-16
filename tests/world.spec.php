@@ -24,7 +24,7 @@ describe. "World".
 
     end.
 
-    describe. "nested suite"
+    context. "nested suite"
 
         before.
             $W->foo[] = 'nested_before';
@@ -34,7 +34,7 @@ describe. "World".
             $W->foo[] = 'nested_before_each';
         end;
 
-        it. "should inherit variables from parent suite";
+        specify. "should inherit variables from parent suite";
             $W->foo should eq array(
                 'before',
                 'nested_before',

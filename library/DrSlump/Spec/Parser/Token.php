@@ -38,8 +38,6 @@ class Token extends \ArrayIterator
     const VARIABLE      = 'VARIABLE';
     const IDENT         = 'IDENT';
     const FUNCTIONCALL  = 'FUNCTIONCALL';
-    const DESCRIBE      = 'DESCRIBE';
-    const IT            = 'IT';
     const SHOULD        = 'SHOULD';
     const END           = 'END';
 

@@ -163,7 +163,6 @@ class Transform {
         } else {
             $this->isIndent = false;
         }
-
         return $token;
     }
 
@@ -291,11 +290,8 @@ class Transform {
 
         case Token::IDENT:
         case Token::RCURLY:
-        case Token::DESCRIBE: // todo Deprecate this type
-        case Token::IT:       // todo Deprecate this type
-        case Token::END:      // todo Deprecate this type
             $ident = strtolower($token->value);
-            if (in_array($ident, array('describe', 'it', 'before', 'before_each', 'after', 'after_each', 'end', '}'))) {
+            if (in_array($ident, array('describe', 'context', 'it', 'specify', 'before', 'before_each', 'after', 'after_each', 'end', '}'))) {
                 $this->dumpStatement();
                 $this->transition(self::BLOCK);
                 return $token;
@@ -314,10 +310,14 @@ class Transform {
 
     public function stateBlock(Token $token)
     {
-        $value = strtolower($token->value);
+        $lval = strtolower($token->value);
         $hasMessage = false;
 
-        switch ($value) {
+        // Convert aliases
+        if ($lval === 'context') $lval = 'describe';
+        if ($lval === 'specify') $lval = 'it';
+
+        switch ($lval) {
         case 'describe':
         case 'it':
             $hasMessage = true;
@@ -339,9 +339,9 @@ class Transform {
 
             $this->closeIndentedBlocks();
 
-            $this->blocks->push($value);
+            $this->blocks->push($lval);
 
-            $this->write(self::SPEC_CLASS . '::' . $value . '(');
+            $this->write(self::SPEC_CLASS . '::' . $lval . '(');
 
             $args = array('$W');
             if ($hasMessage && $next->type !== Token::QUOTED) {
@@ -392,7 +392,7 @@ class Transform {
 
             array_pop($this->curlyBlocks);
 
-        case 'end': // Token::END
+        case 'end':
             $this->popBlock();
             $this->write('});');
             $this->closeIndentedBlocks();
@@ -409,6 +409,8 @@ class Transform {
 
     public function stateStatement(Token $token)
     {
+        $lval = strtolower($token->value);
+
         switch ($token->type) {
         case Token::LCURLY:
         case Token::RCURLY:
@@ -422,7 +424,7 @@ class Transform {
         case Token::DOT:
             // check if it' just before a "should" token
             $next = $this->skip(Token::WHITESPACE, Token::EOL);
-            if ($next->type === Token::SHOULD) {
+            if ($next->type === Token::IDENT && strtolower($next->value) === 'should') {
                 // Replace it with a single whitespace
                 $token = new Token(Token::WHITESPACE, ' ');
                 $this->appendStatement($token);
@@ -433,12 +435,12 @@ class Transform {
             return $next;
 
 
-        case Token::TEXT && $token->value === '__DIR__':
+        case $token->value === '__DIR__':
             $token->value = self::SPEC_CLASS . '::dir(__DIR__)';
             $this->appendStatement($token);
             return false;
 
-        case Token::SHOULD:
+        case $lval === 'should':
 
             // Flush captured non-statement tokens
             while (!$this->statement->isEmpty()) {
@@ -461,20 +463,18 @@ class Transform {
             $this->transition(self::SHOULD);
             return false;
 
-        case Token::VARIABLE:
-            if ($token->value === '$this') {
-                switch (strtoupper($this->blocks->top())) {
-                case 'DESCRIBE':
-                case 'BEFORE':
-                case 'AFTER':
-                    $token->value = self::SPEC_CLASS . '::suite()';
-                    break;
-                case 'BEFORE_EACH':
-                case 'AFTER_EACH':
-                case 'IT':
-                    $token->value = self::SPEC_CLASS . '::test()';
-                    break;
-                }
+        case $lval === '$this':
+            switch (strtoupper($this->blocks->top())) {
+            case 'DESCRIBE':
+            case 'BEFORE':
+            case 'AFTER':
+                $token->value = self::SPEC_CLASS . '::suite()';
+                break;
+            case 'BEFORE_EACH':
+            case 'AFTER_EACH':
+            case 'IT':
+                $token->value = self::SPEC_CLASS . '::test()';
+                break;
             }
 
         default:
@@ -492,6 +492,8 @@ class Transform {
     public function stateShould(Token $token)
     {
         static $eol = 0;
+
+        $lval = strtolower($token->value);
 
         switch ($token->type) {
         case Token::EOL:
@@ -534,31 +536,30 @@ class Transform {
             $this->transition(self::PHP);
             return false;
 
-        case Token::END:
+        case $lval === 'end':
             $this->Write('->do();') . str_repeat("\n", $eol);
             $eol = 0;
             $this->transition(self::PHP);
             return $token;
 
         // Check operators
-        case $token->type === Token::TEXT &&
-             array_key_exists($token->value, $this->comparisonOps):
+        case array_key_exists($lval, $this->comparisonOps):
 
-            $this->write($this->comparisonOps[$token->value] . '_');
+            $this->write($this->comparisonOps[$lval] . '_');
             return false;
 
         // Logical operators
-        case in_array(strtolower($token->value), array('and', 'or', 'but', 'as')):
+        case in_array($lval, array('and', 'or', 'but', 'as')):
 
             $this->write('->' . $token->value . '_');
             return false;
 
-        case strtolower($token->value) === 'described':
+        case $lval === 'described':
             // Ignore this token, it should always come before "as"
             return false;
 
         // Handle array(...) with a special case
-        case strtolower($token->value) === 'array':
+        case $lval === 'array':
 
             $token = $this->skip(Token::WHITESPACE);
             if ($token->type === Token::LPAREN) {
@@ -570,9 +571,7 @@ class Transform {
             }
             return $token;
 
-        case Token::IDENT:
-        case $token->type === Token::TEXT &&
-             preg_match('/^[A-Z_]+$/i', $token->value):
+        case 1 === preg_match('/^[a-z_]+$/', $lval):
 
             // plain words parsed as text or idents
             $this->write($token->value . '_');
@@ -598,6 +597,8 @@ class Transform {
 
         while (true) {
 
+            $lval = strtolower($token->value);
+
             // check if we need to inject parens
             if ($autoParens === NULL) {
                 $autoParens = $token->type !== Token::LPAREN;
@@ -605,7 +606,6 @@ class Transform {
             }
 
             switch ($token->type) {
-
             // Control parens nesting
             case Token::LPAREN:
                 $parens++;
@@ -624,22 +624,22 @@ class Transform {
                 }
                 continue 2;
 
-            case Token::TEXT && strtolower($token->value) === 'or':
-            case Token::TEXT && strtolower($token->value) === 'and':
-            case Token::TEXT && strtolower($token->value) === 'but':
-            case Token::TEXT && strtolower($token->value) === 'as':
+            case $lval === 'or':
+            case $lval === 'and':
+            case $lval === 'but':
+            case $lval === 'as':
+            case $lval === 'end':
             case Token::EOL:
             case Token::IDENT:
             case Token::COMMA:
             case Token::SEMICOLON:
-            case Token::END:
                 if ($parens === 0) {
                     if ($autoParens) $this->write(')');
                     return $token;
                 }
             }
 
-            // Write everything as parameter expression
+            // Write everything as a parameter expression
             $this->write($token->value);
 
             // Skip whitespace

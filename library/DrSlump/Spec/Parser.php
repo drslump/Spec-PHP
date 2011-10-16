@@ -25,9 +25,7 @@ class Parser
     {
         $tokens = token_get_all($data);
 
-        // Order is important!
         $it = new Parser\TokenIterator($tokens, $tabsize);
-        $it = new Parser\DetectKeywordsTokenIterator($it);
 
         $php = Parser\Transform::transform($it);
         return $php;
