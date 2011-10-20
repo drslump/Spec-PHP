@@ -75,6 +75,10 @@ describe. "Spec matchers".
             new \ArrayObject() should be object;
             new \stdClass() should be of type 'object';
             new \stdClass() should be truthy;
+
+            new \SplStack() should be an instance of 'SplStack';
+            new \DrSlump\Spec\TestSuite() should be instanceof '\DrSlump\Spec\TestSuite';
+
         end.
 
         it. "should support nulls".
@@ -177,7 +181,57 @@ describe. "Spec matchers".
             3 should > 1;
 
         end.
+
+        it "checks value"
+            null should be a null value;
+            null should be nil;
+            null should be null;
+
+            true should be true;
+            true should be a true value;
+
+            false should be false;
+            false should be a false value;
+
+            1 should be truthy;
+            1 should be truly;
+            0 should be falsy;
+        end
+
+        it "checks collections"
+            $collection = array('a'=>1, 'b'=>2, 'c'=>3);
+
+            $collection should have a length of 3;
+            $collection should count 3;
+
+            $collection should contain 2;
+            $collection should have an item 2;
+            $collection should have an item like 2;
+
+            $collection should contain key 'b';
+            $collection should have the key 'b';
+        end
+
     end.
+
+    describe "Emptiness"
+        it "checks empty value"
+            null should be empty;
+            0 should be empty;
+            false should be an empty value;
+            array() should be empty;
+            '' should be empty;
+            10 should not be empty;
+        end
+
+        it "checks empty string"
+            '' should be an empty string;
+        end
+
+        it "checks empty array"
+            array() should be an empty array
+        end
+    end
 
     describe. "Callback matchers".
         it "checks odd matcher"

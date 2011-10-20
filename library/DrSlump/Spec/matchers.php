@@ -109,6 +109,13 @@ $matchers['have an item like'] = '\Hamcrest_Matchers::hasItemInArray';
 $matchers['contain the key'] = '\Hamcrest_Matchers::hasKeyInArray';
 $matchers['have the key'] = '\Hamcrest_Matchers::hasKeyInArray';
 
+$matchers['have a length of'] = '\Hamcrest_Matchers::arrayWithSize';
+$matchers['have a count of'] = '\Hamcrest_Matchers::arrayWithSize';
+$matchers['count'] = '\Hamcrest_Matchers::arrayWithSize';
+
+// TODO: Define the rest of Hamcrest's collection related matchers
+
+
 
 // Example matcher with callback
 $matchers->register(
