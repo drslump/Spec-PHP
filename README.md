@@ -64,7 +64,7 @@ _alpha_ quality software for the time being.
 ## Requirements
 
  - PHP 5.3
- - PHPUnit 3 (only tested with 3.5)
+ - PHPUnit 3 (**Only supports 3.5, a version supporting 3.6 is in progress**)
  - Hamcrest matchers library
  - PHP Object_Freezer 1.0.0
 
