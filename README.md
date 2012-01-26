@@ -64,7 +64,7 @@ _alpha_ quality software for the time being.
 ## Requirements
 
  - PHP 5.3
- - PHPUnit 3 (**Only supports 3.5, a version supporting 3.6 is in progress**)
+ - PHPUnit 3 (**Only supports 3.5.15, a version supporting 3.6 is in progress**)
  - Hamcrest matchers library
  - PHP Object_Freezer 1.0.0
 
@@ -74,7 +74,7 @@ _alpha_ quality software for the time being.
 Install a recent version of PHPUnit and PHP Object_Freezer
 
     pear channel-discover pear.phpunit.de
-    pear install phpunit/PHPUnit
+    pear install phpunit/PHPUnit-3.5.15
     pear install phpunit/Object_Freezer
 
 Install Hamcrest matchers library
