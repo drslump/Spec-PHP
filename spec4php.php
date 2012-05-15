@@ -10,8 +10,15 @@
 
 
 // Include this file into CodeCoverage's blacklist
+require_once 'PHPUnit/Autoload.php';
 require_once 'PHP/CodeCoverage/Filter.php';
-PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist(__FILE__, 'PHPUNIT');
+$phpunitVersion = \PHPUnit_Runner_Version::id();
+if (version_compare($phpunitVersion, '3.6.0') == -1) {
+    $filter = \PHP_CodeCoverage_Filter::getInstance();
+} else {
+    $filter = new \PHP_CodeCoverage_Filter;
+}
+$filter->addFileToBlacklist(__FILE__, 'PHPUNIT');
 
 if (extension_loaded('xdebug')) {
     xdebug_disable();
