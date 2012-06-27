@@ -10,6 +10,11 @@
 
 use DrSlump\Spec;
 
+// Include Hamcrest core library
+require_once 'Hamcrest/Core/AnyOf.php';
+require_once 'Hamcrest/Core/AllOf.php';
+require_once 'Hamcrest/Core/Every.php';
+require_once 'Hamcrest/Core/IsCollectionContaining.php';
 // Include Hamcrest matchers library
 require_once 'Hamcrest/MatcherAssert.php';
 require_once 'Hamcrest/Matchers.php';
@@ -77,8 +82,8 @@ $matchers['be a scalar'] = '\Hamcrest_Matchers::scalarValue';
 $matchers['be a scalar value'] = '\Hamcrest_Matchers::scalarValue';
 $matchers['be numeric'] = '\Hamcrest_Matchers::numericValue';
 $matchers['be a numeric value'] = '\Hamcrest_Matchers::numericValue';
-$matchers['be callable'] = '\Hamcrest_Matchers::callable';
-$matchers['be a callable value'] = '\Hamcrest_Matchers::callable';
+$matchers['be callable'] = '\Hamcrest_Matchers::callableValue';
+$matchers['be a callable value'] = '\Hamcrest_Matchers::callableValue';
 
 $matchers['be a null'] = '\Hamcrest_Matchers::nullValue';
 $matchers['be a null value'] = '\Hamcrest_Matchers::nullValue';
