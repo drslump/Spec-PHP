@@ -93,9 +93,9 @@ class RunHelper
         }
 
         // Compute meaningful class and method names
-        $class = 'describe_' . preg_replace('/[^A-Z0-9_]+/i', '_', $suite->getTitle())
+        $class = 'describe_' . preg_replace('/[^A-Z0-9_\x7f-\xff]+/i', '_', $suite->getTitle())
                  . '_' . (self::$evalClassCounter++);
-        $method = 'it_' . preg_replace('/[^A-Z0-9_]+/i', '_', $title);
+        $method = 'it_' . preg_replace('/[^A-Z0-9_\x7f-\xff]+/i', '_', $title);
 
         // Generate docblock with all the annotations found
         $docblock = "    /**\n";
