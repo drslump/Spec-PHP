@@ -10,6 +10,7 @@
 namespace DrSlump\Spec\Cli;
 
 use DrSlump\Spec;
+use DrSlump\Spec\Coverage\Filter;
 
 /**
  * Extends a PHPUnit Result Printer to adapt it for Spec
@@ -252,12 +253,7 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
         $offending = null;
         $stacktrace = array();
         $groups = $this->debug ? array() : array('DEFAULT', 'PHPUNIT');
-        $phpunitVersion = \PHPUnit_Runner_Version::id();
-        if (version_compare($phpunitVersion, '3.6.0') == -1) {
-            $filter = \PHP_CodeCoverage_Filter::getInstance();
-        } else {
-            $filter = new \PHP_CodeCoverage_Filter;
-        }
+        $filter = Filter::getInstance();
         foreach ($trace as $frame) {
             if (isset($frame['file']) && isset($frame['line']) &&
                 !$filter->isFiltered($frame['file'], $groups, TRUE)) {
