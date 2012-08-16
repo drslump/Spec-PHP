@@ -11,14 +11,6 @@
 
 // Include this file into CodeCoverage's blacklist
 require_once 'PHPUnit/Autoload.php';
-require_once 'PHP/CodeCoverage/Filter.php';
-$phpunitVersion = \PHPUnit_Runner_Version::id();
-if (version_compare($phpunitVersion, '3.6.0') == -1) {
-    $filter = \PHP_CodeCoverage_Filter::getInstance();
-} else {
-    $filter = new \PHP_CodeCoverage_Filter;
-}
-$filter->addFileToBlacklist(__FILE__, 'PHPUNIT');
 
 if (extension_loaded('xdebug')) {
     xdebug_disable();
@@ -28,6 +20,10 @@ if (extension_loaded('xdebug')) {
 if (strpos('@php_bin@', '@php_bin') === 0) {
     set_include_path(__DIR__ . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR . get_include_path());
 }
+
+require_once 'DrSlump/Spec/Coverage/Filter.php';
+$filter = DrSlump\Spec\Coverage\Filter::getInstance();
+$filter->addFileToBlacklist(__FILE__, 'PHPUNIT');
 
 require_once 'DrSlump/Spec.php';
 
