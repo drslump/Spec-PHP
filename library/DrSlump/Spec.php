@@ -86,12 +86,7 @@ class Spec
 
         // Black list Spec files for PHPUnit
         if (class_exists('\PHP_CodeCoverage_Filter', false)) {
-            $phpunitVersion = \PHPUnit_Runner_Version::id();
-            if (version_compare($phpunitVersion, '3.6.0') == -1) {
-                $filter = \PHP_CodeCoverage_Filter::getInstance();
-            } else {
-                $filter = new \PHP_CodeCoverage_Filter;
-            }
+            $filter = Spec\Coverage\Filter::getInstance();
 
             $filter->addFileToBlacklist(__FILE__, 'PHPUNIT');
             $filter->addDirectoryToBlacklist(
