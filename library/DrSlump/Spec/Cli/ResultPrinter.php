@@ -185,7 +185,7 @@ class ResultPrinter extends \PHPUnit_TextUI_ResultPrinter implements \PHPUnit_Fr
             $str = sprintf($str, $result->failureCount()+$result->errorCount(), $result->count());
         }
 
-        if (!$result->allCompletlyImplemented()) {
+        if (!$result->allCompletelyImplemented()) {
             $pair = array();
             if ($result->notImplementedCount() > 0) {
                 $pair[] = $result->notImplementedCount() . ' not implemented';
